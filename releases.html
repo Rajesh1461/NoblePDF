@@ -6,15 +6,42 @@
     <title>Releases - Noble PDF</title>
     <link rel="icon" href="/assets/images/favicon.svg">
     <script src="/assets/js/layout.js" defer></script>
+    <style>
+        .hero { background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); padding: 64px 0; border-bottom: 1px solid #e5e7eb; }
+        .hero h1 { margin: 0; font-weight: 700; }
+        .page { max-width: 960px; margin: -40px auto 64px auto; padding: 24px; }
+        .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,.04); padding: 24px; }
+        .section { margin-top: 24px; }
+        .section h2 { font-size: 1.25rem; margin-bottom: 8px; }
+        .muted { color:#6b7280; }
+    </style>
 </head>
 <body>
-    <main class="container my-4">
-        <h1>Releases</h1>
-        <p>Latest release notes and change logs for Noble PDF.</p>
-        <section>
-            <h2>Latest</h2>
-            <p>See our GitHub releases for detailed notes.</p>
-        </section>
+    <header class="hero">
+        <div class="container">
+            <h1>Releases</h1>
+            <p class="muted">Latest release notes and change logs for Noble PDF.</p>
+        </div>
+    </header>
+    <main class="page">
+        <div class="card">
+            <section class="section">
+                <h2>Latest</h2>
+                <p class="muted">See our GitHub releases for detailed notes. Each version includes new features, performance improvements, and bug fixes.</p>
+            </section>
+            <section class="section">
+                <h2>Versioning Policy</h2>
+                <p class="muted">We follow semantic versioning (MAJOR.MINOR.PATCH). Breaking changes increment MAJOR, new features increment MINOR, and fixes increment PATCH.</p>
+            </section>
+            <section class="section">
+                <h2>Changelog Highlights</h2>
+                <ul class="muted">
+                    <li>Performance and stability improvements</li>
+                    <li>New PDF tools and UI refinements</li>
+                    <li>Accessibility and localization updates</li>
+                </ul>
+            </section>
+        </div>
     </main>
 </body>
 </html>

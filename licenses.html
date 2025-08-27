@@ -6,19 +6,38 @@
     <title>Licenses - Noble PDF</title>
     <link rel="icon" href="/assets/images/favicon.svg">
     <script src="/assets/js/layout.js" defer></script>
+    <style>
+        .hero { background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); padding: 64px 0; border-bottom: 1px solid #e5e7eb; }
+        .hero h1 { margin: 0; font-weight: 700; }
+        .page { max-width: 960px; margin: -40px auto 64px auto; padding: 24px; }
+        .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,.04); padding: 24px; }
+        .section { margin-top: 24px; }
+        .section h2 { font-size: 1.25rem; margin-bottom: 8px; }
+        .muted { color:#6b7280; }
+    </style>
 </head>
 <body>
-    <main class="container my-4">
-        <h1>Licenses</h1>
-        <p>Open-source licenses and attributions for Noble PDF and bundled assets.</p>
-        <section>
-            <h2>Project License</h2>
-            <p>This project is licensed under the MIT License unless otherwise specified.</p>
-        </section>
-        <section>
-            <h2>Third-party Notices</h2>
-            <p>Third-party libraries and their respective licenses are acknowledged here.</p>
-        </section>
+    <header class="hero">
+        <div class="container">
+            <h1>Licenses</h1>
+            <p class="muted">Open-source licenses and attributions for Noble PDF and bundled assets.</p>
+        </div>
+    </header>
+    <main class="page">
+        <div class="card">
+            <section class="section">
+                <h2>Project License</h2>
+                <p class="muted">This project is licensed under the MIT License unless otherwise specified. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies, subject to the License terms.</p>
+            </section>
+            <section class="section">
+                <h2>Third-party Notices</h2>
+                <p class="muted">We acknowledge the open-source libraries used within the project and their respective licenses. For a full list, see the repository license directory or credits section.</p>
+            </section>
+            <section class="section">
+                <h2>Trademarks</h2>
+                <p class="muted">All product names, logos, and brands are property of their respective owners. Use of these names does not imply endorsement.</p>
+            </section>
+        </div>
     </main>
 </body>
 </html>

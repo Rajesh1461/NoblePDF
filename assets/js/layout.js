@@ -73,11 +73,12 @@
 
   function buildFooterHtml() {
     var isHttp = (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+    var origin = window.location.origin || '';
     var path = window.location.pathname || '/';
     var parts = path.split('/').filter(Boolean);
     var depth = Math.max(parts.length - 1, 0);
     var up = depth > 0 ? new Array(depth + 1).join('../') : '';
-    function href(p){ return isHttp ? ('/' + p) : (up + p); }
+    function href(p){ return isHttp ? (origin + '/' + p) : (up + p); }
     return (
       '<footer class="footer-pad footer-solid" role="contentinfo" aria-label="Footer" style="height:48px;">' +
         '<div class="footer-content">' +
@@ -127,25 +128,30 @@
       }
     }
 
-    // Append footer if not present
-    if (!document.querySelector('footer.footer-pad.footer-solid')) {
-      var f = document.createElement('div');
-      f.innerHTML = buildFooterHtml();
-      document.body.appendChild(f.firstChild);
-      // Ensure footer links navigate even if some global handlers block default
-      try {
-        document.querySelectorAll('footer.footer-pad.footer-solid nav a[href]').forEach(function(a){
-          a.addEventListener('click', function(e){
-            var href = a.getAttribute('href');
-            if (href && !/^javascript:/i.test(href)) {
-              e.stopPropagation();
-              // Do not preventDefault; just ensure navigation happens
-              setTimeout(function(){ window.location.href = href; }, 0);
-            }
-          }, { capture: true });
-        });
-      } catch(_) {}
+    // Ensure footer exists and has correct links (replace any placeholder/footer with # links)
+    var existingFooter = document.querySelector('footer.footer-pad.footer-solid');
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = buildFooterHtml();
+    var newFooter = wrapper.firstChild;
+    if (existingFooter) {
+      try { existingFooter.replaceWith(newFooter); } catch(_) { document.body.appendChild(newFooter); }
+    } else {
+      document.body.appendChild(newFooter);
     }
+    // Ensure footer links navigate even if some global handlers block default
+    try {
+      document.querySelectorAll('footer.footer-pad.footer-solid nav a[href]').forEach(function(a){
+        a.setAttribute('target','_self');
+        a.addEventListener('click', function(e){
+          var href = a.getAttribute('href');
+          if (href && !/^javascript:/i.test(href)) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.assign(href);
+          }
+        }, { capture: true });
+      });
+    } catch(_) {}
   }
 
   function ensureVisibility() {
@@ -290,6 +296,8 @@
       var lang = url.searchParams.get('lang');
       if (!lang) return;
       document.querySelectorAll('a[href]').forEach(function(a){
+        // Skip footer links to avoid rewriting absolute paths
+        if (a.closest('footer.footer-pad')) return;
         var href = a.getAttribute('href');
         if (!href) return;
         if (/^(mailto:|tel:|#|javascript:)/i.test(href)) return;

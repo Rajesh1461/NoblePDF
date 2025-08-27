@@ -6,15 +6,34 @@
     <title>Survey - Noble PDF</title>
     <link rel="icon" href="/assets/images/favicon.svg">
     <script src="/assets/js/layout.js" defer></script>
+    <style>
+        .hero { background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); padding: 64px 0; border-bottom: 1px solid #e5e7eb; }
+        .hero h1 { margin: 0; font-weight: 700; }
+        .page { max-width: 960px; margin: -40px auto 64px auto; padding: 24px; }
+        .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,.04); padding: 24px; }
+        .section { margin-top: 24px; }
+        .section h2 { font-size: 1.25rem; margin-bottom: 8px; }
+        .muted { color:#6b7280; }
+    </style>
 </head>
 <body>
-    <main class="container my-4">
-        <h1>User Survey</h1>
-        <p>Help us improve Noble PDF by answering a few quick questions.</p>
-        <section>
-            <h2>Coming Soon</h2>
-            <p>Our survey will be embedded here.</p>
-        </section>
+    <header class="hero">
+        <div class="container">
+            <h1>User Survey</h1>
+            <p class="muted">Help us improve Noble PDF by answering a few quick questions.</p>
+        </div>
+    </header>
+    <main class="page">
+        <div class="card">
+            <section class="section">
+                <h2>Coming Soon</h2>
+                <p class="muted">Our survey will be embedded here. We typically ask about the tools you use most, performance on your device, and features you'd like to see next.</p>
+            </section>
+            <section class="section">
+                <h2>How We Use Feedback</h2>
+                <p class="muted">Feedback is aggregated to guide our roadmap. We prioritize reliability, speed, accessibility, and requested tools.</p>
+            </section>
+        </div>
     </main>
 </body>
 </html>
