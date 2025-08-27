@@ -57,11 +57,14 @@
             '<span>View/Edit PDF</span>' +
           '</a>' +
           '<div class="ms-auto d-flex align-items-center gap-3 top-quick-icons">' +
-            '<span class="material-symbols-rounded" title="Favorites">star</span>' +
-            '<span class="material-symbols-rounded" title="Theme">light_mode</span>' +
-            '<span class="material-symbols-rounded" title="Language">language</span>' +
-            '<span class="material-symbols-rounded" title="Search">search</span>' +
-            '<span class="material-symbols-rounded" title="Settings">settings</span>' +
+            '<span id="quick-favorites" class="material-symbols-rounded" title="Favorites">star</span>' +
+            '<span id="quick-theme" class="material-symbols-rounded" title="Theme">light_mode</span>' +
+            '<div class="dropdown" style="display:inline-block;">' +
+              '<span id="quick-language" class="material-symbols-rounded" title="Language" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">language</span>' +
+              '<ul class="dropdown-menu dropdown-menu-end" id="languageSelection" aria-labelledby="quick-language" style="max-height: 320px; overflow:auto; min-width: 18rem;"></ul>' +
+            '</div>' +
+            '<span id="quick-search" class="material-symbols-rounded" title="Search">search</span>' +
+            '<span id="quick-settings" class="material-symbols-rounded" title="Settings">settings</span>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -79,17 +82,17 @@
               '<span>Noble PDF</span>' +
             '</div>' +
             '<nav aria-label="Footer navigation" class="d-flex flex-wrap align-items-center" style="gap: 12px;">' +
-              '<a href="#">Licenses</a>' +
+              '<a href="/licenses.html">Licenses</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="#">Releases</a>' +
+              '<a href="/releases.html">Releases</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="#">Survey</a>' +
+              '<a href="/survey.html">Survey</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="#">Privacy Policy</a>' +
+              '<a href="/privacy-policy.html">Privacy Policy</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="#">Terms and Conditions</a>' +
+              '<a href="/terms-and-conditions.html">Terms and Conditions</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="#">Cookie Preferences</a>' +
+              '<a href="/cookie-preferences.html">Cookie Preferences</a>' +
             '</nav>' +
           '</div>' +
         '</div>' +
@@ -133,10 +136,84 @@
     } catch(_) {}
   }
 
+  // Minimal SEO fallback for tool subpages (ensures title/description exist)
+  function ensureBasicSeo() {
+    try {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      // Title
+      if (!document.title || document.title.trim() === '') {
+        document.title = 'Noble PDF — Online PDF Tools';
+      }
+      // Description
+      if (!document.querySelector('meta[name="description"]')) {
+        var m = document.createElement('meta');
+        m.name = 'description';
+        m.content = 'Free online PDF tools: merge, split, compress, convert, OCR, sign, protect and edit PDFs. Privacy-first and fast.';
+        head.appendChild(m);
+      }
+      // Robots default index,follow
+      if (!document.querySelector('meta[name="robots"]')) {
+        var r = document.createElement('meta');
+        r.name = 'robots';
+        r.content = 'index, follow';
+        head.appendChild(r);
+      }
+      // Canonical
+      if (!document.querySelector('link[rel="canonical"]')) {
+        var c = document.createElement('link');
+        c.rel = 'canonical';
+        c.href = window.location.origin + window.location.pathname;
+        head.appendChild(c);
+      }
+    } catch(_) {}
+  }
+
+  // Add hreflang alternates for supported languages if language codes are available
+  function ensureHreflangAlternates() {
+    try {
+      if (typeof supportedLanguages === 'undefined' || !Array.isArray(supportedLanguages) || supportedLanguages.length === 0) return;
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var origin = window.location.origin;
+      var path = window.location.pathname;
+      var url = new URL(window.location.href);
+      var existing = new Set([].map.call(document.querySelectorAll('link[rel="alternate"][hreflang]'), function(l){ return l.getAttribute('hreflang'); }));
+      supportedLanguages.forEach(function(code){
+        var langParam = code;
+        var hrefUrl = new URL(origin + path);
+        hrefUrl.searchParams.set('lang', langParam);
+        var hreflang = code.replace('_','-');
+        if (!existing.has(hreflang)) {
+          var link = document.createElement('link');
+          link.rel = 'alternate';
+          link.hreflang = hreflang;
+          link.href = hrefUrl.toString();
+          head.appendChild(link);
+        }
+      });
+      // x-default
+      if (!document.querySelector('link[rel="alternate"][hreflang="x-default"]')) {
+        var xdef = document.createElement('link');
+        xdef.rel = 'alternate';
+        xdef.hreflang = 'x-default';
+        var base = new URL(origin + path);
+        base.searchParams.delete('lang');
+        xdef.href = base.toString();
+        head.appendChild(xdef);
+      }
+    } catch(_) {}
+  }
+
   function init() {
     ensureCssLinks();
     injectLayout();
     ensureVisibility();
+    ensureBasicSeo();
+    ensureHreflangAlternates();
+    ensureLanguageScripts();
+    syncLanguageParamAndAttrs();
+    appendLangToLinks();
+    setupQuickNavHandlers();
+    buildLanguageMenu();
   }
 
   if (document.readyState === 'loading') {
@@ -144,6 +221,132 @@
   } else {
     init();
   }
+})();
+
+// Language utilities injected globally for non-home pages
+(function(){
+  function addOnceScript(src, onload) {
+    if (![...document.querySelectorAll('script')].some(s => s.getAttribute('src') === src)) {
+      var s = document.createElement('script');
+      s.src = src;
+      if (onload) s.onload = onload;
+      document.head.appendChild(s);
+    } else if (onload) {
+      onload();
+    }
+  }
+
+  window.ensureLanguageScripts = function ensureLanguageScripts() {
+    addOnceScript('/assets/js/additionalLanguageCode.js');
+    addOnceScript('/assets/js/languageSelection.js');
+  };
+
+  window.syncLanguageParamAndAttrs = function syncLanguageParamAndAttrs() {
+    try {
+      var stored = localStorage.getItem('languageCode');
+      if (!stored && typeof getDetailedLanguageCode === 'function') {
+        stored = getDetailedLanguageCode();
+        localStorage.setItem('languageCode', stored);
+      }
+      stored = stored || 'en_US';
+      var url = new URL(window.location.href);
+      var current = url.searchParams.get('lang');
+      if (!current || current !== stored) {
+        url.searchParams.set('lang', stored);
+        history.replaceState(null, '', url.toString());
+      }
+      document.documentElement.setAttribute('data-language', stored);
+      var htmlLang = stored.split('_')[0] || 'en';
+      document.documentElement.setAttribute('lang', htmlLang);
+    } catch(_) {}
+  };
+
+  window.appendLangToLinks = function appendLangToLinks() {
+    try {
+      var url = new URL(window.location.href);
+      var lang = url.searchParams.get('lang');
+      if (!lang) return;
+      document.querySelectorAll('a[href]').forEach(function(a){
+        var href = a.getAttribute('href');
+        if (!href) return;
+        if (/^(mailto:|tel:|#|javascript:)/i.test(href)) return;
+        try {
+          var target = href.startsWith('http') ? new URL(href) : new URL(href, window.location.origin);
+          if (target.origin === window.location.origin) {
+            target.searchParams.set('lang', lang);
+            a.setAttribute('href', target.pathname + target.search + target.hash);
+          }
+        } catch(_) {}
+      });
+    } catch(_) {}
+  };
+
+  window.buildLanguageMenu = function buildLanguageMenu() {
+    try {
+      var menu = document.getElementById('languageSelection');
+      if (!menu) return;
+      if (menu.children.length > 0) return;
+      if (typeof supportedLanguages === 'undefined') return;
+      var makeLabel = function(code) {
+        try {
+          var normalized = code.replace('_','-');
+          var display = new Intl.DisplayNames([normalized, 'en'], { type: 'language' });
+          var langPart = normalized.split('-')[0];
+          var name = display.of(langPart) || code;
+          return name + ' (' + code.replace('_','-') + ')';
+        } catch (e) { return code; }
+      };
+      supportedLanguages.forEach(function(code){
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.className = 'dropdown-item lang_dropdown-item';
+        a.href = '#';
+        a.dataset.bsLanguageCode = code;
+        a.textContent = makeLabel(code);
+        li.appendChild(a);
+        menu.appendChild(li);
+      });
+      if (typeof setLanguageForDropdown === 'function') {
+        setLanguageForDropdown('.lang_dropdown-item');
+      }
+      if (typeof sortLanguageDropdown === 'function') {
+        sortLanguageDropdown();
+      }
+    } catch(_) {}
+  };
+
+  window.setupQuickNavHandlers = function setupQuickNavHandlers() {
+    // Theme
+    var themeIcon = document.getElementById('quick-theme');
+    if (themeIcon) {
+      themeIcon.addEventListener('click', function(){ if (typeof toggleDarkMode === 'function') toggleDarkMode(); });
+    }
+    // Favorites (best-effort)
+    var favIcon = document.getElementById('quick-favorites');
+    if (favIcon) {
+      favIcon.addEventListener('click', function(){
+        try { if (typeof toggleFavoritesView === 'function') toggleFavoritesView(); } catch(_) {}
+        try { if (typeof updateFavoritesSection === 'function') updateFavoritesSection(); } catch(_) {}
+      });
+    }
+    // Search focus
+    var searchIcon = document.getElementById('quick-search');
+    if (searchIcon) {
+      searchIcon.addEventListener('click', function(){
+        var input = document.getElementById('searchBar');
+        if (input) { try { input.scrollIntoView({behavior:'smooth', block:'center'}); } catch(_) {} input.focus(); }
+      });
+    }
+    // Settings
+    var settingsIcon = document.getElementById('quick-settings');
+    if (settingsIcon) {
+      settingsIcon.addEventListener('click', function(){
+        var modalEl = document.getElementById('settingsModal');
+        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) { new bootstrap.Modal(modalEl).show(); }
+        else { window.location.href = '/Mutitools/multi-tool.html'; }
+      });
+    }
+  };
 })();
 
 

@@ -5,7 +5,23 @@
     <title>Noble  PDF - Your all-in-one local solution for everything PDF</title>
     <!-- Metadata -->
     <meta charset="utf-8">
-    <meta name="description" content="Noble PDF">
+    <meta name="description" content="Noble PDF is a fast, secure, privacy-first online PDF toolkit. Merge, split, compress, convert to Word/Excel/PPT, OCR, sign, protect, and edit PDFs free.">
+    <meta name="keywords" content="PDF tools, PDF editor, merge PDF, split PDF, compress PDF, convert PDF, PDF to Word, Word to PDF, PDF to JPG, JPG to PDF, OCR PDF, sign PDF, protect PDF, unlock PDF, rotate PDF, watermark PDF, organize PDF, online PDF">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://noblepdf.online/">
+    <meta name="author" content="Noble PDF">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Noble PDF — All-in-one Online PDF Tools">
+    <meta property="og:description" content="Merge, split, compress, convert, OCR, sign and protect PDFs. Privacy-first and fast.">
+    <meta property="og:url" content="https://noblepdf.online/">
+    <meta property="og:image" content="https://noblepdf.online/assets/images/Logo.png">
+    <meta property="og:site_name" content="Noble PDF">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Noble PDF — All-in-one Online PDF Tools">
+    <meta name="twitter:description" content="Merge, split, compress, convert, OCR, sign and protect PDFs. Privacy-first and fast.">
+    <meta name="twitter:image" content="https://noblepdf.online/assets/images/Logo.png">
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -195,6 +211,24 @@
     <link rel="stylesheet" href="/assets/css/navbar.css">
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/footer.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Noble PDF",
+      "url": "https://noblepdf.online/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Noble PDF",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://noblepdf.online/assets/images/Logo.png"
+        }
+      }
+    }
+    </script>
     <!-- Preload Google Symbols only when not local to avoid warnings -->
     <script>
         (function(){
@@ -368,14 +402,107 @@
                         <span>View/Edit PDF</span>
                     </a>
                     <div class="ms-auto d-flex align-items-center gap-3 top-quick-icons">
-                        <span class="material-symbols-rounded" title="Favorites">star</span>
-                        <span class="material-symbols-rounded" title="Theme">light_mode</span>
-                        <span class="material-symbols-rounded" title="Language">language</span>
-                        <span class="material-symbols-rounded" title="Search">search</span>
-                        <span class="material-symbols-rounded" title="Settings">settings</span>
+                        <span id="quick-favorites" class="material-symbols-rounded" title="Favorites">star</span>
+                        <span id="quick-theme" class="material-symbols-rounded" title="Theme">light_mode</span>
+                        <div class="dropdown" style="display:inline-block;">
+                            <span id="quick-language" class="material-symbols-rounded" title="Language" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">language</span>
+                            <ul class="dropdown-menu dropdown-menu-end" id="languageSelection" aria-labelledby="quick-language" style="max-height: 320px; overflow:auto; min-width: 18rem;"></ul>
+                        </div>
+                        <span id="quick-search" class="material-symbols-rounded" title="Search">search</span>
+                        <span id="quick-settings" class="material-symbols-rounded" title="Settings">settings</span>
                     </div>
                 </div>
             </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var favIcon = document.getElementById('quick-favorites');
+                if (favIcon) {
+                    favIcon.addEventListener('click', function() {
+                        try {
+                            if (typeof toggleFavoritesView === 'function') {
+                                toggleFavoritesView();
+                            }
+                            if (typeof updateFavoritesSection === 'function') {
+                                updateFavoritesSection();
+                            }
+                        } catch (e) { console.warn('Favorites toggle unavailable', e); }
+                    });
+                }
+
+                var themeIcon = document.getElementById('quick-theme');
+                if (themeIcon) {
+                    themeIcon.addEventListener('click', function() {
+                        if (typeof toggleDarkMode === 'function') {
+                            toggleDarkMode();
+                        }
+                    });
+                }
+
+                // Language dropdown is handled by Bootstrap; we just populate items below
+
+                var searchIcon = document.getElementById('quick-search');
+                if (searchIcon) {
+                    searchIcon.addEventListener('click', function() {
+                        var input = document.getElementById('searchBar');
+                        if (input) {
+                            try { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                            input.focus();
+                        }
+                    });
+                }
+
+                var settingsIcon = document.getElementById('quick-settings');
+                if (settingsIcon) {
+                    settingsIcon.addEventListener('click', function() {
+                        var modalEl = document.getElementById('settingsModal');
+                        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            new bootstrap.Modal(modalEl).show();
+                        } else {
+                            // Fallback: navigate to multi-tool or home settings if available
+                            window.location.href = './Mutitools/multi-tool.html';
+                        }
+                    });
+                }
+            });
+            </script>
+            <script src="/assets/js/additionalLanguageCode.js"></script>
+            <script src="/assets/js/languageSelection.js"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                try {
+                    var menu = document.getElementById('languageSelection');
+                    if (menu && typeof supportedLanguages !== 'undefined') {
+                        var makeLabel = function(code) {
+                            try {
+                                var normalized = code.replace('_','-');
+                                var display = new Intl.DisplayNames([normalized, 'en'], { type: 'language' });
+                                var langPart = normalized.split('-')[0];
+                                var name = display.of(langPart) || code;
+                                return name + ' (' + code.replace('_','-') + ')';
+                            } catch (e) {
+                                return code;
+                            }
+                        };
+                        supportedLanguages.forEach(function(code) {
+                            var li = document.createElement('li');
+                            var a = document.createElement('a');
+                            a.className = 'dropdown-item lang_dropdown-item';
+                            a.href = '#';
+                            a.dataset.bsLanguageCode = code;
+                            a.textContent = makeLabel(code);
+                            li.appendChild(a);
+                            menu.appendChild(li);
+                        });
+                        if (typeof setLanguageForDropdown === 'function') {
+                            setLanguageForDropdown('.lang_dropdown-item');
+                        }
+                        if (typeof sortLanguageDropdown === 'function') {
+                            sortLanguageDropdown();
+                        }
+                    }
+                } catch (e) { console.warn('Language menu setup failed', e); }
+            });
+            </script>
       </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"></button>
                     <div class="collapse navbar-collapse" id="navbarNav" style="display:none" aria-hidden="true">
