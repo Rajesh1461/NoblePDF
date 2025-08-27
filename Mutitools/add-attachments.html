@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Attachments - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .attachments-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .attachments-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .attachments-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .attachment-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .attachment-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .attachment-icon {
+            font-size: 2rem;
+            color: #667eea;
+            min-width: 50px;
+        }
+        
+        .attachment-info {
+            flex-grow: 1;
+        }
+        
+        .attachment-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .attachment-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .attachment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: #495057;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .action-btn.danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .action-btn.danger:hover {
+            background: #f1b0b7;
+            border-color: #ed969e;
+        }
+        
+        .attachment-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        
+        .file-drop-zone {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .file-drop-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .file-type-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .file-type-icon.text-success {
+            color: #28a745;
+        }
+        
+        .attachment-stats {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .drag-handle {
+            cursor: move;
+            color: #6c757d;
+            padding: 0.25rem;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .drag-handle:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .attachment-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble  PDF" height="40">
+                <span class="ms-2 fw-bold">Noble  PDF</span>
+            </a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="attachments-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="attachments-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-paperclip"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Add Attachments</h1>
+                            <p class="lead text-muted">Attach files to your PDF documents for easy sharing and organization</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here to add attachments</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- File Drop Zone -->
+                        <div class="file-drop-zone" id="fileDropZone" style="display: none;">
+                            <div class="mb-3">
+                                <i class="bi bi-file-earmark-arrow-up file-type-icon"></i>
+                            </div>
+                            <h5>Drop files here to attach</h5>
+                            <p class="text-muted">or click to browse attachment files</p>
+                            <input type="file" id="attachmentFiles" multiple style="display: none;">
+                            <button class="btn btn-outline-primary mt-2" id="browseAttachmentsBtn">
+                                <i class="bi bi-folder2-open"></i> Browse Files
+                            </button>
+                            <div class="mt-3">
+                                <small class="text-muted">Supported formats: Images, Documents, Spreadsheets, Presentations, Archives</small>
+                            </div>
+                        </div>
+
+                        <!-- Attachment Statistics -->
+                        <div class="attachment-stats" id="attachmentStats" style="display: none;">
+                            <h6 class="mb-2">Attachment Summary</h6>
+                            <div class="stat-item">
+                                <span>Total Attachments:</span>
+                                <span id="totalAttachments">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Total Size:</span>
+                                <span id="totalSize">0 KB</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>File Types:</span>
+                                <span id="fileTypes">None</span>
+                            </div>
+                        </div>
+
+                        <!-- Attachments List -->
+                        <div class="attachments-list" id="attachmentsList" style="display: none;">
+                            <h4 class="mb-3">Attachments</h4>
+                            <div id="attachmentsContainer">
+                                <p class="text-muted text-center">No attachments added yet</p>
+                            </div>
+                        </div>
+
+                        <!-- Attachment Options -->
+                        <div class="attachment-options" id="attachmentOptions" style="display: none;">
+                            <h4 class="mb-3">Attachment Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Attachment Display</label>
+                                        <select class="form-select" id="attachmentDisplay">
+                                            <option value="icon">Show as icons</option>
+                                            <option value="list">Show as list</option>
+                                            <option value="both">Show both</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="compressAttachments" checked>
+                                            <label class="form-check-label" for="compressAttachments">
+                                                Compress large attachments
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Attachment Position</label>
+                                        <select class="form-select" id="attachmentPosition">
+                                            <option value="end">End of document</option>
+                                            <option value="beginning">Beginning of document</option>
+                                            <option value="custom">Custom position</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="createIndex" checked>
+                                            <label class="form-check-label" for="createIndex">
+                                                Create attachment index
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg" id="addAttachmentsBtn">
+                                <i class="bi bi-paperclip"></i> Add Attachments to PDF
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Adding Attachments</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Attachments Added Successfully!</h6>
+                            <p class="mb-3">Your PDF now includes all the attached files and is ready for download.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download PDF with Attachments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble  PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const fileDropZone = document.getElementById('fileDropZone');
+            const attachmentFiles = document.getElementById('attachmentFiles');
+            const browseAttachmentsBtn = document.getElementById('browseAttachmentsBtn');
+            const attachmentStats = document.getElementById('attachmentStats');
+            const attachmentsList = document.getElementById('attachmentsList');
+            const attachmentOptions = document.getElementById('attachmentOptions');
+            const actionButtons = document.getElementById('actionButtons');
+            const addAttachmentsBtn = document.getElementById('addAttachmentsBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            let attachments = [];
+            let totalSize = 0;
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showAttachmentInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showAttachmentInterface() {
+                fileDropZone.style.display = 'block';
+            }
+
+            // Browse attachments button
+            browseAttachmentsBtn.addEventListener('click', () => {
+                attachmentFiles.click();
+            });
+
+            // Attachment files selection
+            attachmentFiles.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleAttachmentFiles(e.target.files);
+                }
+            });
+
+            // Drag and drop for attachments
+            fileDropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileDropZone.classList.add('dragover');
+            });
+            
+            fileDropZone.addEventListener('dragleave', () => {
+                fileDropZone.classList.remove('dragover');
+            });
+            
+            fileDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileDropZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleAttachmentFiles(files);
+                }
+            });
+
+            function handleAttachmentFiles(files) {
+                Array.from(files).forEach(file => {
+                    const attachment = {
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        icon: getFileIcon(file.type)
+                    };
+                    
+                    attachments.push(attachment);
+                    totalSize += file.size;
+                });
+                
+                updateAttachmentStats();
+                updateAttachmentsList();
+                showAttachmentOptions();
+            }
+
+            function getFileIcon(fileType) {
+                if (fileType.startsWith('image/')) return 'bi-image';
+                if (fileType.includes('pdf')) return 'bi-file-pdf';
+                if (fileType.includes('word') || fileType.includes('document')) return 'bi-file-word';
+                if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'bi-file-excel';
+                if (fileType.includes('powerpoint') || fileType.includes('presentation')) return 'bi-file-ppt';
+                if (fileType.includes('zip') || fileType.includes('archive')) return 'bi-file-zip';
+                if (fileType.includes('text')) return 'bi-file-text';
+                return 'bi-file-earmark';
+            }
+
+            function updateAttachmentStats() {
+                document.getElementById('totalAttachments').textContent = attachments.length;
+                document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+                
+                const types = [...new Set(attachments.map(a => a.type.split('/')[0]))];
+                document.getElementById('fileTypes').textContent = types.join(', ');
+                
+                attachmentStats.style.display = 'block';
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            function updateAttachmentsList() {
+                const container = document.getElementById('attachmentsContainer');
+                
+                if (attachments.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center">No attachments added yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                attachments.forEach((attachment, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'attachment-item';
+                    item.innerHTML = `
+                        <div class="drag-handle">
+                            <i class="bi bi-grip-vertical"></i>
+                        </div>
+                        <div class="attachment-icon">
+                            <i class="bi ${attachment.icon}"></i>
+                        </div>
+                        <div class="attachment-info">
+                            <div class="attachment-name">${attachment.name}</div>
+                            <div class="attachment-meta">
+                                ${formatFileSize(attachment.size)} • ${attachment.type}
+                            </div>
+                        </div>
+                        <div class="attachment-actions">
+                            <button class="action-btn" onclick="previewAttachment(${attachment.id})">
+                                <i class="bi bi-eye"></i> Preview
+                            </button>
+                            <button class="action-btn danger" onclick="removeAttachment(${attachment.id})">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+                
+                attachmentsList.style.display = 'block';
+            }
+
+            function showAttachmentOptions() {
+                attachmentOptions.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            // Global functions for attachment actions
+            window.previewAttachment = function(id) {
+                const attachment = attachments.find(a => a.id === id);
+                if (attachment && attachment.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = `
+                            <div class="attachment-preview">
+                                <h6>${attachment.name}</h6>
+                                <img src="${e.target.result}" class="preview-image" alt="Preview">
+                                <p class="text-muted mt-2">${formatFileSize(attachment.size)} • ${attachment.type}</p>
+                            </div>
+                        `;
+                        
+                        // Show preview in a modal or replace content
+                        alert('Preview functionality would be implemented here.');
+                    };
+                    reader.readAsDataURL(attachment.file);
+                } else {
+                    alert('Preview not available for this file type.');
+                }
+            };
+
+            window.removeAttachment = function(id) {
+                if (confirm('Are you sure you want to remove this attachment?')) {
+                    const attachment = attachments.find(a => a.id === id);
+                    totalSize -= attachment.size;
+                    attachments = attachments.filter(a => a.id !== id);
+                    
+                    updateAttachmentStats();
+                    updateAttachmentsList();
+                    
+                    if (attachments.length === 0) {
+                        attachmentOptions.style.display = 'none';
+                        actionButtons.style.display = 'none';
+                        attachmentsList.style.display = 'none';
+                        attachmentStats.style.display = 'none';
+                    }
+                }
+            };
+
+            // Add attachments button handler
+            addAttachmentsBtn.addEventListener('click', () => {
+                if (attachments.length === 0) {
+                    alert('Please add at least one attachment.');
+                    return;
+                }
+
+                // Hide other sections
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate attachment process
+                simulateAttachmentProcess();
+            });
+
+            function simulateAttachmentProcess() {
+                const steps = [
+                    { text: 'Preparing PDF document...', progress: 20 },
+                    { text: 'Processing attachments...', progress: 40 },
+                    { text: 'Embedding files...', progress: 60 },
+                    { text: 'Creating attachment index...', progress: 80 },
+                    { text: 'Finalizing document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

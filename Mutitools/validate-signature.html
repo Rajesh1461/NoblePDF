@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validate PDF Signature - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .validate-container {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .validate-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #ffecd2;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 236, 210, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fcb69f;
+            background: rgba(252, 182, 159, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .validation-results {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .signature-info {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            margin: 1rem 0;
+        }
+        
+        .signature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+        }
+        
+        .signature-item:last-child {
+            border-bottom: none;
+        }
+        
+        .validation-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-unknown {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .validation-summary {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .certificate-chain {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .chain-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+        }
+        
+        .chain-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .chain-icon {
+            font-size: 1.5rem;
+            color: #2196f3;
+        }
+        
+        .chain-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .validation-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        
+        .validate-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 236, 210, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #ffecd2;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffecd2, #fcb69f);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        
+        .error-alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #721c24;
+        }
+        
+        .warning-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #856404;
+        }
+        
+        .signature-details {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .validation-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: #495057;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .action-btn.primary {
+            background: #ffecd2;
+            color: #495057;
+            border-color: #ffecd2;
+        }
+        
+        .action-btn.primary:hover {
+            background: #fcb69f;
+            border-color: #fcb69f;
+        }
+        
+        .timestamp-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .timestamp-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .timestamp-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+              
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="validate-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="validate-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Validate PDF Signature</h1>
+                            <p class="lead text-muted">Verify the authenticity and integrity of digitally signed PDF documents</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your signed PDF file here for validation</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Validation Options -->
+                        <div class="validation-options" id="validationOptions" style="display: none;">
+                            <h4 class="mb-3">Validation Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="validateSignature" checked>
+                                            <label class="form-check-label" for="validateSignature">
+                                                Validate signature integrity
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="validateCertificate" checked>
+                                            <label class="form-check-label" for="validateCertificate">
+                                                Validate certificate chain
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="validateTimestamp" checked>
+                                            <label class="form-check-label" for="validateTimestamp">
+                                                Validate timestamp
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="checkRevocation" checked>
+                                            <label class="form-check-label" for="checkRevocation">
+                                                Check certificate revocation
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button class="btn validate-btn btn-lg" id="validateBtn">
+                                    <i class="bi bi-search"></i> Validate Signatures
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Validating PDF Signatures</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Validation Results -->
+                        <div class="validation-results" id="validationResults" style="display: none;">
+                            <h4 class="mb-3">Validation Results</h4>
+                            
+                            <!-- Overall Status -->
+                            <div class="validation-summary">
+                                <h6 class="mb-2">Overall Validation Status</h6>
+                                <div class="summary-item">
+                                    <span>Document Status:</span>
+                                    <span class="validation-status status-valid" id="overallStatus">Valid</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Total Signatures:</span>
+                                    <span id="totalSignatures">2</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Valid Signatures:</span>
+                                    <span id="validSignatures">2</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Invalid Signatures:</span>
+                                    <span id="invalidSignatures">0</span>
+                                </div>
+                            </div>
+
+                            <!-- Signature Information -->
+                            <div class="signature-info">
+                                <h6 class="mb-2">Signature Details</h6>
+                                <div class="signature-item">
+                                    <span><strong>Signer Name:</strong></span>
+                                    <span>John Doe</span>
+                                </div>
+                                <div class="signature-item">
+                                    <span><strong>Signature Date:</strong></span>
+                                    <span>2024-01-15 14:30:25</span>
+                                </div>
+                                <div class="signature-item">
+                                    <span><strong>Signature Algorithm:</strong></span>
+                                    <span>SHA-256 with RSA</span>
+                                </div>
+                                <div class="signature-item">
+                                    <span><strong>Validation Status:</strong></span>
+                                    <span class="validation-status status-valid">Valid</span>
+                                </div>
+                            </div>
+
+                            <!-- Certificate Chain -->
+                            <div class="certificate-chain">
+                                <h6 class="mb-2">Certificate Chain</h6>
+                                <div class="chain-item">
+                                    <div class="chain-icon">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div><strong>John Doe</strong> - End Entity Certificate</div>
+                                        <small class="text-muted">Issued by: DigiCert Inc</small>
+                                    </div>
+                                    <span class="chain-status status-valid">Valid</span>
+                                </div>
+                                <div class="chain-item">
+                                    <div class="chain-icon">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div><strong>DigiCert Inc</strong> - Intermediate CA</div>
+                                        <small class="text-muted">Issued by: DigiCert Global Root CA</small>
+                                    </div>
+                                    <span class="chain-status status-valid">Valid</span>
+                                </div>
+                                <div class="chain-item">
+                                    <div class="chain-icon">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div><strong>DigiCert Global Root CA</strong> - Root CA</div>
+                                        <small class="text-muted">Self-signed</small>
+                                    </div>
+                                    <span class="chain-status status-valid">Valid</span>
+                                </div>
+                            </div>
+
+                            <!-- Timestamp Information -->
+                            <div class="timestamp-info" id="timestampInfo">
+                                <h6 class="mb-2">Timestamp Information</h6>
+                                <div class="timestamp-item">
+                                    <span><strong>Timestamp Authority:</strong></span>
+                                    <span>DigiCert Timestamp Authority</span>
+                                </div>
+                                <div class="timestamp-item">
+                                    <span><strong>Timestamp Date:</strong></span>
+                                    <span>2024-01-15 14:30:25</span>
+                                </div>
+                                <div class="timestamp-item">
+                                    <span><strong>Timestamp Status:</strong></span>
+                                    <span class="validation-status status-valid">Valid</span>
+                                </div>
+                            </div>
+
+                            <!-- Signature Details -->
+                            <div class="signature-details">
+                                <h6 class="mb-2">Technical Details</h6>
+                                <div class="detail-item">
+                                    <span><strong>Signature Format:</strong></span>
+                                    <span>PKCS#7</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span><strong>Hash Algorithm:</strong></span>
+                                    <span>SHA-256</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span><strong>Encryption Algorithm:</strong></span>
+                                    <span>RSA-2048</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span><strong>Signature Size:</strong></span>
+                                    <span>256 bytes</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span><strong>Document Integrity:</strong></span>
+                                    <span class="validation-status status-valid">Verified</span>
+                                </div>
+                            </div>
+
+                            <!-- Validation Actions -->
+                            <div class="validation-actions">
+                                <h6 class="mb-2">Additional Actions</h6>
+                                <div class="action-buttons">
+                                    <button class="action-btn" id="exportReportBtn">
+                                        <i class="bi bi-download"></i> Export Report
+                                    </button>
+                                    <button class="action-btn" id="viewCertificateBtn">
+                                        <i class="bi bi-eye"></i> View Certificate
+                                    </button>
+                                    <button class="action-btn" id="verifyOnlineBtn">
+                                        <i class="bi bi-globe"></i> Verify Online
+                                    </button>
+                                    <button class="action-btn primary" id="revalidateBtn">
+                                        <i class="bi bi-arrow-clockwise"></i> Revalidate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Success Alert -->
+                        <div class="success-alert" id="successAlert" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Validation Complete!</h6>
+                            <p class="mb-0">All signatures in your PDF have been validated successfully.</p>
+                        </div>
+
+                        <!-- Warning Alert -->
+                        <div class="warning-alert" id="warningAlert" style="display: none;">
+                            <h6><i class="bi bi-exclamation-triangle"></i> Validation Warning</h6>
+                            <p class="mb-0">Some issues were found during validation. Please review the results below.</p>
+                        </div>
+
+                        <!-- Error Alert -->
+                        <div class="error-alert" id="errorAlert" style="display: none;">
+                            <h6><i class="bi bi-exclamation-circle"></i> Validation Error</h6>
+                            <p class="mb-0">Critical validation errors were found. The document may not be authentic.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const validationOptions = document.getElementById('validationOptions');
+            const validateBtn = document.getElementById('validateBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const validationResults = document.getElementById('validationResults');
+            const successAlert = document.getElementById('successAlert');
+            const warningAlert = document.getElementById('warningAlert');
+            const errorAlert = document.getElementById('errorAlert');
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showValidationInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showValidationInterface() {
+                validationOptions.style.display = 'block';
+            }
+
+            // Validate button handler
+            validateBtn.addEventListener('click', () => {
+                // Hide other sections
+                validationOptions.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate validation process
+                simulateValidation();
+            });
+
+            function simulateValidation() {
+                const steps = [
+                    { text: 'Loading PDF document...', progress: 20 },
+                    { text: 'Extracting signature data...', progress: 40 },
+                    { text: 'Validating signature integrity...', progress: 60 },
+                    { text: 'Checking certificate chain...', progress: 80 },
+                    { text: 'Verifying timestamps...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showValidationResults();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showValidationResults() {
+                validationResults.style.display = 'block';
+                successAlert.style.display = 'block';
+                
+                // Hide success alert after 5 seconds
+                setTimeout(() => {
+                    successAlert.style.display = 'none';
+                }, 5000);
+            }
+
+            // Export report button
+            document.getElementById('exportReportBtn').addEventListener('click', () => {
+                alert('Report export functionality would be implemented here.');
+            });
+
+            // View certificate button
+            document.getElementById('viewCertificateBtn').addEventListener('click', () => {
+                alert('Certificate viewer would be implemented here.');
+            });
+
+            // Verify online button
+            document.getElementById('verifyOnlineBtn').addEventListener('click', () => {
+                alert('Online verification would be implemented here.');
+            });
+
+            // Revalidate button
+            document.getElementById('revalidateBtn').addEventListener('click', () => {
+                validationResults.style.display = 'none';
+                validationOptions.style.display = 'block';
+            });
+
+            // Simulate different validation scenarios
+            function simulateValidationScenario(scenario) {
+                switch(scenario) {
+                    case 'valid':
+                        document.getElementById('overallStatus').textContent = 'Valid';
+                        document.getElementById('overallStatus').className = 'validation-status status-valid';
+                        document.getElementById('totalSignatures').textContent = '2';
+                        document.getElementById('validSignatures').textContent = '2';
+                        document.getElementById('invalidSignatures').textContent = '0';
+                        break;
+                    case 'warning':
+                        document.getElementById('overallStatus').textContent = 'Warning';
+                        document.getElementById('overallStatus').className = 'validation-status status-warning';
+                        document.getElementById('totalSignatures').textContent = '2';
+                        document.getElementById('validSignatures').textContent = '1';
+                        document.getElementById('invalidSignatures').textContent = '1';
+                        break;
+                    case 'invalid':
+                        document.getElementById('overallStatus').textContent = 'Invalid';
+                        document.getElementById('overallStatus').className = 'validation-status status-invalid';
+                        document.getElementById('totalSignatures').textContent = '1';
+                        document.getElementById('validSignatures').textContent = '0';
+                        document.getElementById('invalidSignatures').textContent = '1';
+                        break;
+                }
+            }
+
+            // For demonstration, you can call simulateValidationScenario('warning') or simulateValidationScenario('invalid')
+            // to see different validation results
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

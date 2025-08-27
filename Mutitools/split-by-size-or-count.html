@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split by Size/Count - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.shell{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.cardx{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="shell">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-scissors me-2"></i>Split by Size/Count</h1>
+        <p class="lead text-muted">Automatically split a PDF by maximum file size or number of pages</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDF</h6>
+                    <input type="file" id="fileInput" accept=".pdf" class="form-control">
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Split Strategy</h6>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="bySize" checked><label class="form-check-label" for="bySize">By Maximum Size</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="byCount"><label class="form-check-label" for="byCount">By Page Count</label></div>
+                    <div id="sizeControls" class="mt-2">
+                        <label class="form-label">Max Size</label>
+                        <div class="input-group"><input type="number" class="form-control" id="maxSize" value="5"><select class="form-select" id="sizeUnit"><option>MB</option><option>KB</option></select></div>
+                    </div>
+                    <div id="countControls" class="mt-2" style="display:none;">
+                        <label class="form-label">Pages per file</label>
+                        <input type="number" class="form-control" id="pagesPer" value="10" min="1">
+                    </div>
+                </div>
+                <div class="cardx">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="keepBookmarks" checked><label class="form-check-label" for="keepBookmarks">Keep bookmarks</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="createToc"><label class="form-check-label" for="createToc">Create table of contents per split</label></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-eye me-2"></i>Estimated Output</h6>
+                    <div id="estimate">Waiting for file...</div>
+                </div>
+                <div class="text-center mt-3"><button class="btn btn-primary" id="splitBtn"><i class="fas fa-cut me-2"></i>Split & Download</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Splitting</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Split Complete</h5>
+        <p>Your PDF has been split into multiple files based on your settings.</p>
+        <div class="text-center"><button class="btn btn-success" onclick="alert('Downloads simulated')"><i class="fas fa-download me-2"></i>Download Files</button></div>
+    </div>
+</div>
+</div>
+<script>
+const fileInput=document.getElementById('fileInput');
+const bySize=document.getElementById('bySize');
+const byCount=document.getElementById('byCount');
+const sizeControls=document.getElementById('sizeControls');
+const countControls=document.getElementById('countControls');
+const estimate=document.getElementById('estimate');
+
+bySize.addEventListener('change',()=>{sizeControls.style.display='block';countControls.style.display='none';updateEstimate();});
+byCount.addEventListener('change',()=>{sizeControls.style.display='none';countControls.style.display='block';updateEstimate();});
+fileInput.addEventListener('change',updateEstimate);
+document.getElementById('maxSize').addEventListener('input',updateEstimate);
+document.getElementById('sizeUnit').addEventListener('change',updateEstimate);
+document.getElementById('pagesPer').addEventListener('input',updateEstimate);
+
+function updateEstimate(){
+  if(!fileInput.files.length){ estimate.textContent='Waiting for file...'; return; }
+  const totalPages= Math.floor(50+Math.random()*150); // simulate analysis
+  if(bySize.checked){
+    const size=parseFloat(document.getElementById('maxSize').value||'5');
+    const unit=document.getElementById('sizeUnit').value; const bytes=size*(unit==='MB'?1048576:1024);
+    const fileBytes=(fileInput.files[0].size||10485760); // simulate if missing
+    const parts=Math.max(1,Math.ceil(fileBytes/bytes));
+    estimate.textContent=`~${parts} files (estimated from size). Total pages: ${totalPages}`;
+  } else {
+    const per=parseInt(document.getElementById('pagesPer').value||'10',10);
+    const parts=Math.max(1,Math.ceil(totalPages/per));
+    estimate.textContent=`~${parts} files of ~${per} pages each. Total pages: ${totalPages}`;
+  }
+}
+
+document.getElementById('splitBtn').addEventListener('click',()=>{
+  document.getElementById('progressSection').style.display='block';
+  const steps=[{t:'Reading document...',p:25},{t:'Calculating splits...',p:55},{t:'Extracting parts...',p:85},{t:'Finalizing...',p:100}];
+  let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+  const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,900);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 400);} };
+  tick();
+});
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

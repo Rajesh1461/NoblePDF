@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to HTML - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .html-container {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .html-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #8fd3f4;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(143, 211, 244, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #84fab0;
+            background: rgba(132, 250, 176, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .html-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .html-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .file-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .file-preview::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: rgba(143, 211, 244, 0.1);
+            border: 1px dashed #8fd3f4;
+            border-radius: 5px;
+        }
+        
+        .html-btn {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .html-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(143, 211, 244, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+        
+        .html-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .html-option:hover {
+            border-color: #8fd3f4;
+            background: rgba(143, 211, 244, 0.05);
+        }
+        
+        .html-option.selected {
+            border-color: #8fd3f4;
+            background: rgba(143, 211, 244, 0.1);
+        }
+        
+        .html-icon {
+            font-size: 2rem;
+            color: #8fd3f4;
+            margin-bottom: 0.5rem;
+        }
+        
+        .css-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .css-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #8fd3f4;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .code-preview {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="html-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="html-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-code-slash"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">PDF to HTML</h1>
+                            <p class="lead text-muted">Convert your PDF documents to web-ready HTML format</p>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-info mb-3"></i>
+                            <h4 class="mb-3">Drop your PDF here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                            <button class="btn btn-outline-info btn-lg" onclick="document.getElementById('pdfFile').click()">
+                                Choose PDF File
+                            </button>
+                        </div>
+
+                        <!-- HTML Options -->
+                        <div class="html-options" id="htmlOptions" style="display: none;">
+                            <h4 class="mb-4">HTML Conversion Settings</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">HTML Version</label>
+                                        <div class="html-option" data-version="html5" onclick="selectVersion('html5')">
+                                            <div class="html-icon">
+                                                <i class="bi bi-5-circle"></i>
+                                            </div>
+                                            <strong>HTML5</strong>
+                                            <div class="text-muted small">Modern semantic HTML (recommended)</div>
+                                        </div>
+                                        
+                                        <div class="html-option" data-version="html4" onclick="selectVersion('html4')">
+                                            <div class="html-icon">
+                                                <i class="bi bi-4-circle"></i>
+                                            </div>
+                                            <strong>HTML4</strong>
+                                            <div class="text-muted small">Legacy HTML for older browsers</div>
+                                        </div>
+                                        
+                                        <div class="html-option" data-version="xhtml" onclick="selectVersion('xhtml')">
+                                            <div class="html-icon">
+                                                <i class="bi bi-file-earmark-code"></i>
+                                            </div>
+                                            <strong>XHTML</strong>
+                                            <div class="text-muted small">Strict XML-based HTML</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">CSS Styling</label>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="me-3">Include CSS:</span>
+                                            <label class="css-toggle">
+                                                <input type="checkbox" id="includeCSS" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Add CSS for better visual appearance</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Responsive Design</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="responsiveDesign" checked>
+                                            <label class="form-check-label" for="responsiveDesign">
+                                                Make HTML mobile-friendly
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="flexibleLayout">
+                                            <label class="form-check-label" for="flexibleLayout">
+                                                Use flexible grid layout
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Content Options</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="extractText" checked>
+                                            <label class="form-check-label" for="extractText">
+                                                Extract text content
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="preserveImages" checked>
+                                            <label class="form-check-label" for="preserveImages">
+                                                Convert images to web format
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="maintainLinks">
+                                            <label class="form-check-label" for="maintainLinks">
+                                                Preserve hyperlinks
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="tableStructure">
+                                            <label class="form-check-label" for="tableStructure">
+                                                Maintain table structure
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Options</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="inlineCSS">
+                                            <label class="form-check-label" for="inlineCSS">
+                                                Inline CSS styles
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="externalCSS">
+                                            <label class="form-check-label" for="externalCSS">
+                                                External CSS file
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="minifyHTML">
+                                            <label class="form-check-label" for="minifyHTML">
+                                                Minify HTML output
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Page Range</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">From Page</label>
+                                                <input type="number" class="form-control" id="fromPage" placeholder="1" min="1">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">To Page</label>
+                                                <input type="number" class="form-control" id="toPage" placeholder="All">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Leave empty to convert all pages</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HTML Preview -->
+                        <div class="html-preview" id="htmlPreview" style="display: none;">
+                            <h5 class="mb-3">HTML Output Preview</h5>
+                            <div class="code-preview" id="codePreview">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Converted PDF&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; }
+        .page { margin: 20px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="page"&gt;
+        &lt;h1&gt;Sample Content&lt;/h1&gt;
+        &lt;p&gt;This is converted HTML content...&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                            </div>
+                            <p class="text-muted mt-3">Preview of the generated HTML code</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn html-btn btn-lg text-white me-3" id="convertBtn">
+                                <i class="bi bi-code-slash me-2"></i>Convert to HTML
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFile = null;
+        let selectedVersion = 'html5';
+
+        document.getElementById('pdfFile').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFile').click());
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                selectedFile = file;
+                processFile(file);
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                selectedFile = files[0];
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            showHtmlOptions();
+            showHtmlPreview();
+            showActionButtons();
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${file.name}</h4>
+                <p class="text-muted">File loaded successfully</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change File</button>
+            `;
+        }
+
+        function showHtmlOptions() {
+            document.getElementById('htmlOptions').style.display = 'block';
+        }
+
+        function showHtmlPreview() {
+            document.getElementById('htmlPreview').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function selectVersion(version) {
+            selectedVersion = version;
+            
+            // Update selected state
+            document.querySelectorAll('.html-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.html-option').classList.add('selected');
+            
+            // Update code preview
+            updateCodePreview();
+        }
+
+        function updateCodePreview() {
+            const codePreview = document.getElementById('codePreview');
+            let doctype = '&lt;!DOCTYPE html&gt;';
+            
+            if (selectedVersion === 'html4') {
+                doctype = '&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"&gt;';
+            } else if (selectedVersion === 'xhtml') {
+                doctype = '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"&gt;';
+            }
+            
+            codePreview.innerHTML = `${doctype}
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Converted PDF&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; }
+        .page { margin: 20px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="page"&gt;
+        &lt;h1&gt;Sample Content&lt;/h1&gt;
+        &lt;p&gt;This is converted HTML content...&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;`;
+        }
+
+        function resetForm() {
+            selectedFile = null;
+            selectedVersion = 'html5';
+            
+            document.getElementById('htmlOptions').style.display = 'none';
+            document.getElementById('htmlPreview').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // Reset version selection
+            document.querySelectorAll('.html-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-info mb-3"></i>
+                <h4 class="mb-3">Drop your PDF here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline-info btn-lg" onclick="document.getElementById('pdfFile').click()">
+                    Choose PDF File
+                </button>
+            `;
+            
+            document.getElementById('pdfFile').value = '';
+        }
+
+        // Convert button handler
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file first.');
+                return;
+            }
+            
+            const version = selectedVersion;
+            const includeCSS = document.getElementById('includeCSS').checked;
+            const responsiveDesign = document.getElementById('responsiveDesign').checked;
+            const extractText = document.getElementById('extractText').checked;
+            const preserveImages = document.getElementById('preserveImages').checked;
+            const maintainLinks = document.getElementById('maintainLinks').checked;
+            const tableStructure = document.getElementById('tableStructure').checked;
+            const fromPage = document.getElementById('fromPage').value;
+            const toPage = document.getElementById('toPage').value;
+            
+            let message = `Converting PDF to HTML...\n\n`;
+            message += `File: ${selectedFile.name}\n`;
+            message += `HTML Version: ${version.toUpperCase()}\n`;
+            message += `Include CSS: ${includeCSS ? 'Yes' : 'No'}\n`;
+            message += `Responsive Design: ${responsiveDesign ? 'Yes' : 'No'}\n`;
+            message += `Extract Text: ${extractText ? 'Yes' : 'No'}\n`;
+            message += `Preserve Images: ${preserveImages ? 'Yes' : 'No'}\n`;
+            message += `Maintain Links: ${maintainLinks ? 'Yes' : 'No'}\n`;
+            message += `Table Structure: ${tableStructure ? 'Yes' : 'No'}\n`;
+            message += `Page Range: ${fromPage || '1'} - ${toPage || 'All'}\n`;
+            message += `\nThis is a demo page. In a real application, the PDF would be converted to ${version.toUpperCase()}.`;
+            
+            alert(message);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

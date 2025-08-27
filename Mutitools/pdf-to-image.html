@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Image - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .convert-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .convert-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .convert-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .format-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .format-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #6c757d;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+        
+        .quality-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #a8edea;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .quality-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #a8edea;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .quality-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #a8edea;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        .format-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .format-option:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .format-option.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="convert-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="convert-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">PDF to Image</h1>
+                            <p class="lead text-muted">Convert PDF pages to high-quality images in various formats</p>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-info mb-3"></i>
+                            <h4 class="mb-3">Drop your PDF here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                            <button class="btn btn-outline-info btn-lg" onclick="document.getElementById('pdfFile').click()">
+                                Choose PDF File
+                            </button>
+                        </div>
+
+                        <!-- Conversion Options -->
+                        <div class="convert-options" id="convertOptions" style="display: none;">
+                            <h4 class="mb-4">Conversion Settings</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Format</label>
+                                        <div class="format-option" data-format="png" onclick="selectFormat('png')">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-earmark-image text-primary me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>PNG</strong>
+                                                    <div class="text-muted small">Lossless quality, transparent background</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="format-option" data-format="jpg" onclick="selectFormat('jpg')">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-earmark-image text-warning me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>JPEG</strong>
+                                                    <div class="text-muted small">Good compression, smaller file size</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="format-option" data-format="webp" onclick="selectFormat('webp')">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-earmark-image text-success me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>WebP</strong>
+                                                    <div class="text-muted small">Modern format, excellent compression</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="format-option" data-format="tiff" onclick="selectFormat('tiff')">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-file-earmark-image text-info me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>TIFF</strong>
+                                                    <div class="text-muted small">High quality, professional use</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Page Range</label>
+                                        <select class="form-select" id="pageRange">
+                                            <option value="all">All Pages</option>
+                                            <option value="first">First Page Only</option>
+                                            <option value="custom">Custom Range</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3" id="customRangeInput" style="display: none;">
+                                        <label class="form-label">Page Numbers</label>
+                                        <input type="text" class="form-control" placeholder="e.g., 1-5, 7, 9-12" id="customRange">
+                                        <small class="text-muted">Leave empty to convert all pages</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Image Quality</label>
+                                        <input type="range" class="quality-slider" id="qualitySlider" min="1" max="100" value="90">
+                                        <div class="quality-value" id="qualityValue">90%</div>
+                                        <small class="text-muted">Higher quality = larger file size</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Resolution (DPI)</label>
+                                        <select class="form-select" id="resolution">
+                                            <option value="72">72 DPI (Screen)</option>
+                                            <option value="150" selected>150 DPI (Print)</option>
+                                            <option value="300">300 DPI (High Quality)</option>
+                                            <option value="600">600 DPI (Professional)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Options</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="maintainAspect" checked>
+                                            <label class="form-check-label" for="maintainAspect">
+                                                Maintain aspect ratio
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeMetadata">
+                                            <label class="form-check-label" for="includeMetadata">
+                                                Include metadata
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="optimizeForWeb">
+                                            <label class="form-check-label" for="optimizeForWeb">
+                                                Optimize for web
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Format Preview -->
+                        <div class="format-preview" id="formatPreview" style="display: none;">
+                            <h5 class="mb-3">Output Preview</h5>
+                            <div class="format-icon" id="formatIcon">
+                                <i class="bi bi-file-earmark-image"></i>
+                            </div>
+                            <h6 id="formatName">PNG Format</h6>
+                            <p class="text-muted mb-0" id="formatDescription">Lossless quality with transparent background</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg text-white me-3" id="convertBtn">
+                                <i class="bi bi-image me-2"></i>Convert to Image
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFile = null;
+        let selectedFormat = 'png';
+
+        document.getElementById('pdfFile').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFile').click());
+
+        // Quality slider
+        document.getElementById('qualitySlider').addEventListener('input', function() {
+            document.getElementById('qualityValue').textContent = this.value + '%';
+        });
+
+        // Page range handler
+        document.getElementById('pageRange').addEventListener('change', function() {
+            const customRangeInput = document.getElementById('customRangeInput');
+            if (this.value === 'custom') {
+                customRangeInput.style.display = 'block';
+            } else {
+                customRangeInput.style.display = 'none';
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                selectedFile = file;
+                processFile(file);
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                selectedFile = files[0];
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            showConvertOptions();
+            showFormatPreview();
+            showActionButtons();
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${file.name}</h4>
+                <p class="text-muted">File loaded successfully</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change File</button>
+            `;
+        }
+
+        function showConvertOptions() {
+            document.getElementById('convertOptions').style.display = 'block';
+        }
+
+        function showFormatPreview() {
+            document.getElementById('formatPreview').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function selectFormat(format) {
+            selectedFormat = format;
+            
+            // Update selected state
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.format-option').classList.add('selected');
+            
+            // Update preview
+            updateFormatPreview(format);
+        }
+
+        function updateFormatPreview(format) {
+            const formatIcon = document.getElementById('formatIcon');
+            const formatName = document.getElementById('formatName');
+            const formatDescription = document.getElementById('formatDescription');
+            
+            const formatInfo = {
+                png: {
+                    icon: 'bi-file-earmark-image text-primary',
+                    name: 'PNG Format',
+                    description: 'Lossless quality with transparent background'
+                },
+                jpg: {
+                    icon: 'bi-file-earmark-image text-warning',
+                    name: 'JPEG Format',
+                    description: 'Good compression with smaller file size'
+                },
+                webp: {
+                    icon: 'bi-file-earmark-image text-success',
+                    name: 'WebP Format',
+                    description: 'Modern format with excellent compression'
+                },
+                tiff: {
+                    icon: 'bi-file-earmark-image text-info',
+                    name: 'TIFF Format',
+                    description: 'High quality for professional use'
+                }
+            };
+            
+            const info = formatInfo[format];
+            formatIcon.innerHTML = `<i class="bi ${info.icon}"></i>`;
+            formatName.textContent = info.name;
+            formatDescription.textContent = info.description;
+        }
+
+        function resetForm() {
+            selectedFile = null;
+            selectedFormat = 'png';
+            
+            document.getElementById('convertOptions').style.display = 'none';
+            document.getElementById('formatPreview').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // Reset format selection
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Reset quality slider
+            document.getElementById('qualitySlider').value = 90;
+            document.getElementById('qualityValue').textContent = '90%';
+            
+            // Reset page range
+            document.getElementById('pageRange').value = 'all';
+            document.getElementById('customRangeInput').style.display = 'none';
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-info mb-3"></i>
+                <h4 class="mb-3">Drop your PDF here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline-info btn-lg" onclick="document.getElementById('pdfFile').click()">
+                    Choose PDF File
+                </button>
+            `;
+            
+            document.getElementById('pdfFile').value = '';
+            
+            // Update preview to default
+            updateFormatPreview('png');
+        }
+
+        // Convert button handler
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file first.');
+                return;
+            }
+            
+            const format = selectedFormat;
+            const quality = document.getElementById('qualitySlider').value;
+            const resolution = document.getElementById('resolution').value;
+            const pageRange = document.getElementById('pageRange').value;
+            const customRange = document.getElementById('customRange').value;
+            
+            let message = `Converting PDF to ${format.toUpperCase()}...\n\n`;
+            message += `Format: ${format.toUpperCase()}\n`;
+            message += `Quality: ${quality}%\n`;
+            message += `Resolution: ${resolution} DPI\n`;
+            message += `Page Range: ${pageRange}`;
+            if (pageRange === 'custom' && customRange) {
+                message += ` (${customRange})`;
+            }
+            message += `\n\nThis is a demo page. In a real application, the PDF would be converted to images.`;
+            
+            alert(message);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

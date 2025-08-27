@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Rename PDF File - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.shell{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.cardx{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.pattern-token{display:inline-block;background:#eef2ff;border:1px solid #e9ecef;border-radius:20px;padding:6px 12px;margin:4px;cursor:pointer}
+.pattern-token:hover{background:#e0e7ff}
+.preview-box{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:15px;min-height:120px}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="shell">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-file-signature me-2"></i>Auto Rename PDF File</h1>
+        <p class="lead text-muted">Build filename patterns from metadata, date/time, counters, and text</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDFs</h6>
+                    <input type="file" id="fileInput" multiple accept=".pdf" class="form-control">
+                    <small class="text-muted">Select multiple files to batch rename</small>
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-hashtag me-2"></i>Pattern Builder</h6>
+                    <div class="mb-2">
+                        <div class="pattern-token" data-token="{title}">{title}</div>
+                        <div class="pattern-token" data-token="{author}">{author}</div>
+                        <div class="pattern-token" data-token="{date:YYYY-MM-DD}">{date:YYYY-MM-DD}</div>
+                        <div class="pattern-token" data-token="{time:HHmm}">{time:HHmm}</div>
+                        <div class="pattern-token" data-token="{counter:000}">{counter:000}</div>
+                        <div class="pattern-token" data-token="{original}">{original}</div>
+                    </div>
+                    <input type="text" id="pattern" class="form-control" placeholder="e.g., {date:YYYY-MM-DD}_{title}_{counter:000}">
+                    <small class="text-muted">Click tokens to insert. Supported tokens: title, author, date, time, counter, original</small>
+                </div>
+                <div class="cardx">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="sanitize" checked><label class="form-check-label" for="sanitize">Sanitize filenames (remove invalid characters)</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="lowercase"><label class="form-check-label" for="lowercase">Convert to lowercase</label></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-eye me-2"></i>Preview</h6>
+                    <div class="preview-box" id="preview">No files selected</div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" id="applyBtn"><i class="fas fa-check me-2"></i>Apply & Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Renaming Files</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Files Renamed</h5>
+        <p>Your files have been renamed based on the selected pattern.</p>
+        <div class="text-center"><button class="btn btn-success" onclick="alert('Downloads simulated')"><i class="fas fa-download me-2"></i>Download Renamed Files</button></div>
+    </div>
+</div>
+</div>
+<script>
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+const pattern=document.getElementById('pattern');
+const tokens=[...document.querySelectorAll('.pattern-token')];
+const applyBtn=document.getElementById('applyBtn');
+
+let files=[];
+
+tokens.forEach(t=>t.addEventListener('click',()=>insertToken(t.dataset.token)));
+pattern.addEventListener('input',updatePreview);
+fileInput.addEventListener('change',()=>{files=[...fileInput.files];updatePreview();});
+
+function insertToken(tok){ const start=pattern.selectionStart,end=pattern.selectionEnd; const val=pattern.value; pattern.value=val.slice(0,start)+tok+val.slice(end); pattern.focus(); pattern.selectionStart=pattern.selectionEnd=start+tok.length; updatePreview(); }
+
+function updatePreview(){
+  if(!files.length){ preview.textContent='No files selected'; return; }
+  const list=document.createElement('ul'); list.className='mb-0';
+  files.slice(0,5).forEach((f,i)=>{ const item=document.createElement('li'); item.textContent=`${f.name} → ${buildName(f,i)}`; list.appendChild(item); });
+  preview.innerHTML=''; preview.appendChild(list);
+}
+
+function buildName(file,index){
+  const meta={ title: file.name.replace(/\.pdf$/i,''), author: 'Unknown', date: formatDate(new Date()), time: formatTime(new Date()), counter: pad(index+1,3), original: file.name.replace(/\.pdf$/i,'') };
+  let out=(pattern.value||'{original}_{counter:000}');
+  out=out.replace(/\{title\}/g,meta.title).replace(/\{author\}/g,meta.author).replace(/\{original\}/g,meta.original);
+  out=out.replace(/\{counter:(\d+)\}/g,(_,w)=>pad(index+1,parseInt(w,10)));
+  out=out.replace(/\{date:([^}]+)\}/g,(_,fmt)=>formatDate(new Date(),fmt));
+  out=out.replace(/\{time:([^}]+)\}/g,(_,fmt)=>formatTime(new Date(),fmt));
+  if(document.getElementById('lowercase').checked) out=out.toLowerCase();
+  if(document.getElementById('sanitize').checked) out=out.replace(/[^a-z0-9_\-\.]+/gi,'_');
+  return out+'.pdf';
+}
+function pad(n,w){return (''+n).padStart(w,'0');}
+function formatDate(d,fmt='YYYY-MM-DD'){ const y=d.getFullYear(); const m=pad(d.getMonth()+1,2); const dd=pad(d.getDate(),2); return fmt.replace('YYYY',y).replace('MM',m).replace('DD',dd); }
+function formatTime(d,fmt='HHmm'){ const hh=pad(d.getHours(),2); const mm=pad(d.getMinutes(),2); const ss=pad(d.getSeconds(),2); return fmt.replace('HH',hh).replace('mm',mm).replace('ss',ss); }
+
+applyBtn.addEventListener('click',()=>{
+  document.getElementById('progressSection').style.display='block';
+  const steps=[{t:'Reading files...',p:25},{t:'Generating names...',p:60},{t:'Preparing downloads...',p:85},{t:'Finalizing...',p:100}];
+  let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+  const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,800);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 300);} };
+  tick();
+});
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

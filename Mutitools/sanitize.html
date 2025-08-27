@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanitize - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sanitize-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .sanitize-options {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .option-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .option-item:last-child {
+            border-bottom: none;
+        }
+        
+        .option-info {
+            flex: 1;
+        }
+        
+        .option-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .option-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        
+        .option-toggle {
+            margin-left: 15px;
+        }
+        
+        .security-level {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .security-preset {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .security-preset:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .security-preset.selected {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+        
+        .analysis-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .analysis-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .analysis-label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .analysis-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .risk-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .sanitize-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 500;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="sanitize-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-shield-virus me-3"></i>Sanitize
+                </h1>
+                <p class="lead text-muted">Remove potentially harmful content and metadata from your PDF documents</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box mx-4">
+                <h5><i class="fas fa-info-circle me-2"></i>PDF Sanitization Tool</h5>
+                <p class="mb-0">Clean your PDF documents by removing potentially harmful content, hidden data, scripts, and metadata. This tool ensures your documents are safe for sharing and distribution.</p>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box mx-4">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Notice</h5>
+                <p class="mb-0"><strong>Sanitization is permanent and irreversible.</strong> Always backup your original documents before sanitizing. Some functionality may be lost after sanitization.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security Presets -->
+            <div class="security-level mx-4">
+                <h5><i class="fas fa-shield-alt me-2"></i>Security Presets</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="security-preset" onclick="selectPreset('minimal')">
+                            <h6><i class="fas fa-shield-alt text-success me-2"></i>Minimal Sanitization</h6>
+                            <small class="text-muted">Remove basic threats only</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="security-preset selected" onclick="selectPreset('standard')">
+                            <h6><i class="fas fa-shield-alt text-warning me-2"></i>Standard Sanitization</h6>
+                            <small class="text-muted">Balanced security and functionality</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="security-preset" onclick="selectPreset('maximum')">
+                            <h6><i class="fas fa-shield-alt text-danger me-2"></i>Maximum Sanitization</h6>
+                            <small class="text-muted">Remove all potential threats</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sanitization Options -->
+            <div class="sanitize-options mx-4" id="sanitizeOptions" style="display: none;">
+                <h5><i class="fas fa-cogs me-2"></i>Sanitization Options</h5>
+                
+                <!-- Content Removal -->
+                <div class="option-group">
+                    <h6><i class="fas fa-trash me-2"></i>Content Removal</h6>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">JavaScript & Actions</div>
+                            <div class="option-description">Remove all JavaScript code and interactive actions</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeJavaScript" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Embedded Files</div>
+                            <div class="option-description">Remove embedded files and attachments</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeEmbeddedFiles" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">External Links</div>
+                            <div class="option-description">Remove hyperlinks to external websites</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeExternalLinks">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Forms & Fields</div>
+                            <div class="option-description">Remove interactive form elements</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeForms">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metadata Removal -->
+                <div class="option-group">
+                    <h6><i class="fas fa-info-circle me-2"></i>Metadata Removal</h6>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Document Properties</div>
+                            <div class="option-description">Remove author, creator, and modification info</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeDocumentProperties" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Application Data</div>
+                            <div class="option-description">Remove software-specific metadata</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeApplicationData" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Comments & Annotations</div>
+                            <div class="option-description">Remove all comments and annotations</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeComments">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Hidden Text</div>
+                            <div class="option-description">Remove invisible text and layers</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeHiddenText" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Options -->
+                <div class="option-group">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Advanced Options</h6>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Flatten Annotations</div>
+                            <div class="option-description">Convert annotations to static content</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="flattenAnnotations" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Optimize Images</div>
+                            <div class="option-description">Compress and optimize embedded images</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="optimizeImages">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="option-item">
+                        <div class="option-info">
+                            <div class="option-title">Create Backup</div>
+                            <div class="option-description">Save original document before sanitizing</div>
+                        </div>
+                        <div class="option-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="createBackup" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Analysis -->
+            <div class="analysis-section mx-4" id="analysisSection" style="display: none;">
+                <h5><i class="fas fa-search me-2"></i>Document Analysis</h5>
+                <div class="analysis-item">
+                    <span class="analysis-label">Security Risk Level:</span>
+                    <span class="risk-indicator risk-medium" id="riskLevel">Analyzing...</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">JavaScript Found:</span>
+                    <span class="analysis-value" id="javascriptFound">Scanning...</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">External Links:</span>
+                    <span class="analysis-value" id="externalLinks">Scanning...</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">Embedded Files:</span>
+                    <span class="analysis-value" id="embeddedFiles">Scanning...</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">Metadata Fields:</span>
+                    <span class="analysis-value" id="metadataFields">Scanning...</span>
+                </div>
+            </div>
+
+            <!-- Sanitization Summary -->
+            <div class="sanitize-summary mx-4" id="sanitizeSummary" style="display: none;">
+                <h5><i class="fas fa-clipboard-list me-2"></i>Sanitization Summary</h5>
+                <div class="summary-item">
+                    <span class="summary-label">Security Level:</span>
+                    <span class="summary-value" id="summarySecurityLevel">Standard</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Items to Remove:</span>
+                    <span class="summary-value" id="summaryItemsToRemove">Calculating...</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Estimated Time:</span>
+                    <span class="summary-value" id="summaryEstimatedTime">Calculating...</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">File Size Change:</span>
+                    <span class="summary-value" id="summaryFileSizeChange">Calculating...</span>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="sanitizeBtn" onclick="simulateSanitization()" disabled>
+                    <i class="fas fa-shield-virus me-2"></i>Sanitize Document
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Sanitizing Document</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing sanitization process...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Document Sanitized Successfully!</h5>
+                <p>Your PDF document has been cleaned and is now safe for sharing and distribution.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Sanitized PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Sanitize Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const sanitizeOptions = document.getElementById('sanitizeOptions');
+        const analysisSection = document.getElementById('analysisSection');
+        const sanitizeSummary = document.getElementById('sanitizeSummary');
+        const sanitizeBtn = document.getElementById('sanitizeBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+
+        // Initialize
+        window.onload = function() {
+            setupEventListeners();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                
+                // Show options and analysis
+                sanitizeOptions.style.display = 'block';
+                analysisSection.style.display = 'block';
+                sanitizeSummary.style.display = 'block';
+                
+                // Analyze document
+                analyzeDocument(file);
+                
+                // Enable sanitize button
+                sanitizeBtn.disabled = false;
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            fileInput.value = '';
+            sanitizeOptions.style.display = 'none';
+            analysisSection.style.display = 'none';
+            sanitizeSummary.style.display = 'none';
+            sanitizeBtn.disabled = true;
+        }
+
+        function selectPreset(preset) {
+            // Remove previous selection
+            document.querySelectorAll('.security-preset').forEach(p => p.classList.remove('selected'));
+            
+            // Add selection to clicked preset
+            event.currentTarget.classList.add('selected');
+            
+            // Apply preset settings
+            switch(preset) {
+                case 'minimal':
+                    applyMinimalSanitization();
+                    break;
+                case 'standard':
+                    applyStandardSanitization();
+                    break;
+                case 'maximum':
+                    applyMaximumSanitization();
+                    break;
+            }
+            
+            updateSanitizationSummary();
+        }
+
+        function applyMinimalSanitization() {
+            document.getElementById('removeJavaScript').checked = true;
+            document.getElementById('removeEmbeddedFiles').checked = false;
+            document.getElementById('removeExternalLinks').checked = false;
+            document.getElementById('removeForms').checked = false;
+            document.getElementById('removeDocumentProperties').checked = false;
+            document.getElementById('removeApplicationData').checked = false;
+            document.getElementById('removeComments').checked = false;
+            document.getElementById('removeHiddenText').checked = false;
+            document.getElementById('flattenAnnotations').checked = false;
+            document.getElementById('optimizeImages').checked = false;
+            document.getElementById('createBackup').checked = true;
+        }
+
+        function applyStandardSanitization() {
+            document.getElementById('removeJavaScript').checked = true;
+            document.getElementById('removeEmbeddedFiles').checked = true;
+            document.getElementById('removeExternalLinks').checked = false;
+            document.getElementById('removeForms').checked = false;
+            document.getElementById('removeDocumentProperties').checked = true;
+            document.getElementById('removeApplicationData').checked = true;
+            document.getElementById('removeComments').checked = false;
+            document.getElementById('removeHiddenText').checked = true;
+            document.getElementById('flattenAnnotations').checked = true;
+            document.getElementById('optimizeImages').checked = false;
+            document.getElementById('createBackup').checked = true;
+        }
+
+        function applyMaximumSanitization() {
+            document.getElementById('removeJavaScript').checked = true;
+            document.getElementById('removeEmbeddedFiles').checked = true;
+            document.getElementById('removeExternalLinks').checked = true;
+            document.getElementById('removeForms').checked = true;
+            document.getElementById('removeDocumentProperties').checked = true;
+            document.getElementById('removeApplicationData').checked = true;
+            document.getElementById('removeComments').checked = true;
+            document.getElementById('removeHiddenText').checked = true;
+            document.getElementById('flattenAnnotations').checked = true;
+            document.getElementById('optimizeImages').checked = true;
+            document.getElementById('createBackup').checked = true;
+        }
+
+        function analyzeDocument(file) {
+            // Simulate document analysis
+            setTimeout(() => {
+                const riskLevel = Math.random() > 0.7 ? 'risk-high' : Math.random() > 0.4 ? 'risk-medium' : 'risk-low';
+                const riskText = riskLevel === 'risk-high' ? 'High Risk' : riskLevel === 'risk-medium' ? 'Medium Risk' : 'Low Risk';
+                
+                document.getElementById('riskLevel').className = `risk-indicator ${riskLevel}`;
+                document.getElementById('riskLevel').textContent = riskText;
+                document.getElementById('javascriptFound').textContent = Math.random() > 0.5 ? 'Yes (2 scripts)' : 'No';
+                document.getElementById('externalLinks').textContent = Math.random() > 0.6 ? 'Yes (3 links)' : 'No';
+                document.getElementById('embeddedFiles').textContent = Math.random() > 0.7 ? 'Yes (1 file)' : 'No';
+                document.getElementById('metadataFields').textContent = Math.random() > 0.3 ? 'Yes (8 fields)' : 'No';
+                
+                updateSanitizationSummary();
+            }, 1500);
+        }
+
+        function updateSanitizationSummary() {
+            const securityLevel = document.querySelector('.security-preset.selected h6').textContent.trim();
+            const itemsToRemove = calculateItemsToRemove();
+            const estimatedTime = calculateEstimatedTime();
+            const fileSizeChange = calculateFileSizeChange();
+            
+            document.getElementById('summarySecurityLevel').textContent = securityLevel;
+            document.getElementById('summaryItemsToRemove').textContent = itemsToRemove;
+            document.getElementById('summaryEstimatedTime').textContent = estimatedTime;
+            document.getElementById('summaryFileSizeChange').textContent = fileSizeChange;
+        }
+
+        function calculateItemsToRemove() {
+            let count = 0;
+            if (document.getElementById('removeJavaScript').checked) count += 2;
+            if (document.getElementById('removeEmbeddedFiles').checked) count += 1;
+            if (document.getElementById('removeExternalLinks').checked) count += 3;
+            if (document.getElementById('removeForms').checked) count += 1;
+            if (document.getElementById('removeDocumentProperties').checked) count += 8;
+            if (document.getElementById('removeApplicationData').checked) count += 5;
+            if (document.getElementById('removeComments').checked) count += 2;
+            if (document.getElementById('removeHiddenText').checked) count += 1;
+            if (document.getElementById('flattenAnnotations').checked) count += 3;
+            if (document.getElementById('optimizeImages').checked) count += 2;
+            
+            return count + ' items';
+        }
+
+        function calculateEstimatedTime() {
+            const items = parseInt(calculateItemsToRemove());
+            if (items < 10) return '15-30 seconds';
+            if (items < 20) return '30-60 seconds';
+            return '1-2 minutes';
+        }
+
+        function calculateFileSizeChange() {
+            const items = parseInt(calculateItemsToRemove());
+            if (items < 10) return '-5% to -15%';
+            if (items < 20) return '-15% to -30%';
+            return '-30% to -50%';
+        }
+
+        function simulateSanitization() {
+            progressSection.style.display = 'block';
+            sanitizeBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Analyzing document structure...', progress: 20 },
+                { text: 'Removing harmful content...', progress: 40 },
+                { text: 'Cleaning metadata...', progress: 60 },
+                { text: 'Optimizing document...', progress: 80 },
+                { text: 'Finalizing sanitized PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'sanitized-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            sanitizeBtn.disabled = true;
+            resetUpload();
+            selectPreset('standard');
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

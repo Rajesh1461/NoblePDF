@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Large Page - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .single-page-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .single-page-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .layout-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .page-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .page-preview::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: rgba(168, 237, 234, 0.1);
+            border: 1px dashed #a8edea;
+            border-radius: 5px;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        
+        .layout-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .layout-option:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .layout-option.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+             
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="single-page-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="single-page-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-looks_one"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Single Large Page</h1>
+                            <p class="lead text-muted">Merge all PDF pages into one large single page</p>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="bi bi-info-circle text-primary"></i>
+                            <strong>How it works:</strong> This tool combines all pages of your PDF into a single large page, perfect for creating posters, banners, or when you need to view all content at once.
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Layout Options -->
+                        <div class="layout-options" id="layoutOptions" style="display: none;">
+                            <h4 class="mb-3">Layout Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="layout-option" data-layout="vertical">
+                                        <h6><i class="bi bi-arrow-down"></i> Vertical Stack</h6>
+                                        <p class="text-muted">Pages stacked vertically from top to bottom</p>
+                                    </div>
+                                    <div class="layout-option" data-layout="horizontal">
+                                        <h6><i class="bi bi-arrow-right"></i> Horizontal Row</h6>
+                                        <p class="text-muted">Pages arranged horizontally from left to right</p>
+                                    </div>
+                                    <div class="layout-option" data-layout="grid">
+                                        <h6><i class="bi bi-grid-3x3"></i> Grid Layout</h6>
+                                        <p class="text-muted">Pages arranged in a grid pattern</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="page-preview" id="pagePreview">
+                                        <span>Layout Preview</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="pageCount" class="form-label">Total Pages</label>
+                                        <input type="text" class="form-control" id="pageCount" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="outputSize" class="form-label">Estimated Output Size</label>
+                                        <input type="text" class="form-control" id="outputSize" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button class="btn convert-btn btn-lg" id="convertBtn">
+                                    <i class="bi bi-arrow-right-circle"></i> Convert to Single Page
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="text-center mt-4" id="downloadSection" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5>Conversion Complete!</h5>
+                                <p>Your PDF has been successfully converted to a single large page.</p>
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Single Page PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const layoutOptions = document.getElementById('layoutOptions');
+            const pageCount = document.getElementById('pageCount');
+            const outputSize = document.getElementById('outputSize');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const layoutOptionElements = document.querySelectorAll('.layout-option');
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf') {
+                        // Simulate page count (in real app, this would parse the PDF)
+                        const randomPages = Math.floor(Math.random() * 50) + 10;
+                        pageCount.value = randomPages;
+                        
+                        // Calculate estimated output size
+                        const estimatedSize = Math.round(file.size * 1.2 / 1024 / 1024 * 100) / 100;
+                        outputSize.value = `${estimatedSize} MB`;
+                        
+                        layoutOptions.style.display = 'block';
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            // Layout option selection
+            layoutOptionElements.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    layoutOptionElements.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                });
+            });
+
+            // Convert button handler
+            convertBtn.addEventListener('click', () => {
+                const selectedLayout = document.querySelector('.layout-option.selected');
+                if (!selectedLayout) {
+                    alert('Please select a layout option.');
+                    return;
+                }
+
+                // Simulate conversion process
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Converting...';
+
+                setTimeout(() => {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="bi bi-arrow-right-circle"></i> Convert to Single Page';
+                    downloadSection.style.display = 'block';
+                }, 3000);
+            });
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

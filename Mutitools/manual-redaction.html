@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Redaction - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .redaction-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1400px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .redaction-tools {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .tool-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .tool-button {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .tool-button:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .tool-button.active {
+            border-color: #667eea;
+            background: #e8f4fd;
+            color: #667eea;
+        }
+        
+        .tool-button i {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .redaction-options {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .redaction-preview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .preview-canvas {
+            background: white;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            width: 100%;
+            height: 350px;
+            position: relative;
+            cursor: crosshair;
+        }
+        
+        .redaction-box {
+            position: absolute;
+            background: #000;
+            border: 2px solid #333;
+            cursor: move;
+            resize: both;
+            overflow: hidden;
+        }
+        
+        .redaction-box::before {
+            content: 'REDACTED';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+        
+        .redaction-box.selected {
+            border-color: #667eea;
+            border-width: 3px;
+        }
+        
+        .redaction-box .resize-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+        
+        .resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+        .resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .redaction-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .redaction-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .redaction-info {
+            flex: 1;
+        }
+        
+        .redaction-type {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .redaction-coords {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        
+        .redaction-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.875em;
+            border-radius: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="redaction-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-eye-slash me-3"></i>Manual Redaction
+                </h1>
+                <p class="lead text-muted">Manually redact sensitive information from your PDF documents with precision tools</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box mx-4">
+                <h5><i class="fas fa-info-circle me-2"></i>Manual Redaction Tool</h5>
+                <p class="mb-0">Use precision tools to manually redact sensitive text, images, or areas. Create permanent black boxes that completely hide content and cannot be recovered.</p>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box mx-4">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Security Notice</h5>
+                <p class="mb-0"><strong>Redaction is permanent and irreversible.</strong> Once applied, the redacted content cannot be recovered. Always verify your redactions before processing.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Redaction Tools -->
+            <div class="redaction-tools mx-4">
+                <h5><i class="fas fa-tools me-2"></i>Redaction Tools</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="tool-button" onclick="selectTool('text')" id="textTool">
+                            <i class="fas fa-font"></i>
+                            <div>Text Redaction</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="tool-button" onclick="selectTool('area')" id="areaTool">
+                            <i class="fas fa-square"></i>
+                            <div>Area Redaction</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="tool-button" onclick="selectTool('image')" id="imageTool">
+                            <i class="fas fa-image"></i>
+                            <div>Image Redaction</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="tool-button" onclick="selectTool('line')" id="lineTool">
+                            <i class="fas fa-minus"></i>
+                            <div>Line Redaction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redaction Options -->
+            <div class="redaction-options mx-4">
+                <h5><i class="fas fa-cogs me-2"></i>Redaction Options</h5>
+                
+                <!-- Color and Style -->
+                <div class="option-group">
+                    <h6><i class="fas fa-palette me-2"></i>Redaction Style</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Redaction Color</label>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background: #000000;" onclick="selectColor('#000000')"></div>
+                                <div class="color-option" style="background: #333333;" onclick="selectColor('#333333')"></div>
+                                <div class="color-option" style="background: #666666;" onclick="selectColor('#666666')"></div>
+                                <div class="color-option" style="background: #990000;" onclick="selectColor('#990000')"></div>
+                                <div class="color-option" style="background: #006600;" onclick="selectColor('#006600')"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Redaction Pattern</label>
+                            <select class="form-select" id="redactionPattern">
+                                <option value="solid">Solid Fill</option>
+                                <option value="stripes">Diagonal Stripes</option>
+                                <option value="dots">Dotted Pattern</option>
+                                <option value="crosshatch">Crosshatch</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Text Options -->
+                <div class="option-group" id="textOptions" style="display: none;">
+                    <h6><i class="fas fa-font me-2"></i>Text Redaction Options</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Redaction Text</label>
+                            <input type="text" class="form-control" id="redactionText" value="REDACTED" placeholder="Text to display on redaction">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Text Color</label>
+                            <select class="form-select" id="textColor">
+                                <option value="white">White</option>
+                                <option value="red">Red</option>
+                                <option value="yellow">Yellow</option>
+                                <option value="orange">Orange</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Options -->
+                <div class="option-group">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Advanced Options</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="burnRedactions" checked>
+                                <label class="form-check-label" for="burnRedactions">
+                                    Burn Redactions (Permanent)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="removeMetadata">
+                                <label class="form-check-label" for="removeMetadata">
+                                    Remove Metadata
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="flattenAnnotations">
+                                <label class="form-check-label" for="flattenAnnotations">
+                                    Flatten Annotations
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redaction Preview -->
+            <div class="redaction-preview mx-4">
+                <h5><i class="fas fa-eye me-2"></i>Redaction Preview</h5>
+                <div class="preview-canvas" id="previewCanvas">
+                    <div class="text-center text-muted" style="padding-top: 150px;">
+                        <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                        <p>Click and drag to create redaction boxes</p>
+                        <p class="small">Use the tools above to select redaction type</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary me-2" onclick="clearAllRedactions()">
+                        <i class="fas fa-trash me-2"></i>Clear All
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="undoLastRedaction()">
+                        <i class="fas fa-undo me-2"></i>Undo Last
+                    </button>
+                </div>
+            </div>
+
+            <!-- Redaction List -->
+            <div class="redaction-list mx-4" id="redactionList" style="display: none;">
+                <h5><i class="fas fa-list me-2"></i>Redaction Summary</h5>
+                <div id="redactionItems">
+                    <!-- Redaction items will be added here -->
+                </div>
+            </div>
+
+            <!-- Apply Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="applyBtn" onclick="simulateRedaction()" disabled>
+                    <i class="fas fa-eye-slash me-2"></i>Apply Redactions & Download
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Applying Redactions</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing redaction process...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Redactions Complete!</h5>
+                <p>Your PDF has been successfully redacted and secured.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Redacted PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Redact Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentTool = 'area';
+        let currentColor = '#000000';
+        let redactions = [];
+        let selectedRedaction = null;
+        let isDrawing = false;
+        let startX, startY;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const redactionList = document.getElementById('redactionList');
+        const textOptions = document.getElementById('textOptions');
+
+        // Initialize
+        window.onload = function() {
+            setupEventListeners();
+            selectTool('area');
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Preview canvas events
+            previewCanvas.addEventListener('mousedown', startDrawing);
+            previewCanvas.addEventListener('mousemove', draw);
+            previewCanvas.addEventListener('mouseup', endDrawing);
+            previewCanvas.addEventListener('click', handleCanvasClick);
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                applyBtn.disabled = false;
+                setupPreviewCanvas();
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            applyBtn.disabled = true;
+            fileInput.value = '';
+            clearPreviewCanvas();
+        }
+
+        function setupPreviewCanvas() {
+            previewCanvas.innerHTML = `
+                <div class="text-center text-muted" style="padding-top: 150px;">
+                    <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                    <p>Click and drag to create redaction boxes</p>
+                    <p class="small">Use the tools above to select redaction type</p>
+                </div>
+            `;
+            redactionList.style.display = 'block';
+        }
+
+        function clearPreviewCanvas() {
+            previewCanvas.innerHTML = `
+                <div class="text-center text-muted" style="padding-top: 150px;">
+                    <i class="fas fa-file-pdf fa-3x mb-3"></i>
+                    <p>Upload a PDF to start redacting</p>
+                </div>
+            `;
+            redactionList.style.display = 'none';
+            redactions = [];
+            updateRedactionList();
+        }
+
+        function selectTool(tool) {
+            currentTool = tool;
+            
+            // Update tool buttons
+            document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tool + 'Tool').classList.add('active');
+            
+            // Show/hide text options
+            if (tool === 'text') {
+                textOptions.style.display = 'block';
+            } else {
+                textOptions.style.display = 'none';
+            }
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            
+            // Update color selection
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function startDrawing(e) {
+            if (redactions.length >= 50) {
+                alert('Maximum 50 redactions allowed per document.');
+                return;
+            }
+            
+            isDrawing = true;
+            const rect = previewCanvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = previewCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            // Clear previous preview
+            clearDrawingPreview();
+            
+            // Draw preview
+            drawRedactionPreview(startX, startY, currentX, currentY);
+        }
+
+        function endDrawing(e) {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            const rect = previewCanvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+            
+            // Clear preview
+            clearDrawingPreview();
+            
+            // Create redaction
+            createRedaction(startX, startY, endX, endY);
+        }
+
+        function clearDrawingPreview() {
+            const previews = previewCanvas.querySelectorAll('.drawing-preview');
+            previews.forEach(p => p.remove());
+        }
+
+        function drawRedactionPreview(x1, y1, x2, y2) {
+            const preview = document.createElement('div');
+            preview.className = 'drawing-preview';
+            preview.style.position = 'absolute';
+            preview.style.left = Math.min(x1, x2) + 'px';
+            preview.style.top = Math.min(y1, y2) + 'px';
+            preview.style.width = Math.abs(x2 - x1) + 'px';
+            preview.style.height = Math.abs(y2 - y1) + 'px';
+            preview.style.background = currentColor;
+            preview.style.border = '2px dashed #667eea';
+            preview.style.pointerEvents = 'none';
+            preview.style.opacity = '0.7';
+            
+            previewCanvas.appendChild(preview);
+        }
+
+        function createRedaction(x1, y1, x2, y2) {
+            const redaction = {
+                id: Date.now(),
+                type: currentTool,
+                x: Math.min(x1, x2),
+                y: Math.min(y1, y2),
+                width: Math.abs(x2 - x1),
+                height: Math.abs(y2 - y1),
+                color: currentColor,
+                pattern: document.getElementById('redactionPattern').value,
+                text: document.getElementById('redactionText').value,
+                textColor: document.getElementById('textColor').value
+            };
+            
+            redactions.push(redaction);
+            drawRedaction(redaction);
+            updateRedactionList();
+        }
+
+        function drawRedaction(redaction) {
+            const redactionBox = document.createElement('div');
+            redactionBox.className = 'redaction-box';
+            redactionBox.id = 'redaction-' + redaction.id;
+            redactionBox.style.left = redaction.x + 'px';
+            redactionBox.style.top = redaction.y + 'px';
+            redactionBox.style.width = redaction.width + 'px';
+            redactionBox.style.height = redaction.height + 'px';
+            redactionBox.style.background = redaction.color;
+            
+            // Add resize handles
+            const handles = ['nw', 'ne', 'sw', 'se'];
+            handles.forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = 'resize-handle ' + pos;
+                redactionBox.appendChild(handle);
+            });
+            
+            // Add event listeners
+            redactionBox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectRedaction(redaction.id);
+            });
+            
+            previewCanvas.appendChild(redactionBox);
+        }
+
+        function selectRedaction(id) {
+            // Remove previous selection
+            if (selectedRedaction) {
+                document.getElementById('redaction-' + selectedRedaction).classList.remove('selected');
+            }
+            
+            selectedRedaction = id;
+            document.getElementById('redaction-' + id).classList.add('selected');
+        }
+
+        function handleCanvasClick(e) {
+            if (e.target === previewCanvas) {
+                if (selectedRedaction) {
+                    document.getElementById('redaction-' + selectedRedaction).classList.remove('selected');
+                    selectedRedaction = null;
+                }
+            }
+        }
+
+        function updateRedactionList() {
+            const container = document.getElementById('redactionItems');
+            container.innerHTML = '';
+            
+            redactions.forEach((redaction, index) => {
+                const item = document.createElement('div');
+                item.className = 'redaction-item';
+                item.innerHTML = `
+                    <div class="redaction-info">
+                        <div class="redaction-type">${redaction.type.charAt(0).toUpperCase() + redaction.type.slice(1)} Redaction</div>
+                        <div class="redaction-coords">Position: (${redaction.x}, ${redaction.y}) | Size: ${redaction.width}×${redaction.height}</div>
+                    </div>
+                    <div class="redaction-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editRedaction(${redaction.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRedaction(${redaction.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function editRedaction(id) {
+            const redaction = redactions.find(r => r.id === id);
+            if (redaction) {
+                // In a real app, this would open an edit dialog
+                alert(`Edit redaction ${id}. In a real application, this would open an edit dialog for position, size, and style.`);
+            }
+        }
+
+        function deleteRedaction(id) {
+            if (confirm('Are you sure you want to delete this redaction?')) {
+                redactions = redactions.filter(r => r.id !== id);
+                document.getElementById('redaction-' + id).remove();
+                updateRedactionList();
+                
+                if (selectedRedaction === id) {
+                    selectedRedaction = null;
+                }
+            }
+        }
+
+        function clearAllRedactions() {
+            if (confirm('Are you sure you want to clear all redactions?')) {
+                redactions.forEach(redaction => {
+                    const element = document.getElementById('redaction-' + redaction.id);
+                    if (element) element.remove();
+                });
+                redactions = [];
+                selectedRedaction = null;
+                updateRedactionList();
+            }
+        }
+
+        function undoLastRedaction() {
+            if (redactions.length > 0) {
+                const lastRedaction = redactions.pop();
+                const element = document.getElementById('redaction-' + lastRedaction.id);
+                if (element) element.remove();
+                
+                if (selectedRedaction === lastRedaction.id) {
+                    selectedRedaction = null;
+                }
+                updateRedactionList();
+            }
+        }
+
+        function simulateRedaction() {
+            if (redactions.length === 0) {
+                alert('Please add at least one redaction before processing.');
+                return;
+            }
+            
+            progressSection.style.display = 'block';
+            applyBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Analyzing redaction areas...', progress: 20 },
+                { text: 'Applying redaction masks...', progress: 40 },
+                { text: 'Burning redactions permanently...', progress: 60 },
+                { text: 'Optimizing document...', progress: 80 },
+                { text: 'Finalizing redacted PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'redacted-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            applyBtn.disabled = true;
+            resetUpload();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

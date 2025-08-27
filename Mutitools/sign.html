@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sign-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .signature-options {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .signature-type {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .signature-type:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .signature-type.selected {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+        
+        .signature-canvas {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        #signatureCanvas {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: crosshair;
+        }
+        
+        .canvas-tools {
+            margin: 15px 0;
+        }
+        
+        .canvas-tool {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .canvas-tool:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        
+        .canvas-tool.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .signature-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .signature-preview img {
+            max-width: 100%;
+            max-height: 80px;
+        }
+        
+        .signature-preview.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .signature-placement {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .placement-preview {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 200px;
+            position: relative;
+            background-image: 
+                linear-gradient(90deg, #e9ecef 1px, transparent 1px),
+                linear-gradient(#e9ecef 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .signature-box {
+            position: absolute;
+            border: 2px dashed #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 5px;
+            cursor: move;
+            resize: both;
+            overflow: hidden;
+            min-width: 150px;
+            min-height: 60px;
+        }
+        
+        .signature-box::before {
+            content: 'Signature';
+            color: #667eea;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="sign-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-signature me-3"></i>Sign
+                </h1>
+                <p class="lead text-muted">Digitally sign your PDF documents with custom signatures</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box mx-4">
+                <h5><i class="fas fa-info-circle me-2"></i>Digital Signature Tool</h5>
+                <p class="mb-0">Create and apply digital signatures to your PDF documents. Choose from drawn signatures, typed text, or uploaded images.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Signature Options -->
+            <div class="signature-options mx-4" id="signatureOptions" style="display: none;">
+                <h5><i class="fas fa-pen me-2"></i>Signature Options</h5>
+                
+                <!-- Signature Type Selection -->
+                <div class="option-group">
+                    <h6><i class="fas fa-shield-alt me-2"></i>Signature Type</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="signature-type" onclick="selectSignatureType('drawn')" id="drawnType">
+                                <i class="fas fa-pen-fancy fa-2x text-primary mb-2"></i>
+                                <div><strong>Drawn Signature</strong></div>
+                                <small class="text-muted">Draw with mouse/touch</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="signature-type" onclick="selectSignatureType('typed')" id="typedType">
+                                <i class="fas fa-font fa-2x text-primary mb-2"></i>
+                                <div><strong>Typed Text</strong></div>
+                                <small class="text-muted">Type your name</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="signature-type" onclick="selectSignatureType('upload')" id="uploadType">
+                                <i class="fas fa-image fa-2x text-primary mb-2"></i>
+                                <div><strong>Upload Image</strong></div>
+                                <small class="text-muted">Upload signature file</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Drawn Signature Canvas -->
+                <div class="option-group" id="drawnSignatureGroup" style="display: none;">
+                    <h6><i class="fas fa-pen-fancy me-2"></i>Draw Your Signature</h6>
+                    <div class="signature-canvas">
+                        <canvas id="signatureCanvas" width="400" height="150"></canvas>
+                        <div class="canvas-tools">
+                            <button class="canvas-tool active" onclick="setTool('pen')" id="penTool">
+                                <i class="fas fa-pen"></i> Pen
+                            </button>
+                            <button class="canvas-tool" onclick="setTool('eraser')" id="eraserTool">
+                                <i class="fas fa-eraser"></i> Eraser
+                            </button>
+                            <button class="canvas-tool" onclick="clearCanvas()">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Pen Color:</label>
+                            <input type="color" class="form-control form-control-color" id="penColor" value="#000000" style="width: 60px;">
+                            <label class="form-label ms-3">Pen Width:</label>
+                            <input type="range" class="form-range" id="penWidth" min="1" max="10" value="3" style="width: 100px; display: inline-block;">
+                            <span id="penWidthValue">3</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Typed Signature -->
+                <div class="option-group" id="typedSignatureGroup" style="display: none;">
+                    <h6><i class="fas fa-font me-2"></i>Type Your Signature</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Signature Text</label>
+                            <input type="text" class="form-control" id="signatureText" placeholder="Enter your name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Font Family</label>
+                            <select class="form-select" id="signatureFont">
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Brush Script MT">Brush Script MT</option>
+                                <option value="Lucida Handwriting">Lucida Handwriting</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Font Size</label>
+                            <input type="range" class="form-range" id="fontSize" min="12" max="72" value="24">
+                            <span id="fontSizeValue">24</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Text Color</label>
+                            <input type="color" class="form-control form-control-color" id="textColor" value="#000000" style="width: 60px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upload Signature -->
+                <div class="option-group" id="uploadSignatureGroup" style="display: none;">
+                    <h6><i class="fas fa-image me-2"></i>Upload Signature Image</h6>
+                    <div class="text-center">
+                        <input type="file" class="form-control" id="signatureImage" accept="image/*" style="display: none;">
+                        <button class="btn btn-outline-primary" onclick="document.getElementById('signatureImage').click()">
+                            <i class="fas fa-upload me-2"></i>Choose Signature Image
+                        </button>
+                        <p class="text-muted mt-2">Supported formats: JPG, PNG, GIF, BMP</p>
+                    </div>
+                </div>
+                
+                <!-- Signature Preview -->
+                <div class="option-group">
+                    <h6><i class="fas fa-eye me-2"></i>Signature Preview</h6>
+                    <div class="signature-preview" id="signaturePreview">
+                        <div class="empty">Create or upload a signature to see preview</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature Placement -->
+            <div class="signature-placement mx-4" id="signaturePlacement" style="display: none;">
+                <h5><i class="fas fa-map-marker-alt me-2"></i>Signature Placement</h5>
+                
+                <div class="option-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Page Number</label>
+                            <select class="form-select" id="pageNumber">
+                                <option value="1">Page 1</option>
+                                <option value="2">Page 2</option>
+                                <option value="3">Page 3</option>
+                                <option value="all">All Pages</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Position Preset</label>
+                            <select class="form-select" id="positionPreset" onchange="applyPositionPreset()">
+                                <option value="custom">Custom Position</option>
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="top-left">Top Left</option>
+                                <option value="center">Center</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">Signature Position Preview</label>
+                        <div class="placement-preview" id="placementPreview">
+                            <div class="signature-box" id="signatureBox" style="top: 50px; left: 50px; width: 150px; height: 60px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="signBtn" onclick="simulateSigning()" disabled>
+                    <i class="fas fa-signature me-2"></i>Sign Document
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Signing Document</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing signature process...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Document Signed Successfully!</h5>
+                <p>Your PDF document has been digitally signed and is ready for download.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Signed PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Sign Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const signatureOptions = document.getElementById('signatureOptions');
+        const signaturePlacement = document.getElementById('signaturePlacement');
+        const signBtn = document.getElementById('signBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        
+        let currentSignatureType = 'drawn';
+        let currentTool = 'pen';
+        let isDrawing = false;
+        let canvas, ctx;
+
+        // Initialize
+        window.onload = function() {
+            setupEventListeners();
+            setupCanvas();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Signature image upload
+            document.getElementById('signatureImage').addEventListener('change', handleSignatureImage);
+            
+            // Form controls
+            document.getElementById('signatureText').addEventListener('input', updateTypedSignature);
+            document.getElementById('signatureFont').addEventListener('change', updateTypedSignature);
+            document.getElementById('fontSize').addEventListener('input', updateFontSize);
+            document.getElementById('textColor').addEventListener('change', updateTypedSignature);
+            document.getElementById('penColor').addEventListener('change', updatePenColor);
+            document.getElementById('penWidth').addEventListener('input', updatePenWidth);
+        }
+
+        function setupCanvas() {
+            canvas = document.getElementById('signatureCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set initial canvas style
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Canvas event listeners
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                
+                // Show signature options
+                signatureOptions.style.display = 'block';
+                signaturePlacement.style.display = 'block';
+                
+                // Enable sign button when signature is created
+                updateSignButton();
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            fileInput.value = '';
+            signatureOptions.style.display = 'none';
+            signaturePlacement.style.display = 'none';
+            signBtn.disabled = true;
+        }
+
+        function selectSignatureType(type) {
+            currentSignatureType = type;
+            
+            // Remove previous selection
+            document.querySelectorAll('.signature-type').forEach(t => t.classList.remove('selected'));
+            document.getElementById(type + 'Type').classList.add('selected');
+            
+            // Hide all signature groups
+            document.getElementById('drawnSignatureGroup').style.display = 'none';
+            document.getElementById('typedSignatureGroup').style.display = 'none';
+            document.getElementById('uploadSignatureGroup').style.display = 'none';
+            
+            // Show selected group
+            document.getElementById(type + 'SignatureGroup').style.display = 'block';
+            
+            // Update sign button
+            updateSignButton();
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            
+            // Update tool buttons
+            document.querySelectorAll('.canvas-tool').forEach(t => t.classList.remove('active'));
+            document.getElementById(tool + 'Tool').classList.add('active');
+            
+            if (tool === 'pen') {
+                ctx.globalCompositeOperation = 'source-over';
+            } else if (tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+            }
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            
+            // Update signature preview
+            updateSignaturePreview();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updateSignaturePreview();
+        }
+
+        function updatePenColor() {
+            const color = document.getElementById('penColor').value;
+            ctx.strokeStyle = color;
+        }
+
+        function updatePenWidth() {
+            const width = document.getElementById('penWidth').value;
+            ctx.lineWidth = width;
+            document.getElementById('penWidthValue').textContent = width;
+        }
+
+        function handleSignatureImage(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Create canvas to resize image
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = 200;
+                        tempCanvas.height = 80;
+                        
+                        // Draw resized image
+                        tempCtx.drawImage(img, 0, 0, 200, 80);
+                        
+                        // Update preview
+                        document.getElementById('signaturePreview').innerHTML = `<img src="${tempCanvas.toDataURL()}" alt="Signature">`;
+                        
+                        updateSignButton();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateTypedSignature() {
+            const text = document.getElementById('signatureText').value;
+            const font = document.getElementById('signatureFont').value;
+            const size = document.getElementById('fontSize').value;
+            const color = document.getElementById('textColor').value;
+            
+            if (text) {
+                // Create canvas for typed signature
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = 300;
+                tempCanvas.height = 100;
+                
+                // Set font and draw text
+                tempCtx.font = `${size}px ${font}`;
+                tempCtx.fillStyle = color;
+                tempCtx.textAlign = 'center';
+                tempCtx.textBaseline = 'middle';
+                tempCtx.fillText(text, 150, 50);
+                
+                // Update preview
+                document.getElementById('signaturePreview').innerHTML = `<img src="${tempCanvas.toDataURL()}" alt="Signature">`;
+                
+                updateSignButton();
+            }
+        }
+
+        function updateFontSize() {
+            const size = document.getElementById('fontSize').value;
+            document.getElementById('fontSizeValue').textContent = size;
+            updateTypedSignature();
+        }
+
+        function updateSignaturePreview() {
+            if (currentSignatureType === 'drawn') {
+                // Convert canvas to image
+                const dataURL = canvas.toDataURL();
+                document.getElementById('signaturePreview').innerHTML = `<img src="${dataURL}" alt="Signature">`;
+                updateSignButton();
+            }
+        }
+
+        function applyPositionPreset() {
+            const preset = document.getElementById('positionPreset').value;
+            const signatureBox = document.getElementById('signatureBox');
+            
+            if (preset !== 'custom') {
+                const preview = document.getElementById('placementPreview');
+                const rect = preview.getBoundingClientRect();
+                
+                switch(preset) {
+                    case 'bottom-right':
+                        signatureBox.style.top = (rect.height - 80) + 'px';
+                        signatureBox.style.left = (rect.width - 170) + 'px';
+                        break;
+                    case 'bottom-left':
+                        signatureBox.style.top = (rect.height - 80) + 'px';
+                        signatureBox.style.left = '20px';
+                        break;
+                    case 'top-right':
+                        signatureBox.style.top = '20px';
+                        signatureBox.style.left = (rect.width - 170) + 'px';
+                        break;
+                    case 'top-left':
+                        signatureBox.style.top = '20px';
+                        signatureBox.style.left = '20px';
+                        break;
+                    case 'center':
+                        signatureBox.style.top = (rect.height / 2 - 30) + 'px';
+                        signatureBox.style.left = (rect.width / 2 - 75) + 'px';
+                        break;
+                }
+            }
+        }
+
+        function updateSignButton() {
+            let hasSignature = false;
+            
+            switch(currentSignatureType) {
+                case 'drawn':
+                    // Check if canvas has content
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    hasSignature = imageData.data.some(channel => channel !== 0);
+                    break;
+                case 'typed':
+                    hasSignature = document.getElementById('signatureText').value.trim() !== '';
+                    break;
+                case 'upload':
+                    hasSignature = document.getElementById('signatureImage').files.length > 0;
+                    break;
+            }
+            
+            signBtn.disabled = !hasSignature;
+        }
+
+        function simulateSigning() {
+            progressSection.style.display = 'block';
+            signBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Preparing document...', progress: 20 },
+                { text: 'Applying signature...', progress: 40 },
+                { text: 'Validating signature...', progress: 60 },
+                { text: 'Finalizing document...', progress: 80 },
+                { text: 'Creating signed PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'signed-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            signBtn.disabled = true;
+            resetUpload();
+            selectSignatureType('drawn');
+            clearCanvas();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

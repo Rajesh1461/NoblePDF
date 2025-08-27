@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Multi Tool - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .multi-tool-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .multi-tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .tool-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .tool-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tool-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .tool-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tool-option input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+        
+        .page-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .page-preview::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px dashed #667eea;
+            border-radius: 5px;
+        }
+        
+        .process-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .tool-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a href="index.html">
+                    <i class="bi bi-arrow-left"></i> Back to Tools
+                </a>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="multi-tool-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="multi-tool-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">PDF Multi Tool</h1>
+                            <p class="lead text-muted">Combine multiple operations in one powerful tool</p>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="bi bi-info-circle text-primary"></i>
+                            <strong>How it works:</strong> Select multiple operations to perform on your PDF simultaneously. This tool can merge, rotate, rearrange, split, and remove pages all in one go, saving you time and effort.
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Tool Options -->
+                        <div class="tool-options" id="toolOptions" style="display: none;">
+                            <h4 class="mb-3">Select Operations</h4>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="tool-option" data-tool="merge">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-plus-circle"></i></span>
+                                            <strong>Merge PDFs</strong>
+                                            <p class="text-muted mb-0">Combine multiple PDF files into one</p>
+                                        </div>
+                                        <input type="checkbox" id="mergeCheck">
+                                    </div>
+                                    
+                                    <div class="tool-option" data-tool="rotate">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-arrow-clockwise"></i></span>
+                                            <strong>Rotate Pages</strong>
+                                            <p class="text-muted mb-0">Rotate specific pages or entire document</p>
+                                        </div>
+                                        <input type="checkbox" id="rotateCheck">
+                                    </div>
+                                    
+                                    <div class="tool-option" data-tool="rearrange">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-arrow-left-right"></i></span>
+                                            <strong>Rearrange Pages</strong>
+                                            <p class="text-muted mb-0">Change the order of pages</p>
+                                        </div>
+                                        <input type="checkbox" id="rearrangeCheck">
+                                    </div>
+                                    
+                                    <div class="tool-option" data-tool="split">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-scissors"></i></span>
+                                            <strong>Split PDF</strong>
+                                            <p class="text-muted mb-0">Divide PDF into multiple files</p>
+                                        </div>
+                                        <input type="checkbox" id="splitCheck">
+                                    </div>
+                                    
+                                    <div class="tool-option" data-tool="remove">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-trash"></i></span>
+                                            <strong>Remove Pages</strong>
+                                            <p class="text-muted mb-0">Delete unwanted pages</p>
+                                        </div>
+                                        <input type="checkbox" id="removeCheck">
+                                    </div>
+                                    
+                                    <div class="tool-option" data-tool="crop">
+                                        <div>
+                                            <span class="tool-icon"><i class="bi bi-crop"></i></span>
+                                            <strong>Crop Pages</strong>
+                                            <p class="text-muted mb-0">Trim page margins and content</p>
+                                        </div>
+                                        <input type="checkbox" id="cropCheck">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="page-preview" id="pagePreview">
+                                        <span>Preview</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <label for="pageCount" class="form-label">Total Pages</label>
+                                        <input type="text" class="form-control" id="pageCount" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button class="btn process-btn btn-lg" id="processBtn">
+                                    <i class="bi bi-play-circle"></i> Process PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="text-center mt-4" id="downloadSection" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5>Processing Complete!</h5>
+                                <p>Your PDF has been processed with all selected operations.</p>
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Processed PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const toolOptions = document.getElementById('toolOptions');
+            const pageCount = document.getElementById('pageCount');
+            const processBtn = document.getElementById('processBtn');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const toolOptionElements = document.querySelectorAll('.tool-option');
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf') {
+                        // Simulate page count (in real app, this would parse the PDF)
+                        const randomPages = Math.floor(Math.random() * 50) + 10;
+                        pageCount.value = randomPages;
+                        
+                        toolOptions.style.display = 'block';
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            // Tool option selection
+            toolOptionElements.forEach(option => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                option.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    updateToolSelection();
+                });
+                
+                checkbox.addEventListener('change', updateToolSelection);
+            });
+
+            function updateToolSelection() {
+                const selectedTools = document.querySelectorAll('.tool-option input[type="checkbox"]:checked');
+                toolOptionElements.forEach(option => {
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    if (checkbox.checked) {
+                        option.classList.add('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Process button handler
+            processBtn.addEventListener('click', () => {
+                const selectedTools = document.querySelectorAll('.tool-option input[type="checkbox"]:checked');
+                if (selectedTools.length === 0) {
+                    alert('Please select at least one operation to perform.');
+                    return;
+                }
+
+                // Simulate processing
+                processBtn.disabled = true;
+                processBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+
+                setTimeout(() => {
+                    processBtn.disabled = false;
+                    processBtn.innerHTML = '<i class="bi bi-play-circle"></i> Process PDF';
+                    downloadSection.style.display = 'block';
+                }, 4000);
+            });
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

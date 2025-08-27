@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock PDF Forms - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .unlock-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .unlock-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .form-analysis {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .form-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .form-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .form-info {
+            flex: 1;
+        }
+        .form-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+        .form-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .form-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-locked {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-unlocked {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .unlock-options {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .form-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-container {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        .preview-box {
+            flex: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        .preview-image {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin: 1rem 0;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .form-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #a8edea;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .bulk-actions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-select-all {
+            background: #007bff;
+            color: white;
+        }
+        .btn-deselect-all {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-unlock-selected {
+            background: #28a745;
+            color: white;
+        }
+        .btn-unlock-all {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+            
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="unlock-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="unlock-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-unlock"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Unlock PDF Forms</h1>
+                            <p class="lead text-muted">Remove restrictions and unlock interactive forms in your PDF documents</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to unlock forms</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Form Analysis Section -->
+                        <div class="form-analysis" id="formAnalysis" style="display: none;">
+                            <h4 class="mb-3">Form Analysis Results</h4>
+                            <div class="form-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="totalForms">0</div>
+                                    <div class="stat-label">Total Forms</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="lockedForms">0</div>
+                                    <div class="stat-label">Locked Forms</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="unlockedForms">0</div>
+                                    <div class="stat-label">Unlocked Forms</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="restrictedPages">0</div>
+                                    <div class="stat-label">Restricted Pages</div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mt-4 mb-3">Form Details</h5>
+                            <div id="formList">
+                                <!-- Forms will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Unlock Options -->
+                        <div class="unlock-options" id="unlockOptions" style="display: none;">
+                            <h4 class="mb-3">Unlock Options</h4>
+                            <div class="option-group">
+                                <div class="option-title">Form Field Access</div>
+                                <div class="option-description">Choose which form fields to unlock</div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="unlockTextFields" checked>
+                                    <label class="form-check-label" for="unlockTextFields">
+                                        Unlock Text Input Fields
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="unlockCheckboxes" checked>
+                                    <label class="form-check-label" for="unlockCheckboxes">
+                                        Unlock Checkboxes and Radio Buttons
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="unlockDropdowns" checked>
+                                    <label class="form-check-label" for="unlockDropdowns">
+                                        Unlock Dropdown Menus
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="unlockButtons" checked>
+                                    <label class="form-check-label" for="unlockButtons">
+                                        Unlock Action Buttons
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="option-group">
+                                <div class="option-title">Security Level</div>
+                                <div class="option-description">Choose the level of unlocking</div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="securityLevel" id="basicUnlock" value="basic" checked>
+                                    <label class="form-check-label" for="basicUnlock">
+                                        Basic Unlock - Remove form restrictions only
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="securityLevel" id="fullUnlock" value="full">
+                                    <label class="form-check-label" for="fullUnlock">
+                                        Full Unlock - Remove all restrictions and security
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="securityLevel" id="selectiveUnlock" value="selective">
+                                    <label class="form-check-label" for="selectiveUnlock">
+                                        Selective Unlock - Choose specific restrictions to remove
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="option-group">
+                                <div class="option-title">Additional Options</div>
+                                <div class="option-description">Additional unlocking features</div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
+                                    <label class="form-check-label" for="preserveFormatting">
+                                        Preserve Original Formatting
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="createBackup">
+                                    <label class="form-check-label" for="createBackup">
+                                        Create Backup of Original PDF
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="maintainSecurity">
+                                    <label class="form-check-label" for="maintainSecurity">
+                                        Maintain Other Security Features
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Actions -->
+                        <div class="bulk-actions" id="bulkActions" style="display: none;">
+                            <h4 class="mb-3">Bulk Actions</h4>
+                            <div class="action-buttons">
+                                <button class="btn action-btn btn-select-all" id="selectAllBtn">
+                                    <i class="bi bi-check-all"></i> Select All
+                                </button>
+                                <button class="btn action-btn btn-deselect-all" id="deselectAllBtn">
+                                    <i class="bi bi-x-circle"></i> Deselect All
+                                </button>
+                                <button class="btn action-btn btn-unlock-selected" id="unlockSelectedBtn">
+                                    <i class="bi bi-unlock"></i> Unlock Selected
+                                </button>
+                                <button class="btn action-btn btn-unlock-all" id="unlockAllBtn">
+                                    <i class="bi bi-unlock-fill"></i> Unlock All
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Form Preview -->
+                        <div class="form-preview" id="formPreview" style="display: none;">
+                            <h4 class="mb-3">Before & After Preview</h4>
+                            <div class="preview-container">
+                                <div class="preview-box">
+                                    <div class="preview-title">Original PDF</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-file-pdf display-4"></i>
+                                        <div>Locked forms</div>
+                                    </div>
+                                    <small class="text-muted">Forms are restricted and locked</small>
+                                </div>
+                                <div class="preview-box">
+                                    <div class="preview-title">Unlocked PDF</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-file-pdf display-4"></i>
+                                        <div>Unlocked forms</div>
+                                    </div>
+                                    <small class="text-muted">Forms are now interactive and editable</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn process-btn btn-lg" id="unlockFormsBtn">
+                                <i class="bi bi-unlock"></i> Unlock PDF Forms
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Unlocking PDF Forms</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing form unlocking...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Forms Unlocked Successfully!</h6>
+                            <p class="mb-3">Your PDF forms have been unlocked and are now fully interactive.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Unlocked PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const formAnalysis = document.getElementById('formAnalysis');
+            const unlockOptions = document.getElementById('unlockOptions');
+            const bulkActions = document.getElementById('bulkActions');
+            const formPreview = document.getElementById('formPreview');
+            const actionButtons = document.getElementById('actionButtons');
+            const unlockFormsBtn = document.getElementById('unlockFormsBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Bulk action buttons
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            const unlockSelectedBtn = document.getElementById('unlockSelectedBtn');
+            const unlockAllBtn = document.getElementById('unlockAllBtn');
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showFormInterface();
+                        analyzeForms();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showFormInterface() {
+                formAnalysis.style.display = 'block';
+                unlockOptions.style.display = 'block';
+                bulkActions.style.display = 'block';
+                formPreview.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            function analyzeForms() {
+                // Simulate form analysis
+                const totalForms = Math.floor(Math.random() * 15) + 5;
+                const lockedForms = Math.floor(totalForms * 0.7);
+                const unlockedForms = totalForms - lockedForms;
+                const restrictedPages = Math.floor(Math.random() * 5) + 1;
+                
+                // Update stats
+                document.getElementById('totalForms').textContent = totalForms;
+                document.getElementById('lockedForms').textContent = lockedForms;
+                document.getElementById('unlockedForms').textContent = unlockedForms;
+                document.getElementById('restrictedPages').textContent = restrictedPages;
+                
+                // Populate form list
+                populateFormList(totalForms, lockedForms);
+            }
+
+            function populateFormList(totalForms, lockedForms) {
+                const formList = document.getElementById('formList');
+                formList.innerHTML = '';
+                
+                const formTypes = [
+                    'Personal Information Form',
+                    'Contact Details',
+                    'Address Information',
+                    'Employment History',
+                    'Educational Background',
+                    'Financial Information',
+                    'Medical History',
+                    'Emergency Contacts',
+                    'References',
+                    'Additional Comments',
+                    'Signature Field',
+                    'Date Field',
+                    'Checkbox Group',
+                    'Radio Selection',
+                    'Dropdown Menu'
+                ];
+                
+                for (let i = 0; i < totalForms; i++) {
+                    const isLocked = i < lockedForms;
+                    const formType = formTypes[i % formTypes.length];
+                    
+                    const formItem = document.createElement('div');
+                    formItem.className = 'form-item';
+                    formItem.innerHTML = `
+                        <div class="form-info">
+                            <div class="form-name">${formType}</div>
+                            <div class="form-description">Form field ${i + 1} of ${totalForms}</div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form${i}" ${isLocked ? 'checked' : ''}>
+                        </div>
+                        <span class="form-status ${isLocked ? 'status-locked' : 'status-unlocked'}">
+                            ${isLocked ? 'Locked' : 'Unlocked'}
+                        </span>
+                    `;
+                    
+                    formList.appendChild(formItem);
+                }
+            }
+
+            // Bulk action handlers
+            selectAllBtn.addEventListener('click', () => {
+                document.querySelectorAll('#formList input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+
+            deselectAllBtn.addEventListener('click', () => {
+                document.querySelectorAll('#formList input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+
+            unlockSelectedBtn.addEventListener('click', () => {
+                const selectedForms = document.querySelectorAll('#formList input[type="checkbox"]:checked');
+                if (selectedForms.length === 0) {
+                    alert('Please select at least one form to unlock.');
+                    return;
+                }
+                unlockForms(selectedForms.length);
+            });
+
+            unlockAllBtn.addEventListener('click', () => {
+                const totalForms = document.querySelectorAll('#formList input[type="checkbox"]').length;
+                unlockForms(totalForms);
+            });
+
+            // Unlock forms button handler
+            unlockFormsBtn.addEventListener('click', () => {
+                // Validate options
+                if (!document.getElementById('unlockTextFields').checked && 
+                    !document.getElementById('unlockCheckboxes').checked &&
+                    !document.getElementById('unlockDropdowns').checked &&
+                    !document.getElementById('unlockButtons').checked) {
+                    alert('Please select at least one form field type to unlock.');
+                    return;
+                }
+
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate form unlocking
+                simulateFormUnlocking();
+            });
+
+            function unlockForms(count) {
+                // Hide bulk actions
+                bulkActions.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate unlocking specific forms
+                simulateFormUnlocking(count);
+            }
+
+            function simulateFormUnlocking(count = null) {
+                const steps = [
+                    { text: 'Analyzing form restrictions...', progress: 20 },
+                    { text: 'Removing form locks...', progress: 40 },
+                    { text: 'Updating field permissions...', progress: 60 },
+                    { text: 'Optimizing form functionality...', progress: 80 },
+                    { text: 'Finalizing unlocked PDF...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Download functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

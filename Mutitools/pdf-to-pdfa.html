@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to PDF/A - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .pdfa-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .pdfa-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: '#fed6e3';
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .pdfa-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .compliance-section {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .compliance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .compliance-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .compliance-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .compliance-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .badge-a1b {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .badge-a2b {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .badge-a3b {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .quality-section {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+        .quality-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .quality-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .quality-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .analysis-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .analysis-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .analysis-icon {
+            font-size: 2rem;
+            color: #a8edea;
+            margin-bottom: 0.5rem;
+        }
+        .analysis-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+        .analysis-value {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #0c5460;
+        }
+        .info-box h6 {
+            color: #0c5460;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+  
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pdfa-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="pdfa-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">PDF to PDF/A</h1>
+                            <p class="lead text-muted">Convert your PDFs to PDF/A format for long-term archiving and compliance</p>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <h6><i class="bi bi-info-circle"></i> What is PDF/A?</h6>
+                            <p class="mb-0">PDF/A is an ISO-standardized version of PDF designed for long-term archiving. It ensures that documents can be reproduced exactly the same way using various tools in the future, making it ideal for legal, government, and archival purposes.</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to convert to PDF/A</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- PDF/A Compliance Options -->
+                        <div class="compliance-section" id="complianceSection" style="display: none;">
+                            <h4 class="mb-3">PDF/A Compliance Level</h4>
+                            <div class="compliance-item">
+                                <div>
+                                    <div class="compliance-label">PDF/A-1b (Basic)</div>
+                                    <div class="compliance-description">Ensures visual appearance is preserved. Most widely supported.</div>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="compliance" id="a1b" value="a1b" checked>
+                                </div>
+                                <span class="compliance-badge badge-a1b">A-1b</span>
+                            </div>
+                            <div class="compliance-item">
+                                <div>
+                                    <div class="compliance-label">PDF/A-2b (Enhanced)</div>
+                                    <div class="compliance-description">Includes additional features like transparency and layers.</div>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="compliance" id="a2b" value="a2b">
+                                </div>
+                                <span class="compliance-badge badge-a2b">A-2b</span>
+                            </div>
+                            <div class="compliance-item">
+                                <div>
+                                    <div class="compliance-label">PDF/A-3b (Flexible)</div>
+                                    <div class="compliance-description">Allows embedded files and attachments.</div>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="compliance" id="a3b" value="a3b">
+                                </div>
+                                <span class="compliance-badge badge-a3b">A-3b</span>
+                            </div>
+                        </div>
+
+                        <!-- Quality Options -->
+                        <div class="quality-section" id="qualitySection" style="display: none;">
+                            <h4 class="mb-3">Conversion Quality Settings</h4>
+                            <div class="quality-item">
+                                <div>
+                                    <div class="quality-label">Image Quality</div>
+                                    <div class="quality-description">Compression level for images in the PDF</div>
+                                </div>
+                                <select class="form-select" id="imageQuality" style="width: 150px;">
+                                    <option value="high">High Quality</option>
+                                    <option value="medium" selected>Medium Quality</option>
+                                    <option value="low">Low Quality</option>
+                                </select>
+                            </div>
+                            <div class="quality-item">
+                                <div>
+                                    <div class="quality-label">Text Quality</div>
+                                    <div class="quality-description">Preserve text as searchable content</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="preserveText" checked>
+                                </div>
+                            </div>
+                            <div class="quality-item">
+                                <div>
+                                    <div class="quality-label">Font Embedding</div>
+                                    <div class="quality-description">Embed fonts to ensure consistent display</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="embedFonts" checked>
+                                </div>
+                            </div>
+                            <div class="quality-item">
+                                <div>
+                                    <div class="quality-label">Color Profile</div>
+                                    <div class="quality-description">Include color management information</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="includeColorProfile" checked>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PDF Analysis -->
+                        <div class="analysis-section" id="analysisSection" style="display: none;">
+                            <h4 class="mb-3">PDF Analysis Results</h4>
+                            <div class="analysis-grid">
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-file-pdf"></i>
+                                    </div>
+                                    <div class="analysis-title">Current Format</div>
+                                    <div class="analysis-value" id="currentFormat">PDF 1.7</div>
+                                </div>
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-layers"></i>
+                                    </div>
+                                    <div class="analysis-title">Pages</div>
+                                    <div class="analysis-value" id="totalPages">0</div>
+                                </div>
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                    <div class="analysis-title">Images</div>
+                                    <div class="analysis-value" id="totalImages">0</div>
+                                </div>
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-fonts"></i>
+                                    </div>
+                                    <div class="analysis-title">Fonts</div>
+                                    <div class="analysis-value" id="totalFonts">0</div>
+                                </div>
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-shield-exclamation"></i>
+                                    </div>
+                                    <div class="analysis-title">Compliance Issues</div>
+                                    <div class="analysis-value" id="complianceIssues">0</div>
+                                </div>
+                                <div class="analysis-card">
+                                    <div class="analysis-icon">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </div>
+                                    <div class="analysis-title">File Size</div>
+                                    <div class="analysis-value" id="fileSize">0 KB</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn process-btn btn-lg" id="convertToPdfaBtn">
+                                <i class="bi bi-shield-check"></i> Convert to PDF/A
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Converting to PDF/A</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Analyzing PDF structure...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> PDF/A Conversion Completed!</h6>
+                            <p class="mb-3">Your PDF has been successfully converted to PDF/A format and is now compliant with archival standards.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadPdfaBtn">
+                                    <i class="bi bi-download"></i> Download PDF/A
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-lg ms-2" id="viewReportBtn">
+                                    <i class="bi bi-file-earmark-text"></i> View Compliance Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const complianceSection = document.getElementById('complianceSection');
+            const qualitySection = document.getElementById('qualitySection');
+            const analysisSection = document.getElementById('analysisSection');
+            const actionButtons = document.getElementById('actionButtons');
+            const convertToPdfaBtn = document.getElementById('convertToPdfaBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadPdfaBtn = document.getElementById('downloadPdfaBtn');
+            const viewReportBtn = document.getElementById('viewReportBtn');
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showConversionInterface();
+                        analyzePDF(file);
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showConversionInterface() {
+                complianceSection.style.display = 'block';
+                qualitySection.style.display = 'block';
+                analysisSection.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            function analyzePDF(file) {
+                // Simulate PDF analysis
+                const totalPages = Math.floor(Math.random() * 50) + 1;
+                const totalImages = Math.floor(Math.random() * 20) + 1;
+                const totalFonts = Math.floor(Math.random() * 8) + 1;
+                const complianceIssues = Math.floor(Math.random() * 5);
+                const fileSize = Math.floor(file.size / 1024);
+                
+                // Update analysis results
+                document.getElementById('totalPages').textContent = totalPages;
+                document.getElementById('totalImages').textContent = totalImages;
+                document.getElementById('totalFonts').textContent = totalFonts;
+                document.getElementById('complianceIssues').textContent = complianceIssues;
+                document.getElementById('fileSize').textContent = fileSize + ' KB';
+                
+                // Set current format based on file
+                const currentFormat = 'PDF ' + (Math.random() > 0.5 ? '1.7' : '1.6');
+                document.getElementById('currentFormat').textContent = currentFormat;
+            }
+
+            // Convert to PDF/A button handler
+            convertToPdfaBtn.addEventListener('click', () => {
+                // Validate options
+                const selectedCompliance = document.querySelector('input[name="compliance"]:checked');
+                if (!selectedCompliance) {
+                    alert('Please select a PDF/A compliance level.');
+                    return;
+                }
+
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate conversion process
+                simulateConversion();
+            });
+
+            function simulateConversion() {
+                const steps = [
+                    { text: 'Analyzing PDF structure...', progress: 20 },
+                    { text: 'Checking compliance requirements...', progress: 40 },
+                    { text: 'Converting fonts and images...', progress: 60 },
+                    { text: 'Applying PDF/A standards...', progress: 80 },
+                    { text: 'Finalizing compliant document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handlers
+            downloadPdfaBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('PDF/A download functionality would be implemented here.');
+            });
+
+            viewReportBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Compliance report functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

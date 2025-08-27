@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDFs - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .merge-container {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .merge-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #11998e;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(17, 153, 142, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #38ef7d;
+            background: rgba(56, 239, 125, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+        
+        .file-item:hover {
+            border-color: #11998e;
+            box-shadow: 0 2px 8px rgba(17, 153, 142, 0.2);
+        }
+        
+        .merge-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .merge-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="merge-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="merge-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-files"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">Merge PDFs</h1>
+                            <p class="lead text-muted">Combine multiple PDF files into one document</p>                        
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-success mb-3"></i>
+                            <h4 class="mb-3">Drop your PDFs here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFiles" accept=".pdf" multiple style="display: none;">
+                            <button class="btn btn-outline-success btn-lg" onclick="document.getElementById('pdfFiles').click()">
+                                Choose PDF Files
+                            </button>
+                        </div>
+
+                        <!-- File List -->
+                        <div class="file-list" id="fileList" style="display: none;">
+                            <h4 class="mb-4">Selected Files</h4>
+                            <div id="fileItems"></div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn merge-btn btn-lg text-white me-3" id="mergeBtn">
+                                <i class="bi bi-files me-2"></i>Merge PDFs
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFiles = [];
+
+        document.getElementById('pdfFiles').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFiles').click());
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            const pdfFiles = files.filter(file => file.type === 'application/pdf');
+            
+            if (pdfFiles.length > 0) {
+                selectedFiles = pdfFiles;
+                processFiles();
+            } else {
+                alert('Please select valid PDF files.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(event.dataTransfer.files);
+            const pdfFiles = files.filter(file => file.type === 'application/pdf');
+            
+            if (pdfFiles.length > 0) {
+                selectedFiles = pdfFiles;
+                processFiles();
+            }
+        }
+
+        function processFiles() {
+            showFileList();
+            showActionButtons();
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${selectedFiles.length} PDF files selected</h4>
+                <p class="text-muted">Ready to merge</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change Files</button>
+            `;
+        }
+
+        function showFileList() {
+            const fileItems = document.getElementById('fileItems');
+            fileItems.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="bi bi-file-pdf text-success me-3"></i>
+                    <span class="flex-grow-1">${file.name}</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">Remove</button>
+                `;
+                fileItems.appendChild(fileItem);
+            });
+            
+            document.getElementById('fileList').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            if (selectedFiles.length === 0) {
+                resetForm();
+            } else {
+                showFileList();
+            }
+        }
+
+        function resetForm() {
+            selectedFiles = [];
+            
+            document.getElementById('fileList').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-success mb-3"></i>
+                <h4 class="mb-3">Drop your PDFs here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFiles" accept=".pdf" multiple style="display: none;">
+                <button class="btn btn-outline-success btn-lg" onclick="document.getElementById('pdfFiles').click()">
+                    Choose PDF Files
+                </button>
+            `;
+            
+            document.getElementById('pdfFiles').value = '';
+        }
+
+        document.getElementById('mergeBtn').addEventListener('click', function() {
+            if (selectedFiles.length < 2) {
+                alert('Please select at least 2 PDF files to merge.');
+                return;
+            }
+            
+            alert(`Merging ${selectedFiles.length} PDF files...\n\nThis is a demo page. In a real application, the files would be processed and merged.`);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

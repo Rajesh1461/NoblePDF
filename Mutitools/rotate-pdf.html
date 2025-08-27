@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotate PDF - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .rotate-container {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .rotate-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #ff6b6b;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 107, 107, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #feca57;
+            background: rgba(254, 202, 87, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .rotation-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .rotation-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .page-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: transform 0.3s ease;
+        }
+        
+        .rotate-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .rotate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+        
+        .rotation-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .rotation-btn {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+        
+        .rotation-btn:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .rotation-btn.active {
+            border-color: #ff6b6b;
+            background: #ff6b6b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="rotate-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="rotate-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">Rotate PDF</h1>
+                            <p class="lead text-muted">Easily rotate your PDF pages to the correct orientation</p>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-warning mb-3"></i>
+                            <h4 class="mb-3">Drop your PDF here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                            <button class="btn btn-outline-warning btn-lg" onclick="document.getElementById('pdfFile').click()">
+                                Choose PDF File
+                            </button>
+                        </div>
+
+                        <!-- Rotation Options -->
+                        <div class="rotation-options" id="rotationOptions" style="display: none;">
+                            <h4 class="mb-4">Rotation Settings</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Rotation Method</label>
+                                        <select class="form-select" id="rotationMethod">
+                                            <option value="all">Rotate All Pages</option>
+                                            <option value="range">Rotate Page Range</option>
+                                            <option value="custom">Custom Page Selection</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3" id="rangeInput">
+                                        <label class="form-label fw-bold">Page Range</label>
+                                        <input type="text" class="form-control" placeholder="e.g., 1-5, 7, 9-12" id="pageRange">
+                                        <small class="text-muted">Leave empty to rotate all pages</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Format</label>
+                                        <select class="form-select" id="outputFormat">
+                                            <option value="pdf">PDF</option>
+                                            <option value="pdfa">PDF/A</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Rotation Direction</label>
+                                        <div class="rotation-controls">
+                                            <div class="rotation-btn" data-rotation="0" onclick="selectRotation(0)">
+                                                <i class="bi bi-arrow-up"></i>
+                                            </div>
+                                            <div class="rotation-btn" data-rotation="90" onclick="selectRotation(90)">
+                                                <i class="bi bi-arrow-right"></i>
+                                            </div>
+                                            <div class="rotation-btn" data-rotation="180" onclick="selectRotation(180)">
+                                                <i class="bi bi-arrow-down"></i>
+                                            </div>
+                                            <div class="rotation-btn" data-rotation="270" onclick="selectRotation(270)">
+                                                <i class="bi bi-arrow-left"></i>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Click to select rotation angle</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Selected Rotation</label>
+                                        <input type="text" class="form-control" id="selectedRotation" value="0°" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="rotation-preview" id="previewSection" style="display: none;">
+                            <h5 class="mb-3">Page Preview</h5>
+                            <div class="page-preview" id="pagePreview">
+                                Sample Page
+                            </div>
+                            <p class="text-muted mt-2">Preview of how your page will look after rotation</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn rotate-btn btn-lg text-white me-3" id="rotateBtn">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Rotate PDF
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFile = null;
+        let selectedRotation = 0;
+
+        document.getElementById('pdfFile').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFile').click());
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                selectedFile = file;
+                processFile(file);
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                selectedFile = files[0];
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            showRotationOptions();
+            showPreviewSection();
+            showActionButtons();
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${file.name}</h4>
+                <p class="text-muted">File loaded successfully</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change File</button>
+            `;
+        }
+
+        function showRotationOptions() {
+            document.getElementById('rotationOptions').style.display = 'block';
+        }
+
+        function showPreviewSection() {
+            document.getElementById('previewSection').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function selectRotation(degrees) {
+            selectedRotation = degrees;
+            
+            // Update active state
+            document.querySelectorAll('.rotation-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.rotation-btn').classList.add('active');
+            
+            // Update display
+            document.getElementById('selectedRotation').value = degrees + '°';
+            
+            // Update preview
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('pagePreview');
+            preview.style.transform = `rotate(${selectedRotation}deg)`;
+        }
+
+        function resetForm() {
+            selectedFile = null;
+            selectedRotation = 0;
+            
+            document.getElementById('rotationOptions').style.display = 'none';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            document.querySelectorAll('.rotation-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById('selectedRotation').value = '0°';
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-warning mb-3"></i>
+                <h4 class="mb-3">Drop your PDF here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline-warning btn-lg" onclick="document.getElementById('pdfFile').click()">
+                    Choose PDF File
+                </button>
+            `;
+            
+            document.getElementById('pdfFile').value = '';
+            
+            const preview = document.getElementById('pagePreview');
+            preview.style.transform = 'rotate(0deg)';
+        }
+
+        // Rotation method change handler
+        document.getElementById('rotationMethod').addEventListener('change', function() {
+            const rangeInput = document.getElementById('rangeInput');
+            if (this.value === 'range') {
+                rangeInput.style.display = 'block';
+            } else {
+                rangeInput.style.display = 'none';
+            }
+        });
+
+        // Rotate button handler
+        document.getElementById('rotateBtn').addEventListener('click', function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file first.');
+                return;
+            }
+            
+            const method = document.getElementById('rotationMethod').value;
+            const range = document.getElementById('pageRange').value;
+            
+            let message = `Rotating PDF with ${selectedRotation}° rotation...\n\n`;
+            message += `Method: ${method}\n`;
+            if (range) message += `Page Range: ${range}\n`;
+            message += `\nThis is a demo page. In a real application, the PDF would be processed and rotated.`;
+            
+            alert(message);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

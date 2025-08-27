@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to CSV - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <link rel="stylesheet" href="/assets/css/theme/font.css">
+    <style>
+        .csv-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .csv-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .csv-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .preview-table th,
+        .preview-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .preview-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        .preview-table td {
+            background: white;
+            color: #495057;
+        }
+        .preview-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .format-options {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .format-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .format-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .format-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .table-detection {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+        .detection-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .detection-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .detection-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #a8edea;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>            
+    </nav>
+
+    <!-- Main Content -->
+    <div class="csv-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="csv-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-table"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">PDF to CSV</h1>
+                            <p class="lead text-muted">Convert PDF tables and data into structured CSV format for easy analysis</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to convert to CSV</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- CSV Options -->
+                        <div class="csv-options" id="csvOptions" style="display: none;">
+                            <h4 class="mb-3">CSV Conversion Options</h4>
+                            <div class="option-group">
+                                <div class="option-title">Delimiter</div>
+                                <div class="option-description">Choose the character that separates values in your CSV</div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="delimiter" id="comma" value="," checked>
+                                    <label class="form-check-label" for="comma">Comma (,)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="delimiter" id="semicolon" value=";">
+                                    <label class="form-check-label" for="semicolon">Semicolon (;)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="delimiter" id="tab" value="\t">
+                                    <label class="form-check-label" for="tab">Tab</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="delimiter" id="pipe" value="|">
+                                    <label class="form-check-label" for="pipe">Pipe (|)</label>
+                                </div>
+                            </div>
+                            
+                            <div class="option-group">
+                                <div class="option-title">Text Encoding</div>
+                                <div class="option-description">Select the character encoding for your CSV file</div>
+                                <select class="form-select" id="encoding" style="max-width: 200px;">
+                                    <option value="utf-8" selected>UTF-8 (Recommended)</option>
+                                    <option value="utf-16">UTF-16</option>
+                                    <option value="iso-8859-1">ISO-8859-1 (Latin-1)</option>
+                                    <option value="windows-1252">Windows-1252</option>
+                                </select>
+                            </div>
+                            
+                            <div class="option-group">
+                                <div class="option-title">Include Headers</div>
+                                <div class="option-description">Choose whether to include column headers in your CSV</div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeHeaders" checked>
+                                    <label class="form-check-label" for="includeHeaders">
+                                        Include column headers as first row
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table Detection Options -->
+                        <div class="table-detection" id="tableDetection" style="display: none;">
+                            <h4 class="mb-3">Table Detection Settings</h4>
+                            <div class="detection-item">
+                                <div>
+                                    <div class="detection-label">Auto-detect Tables</div>
+                                    <div class="detection-description">Automatically identify and extract table structures</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="autoDetectTables" checked>
+                                </div>
+                            </div>
+                            <div class="detection-item">
+                                <div>
+                                    <div class="detection-label">Manual Table Selection</div>
+                                    <div class="detection-description">Allow manual selection of table regions</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="manualTableSelection">
+                                </div>
+                            </div>
+                            <div class="detection-item">
+                                <div>
+                                    <div class="detection-label">Merge Adjacent Tables</div>
+                                    <div class="detection-description">Combine tables that are close to each other</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="mergeAdjacentTables">
+                                </div>
+                            </div>
+                            <div class="detection-item">
+                                <div>
+                                    <div class="detection-label">Preserve Table Formatting</div>
+                                    <div class="detection-description">Maintain original table layout and structure</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Format Options -->
+                        <div class="format-options" id="formatOptions" style="display: none;">
+                            <h4 class="mb-3">Output Format Options</h4>
+                            <div class="format-item">
+                                <div>
+                                    <div class="format-label">Quote All Fields</div>
+                                    <div class="format-description">Enclose all data fields in quotation marks</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="quoteAllFields">
+                                </div>
+                            </div>
+                            <div class="format-item">
+                                <div>
+                                    <div class="format-label">Escape Special Characters</div>
+                                    <div class="format-description">Handle special characters and symbols properly</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="escapeSpecialChars" checked>
+                                </div>
+                            </div>
+                            <div class="format-item">
+                                <div>
+                                    <div class="format-label">Trim Whitespace</div>
+                                    <div class="format-description">Remove extra spaces from data fields</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="trimWhitespace" checked>
+                                </div>
+                            </div>
+                            <div class="format-item">
+                                <div>
+                                    <div class="format-label">Handle Empty Cells</div>
+                                    <div class="format-description">Replace empty cells with placeholder text</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="handleEmptyCells">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table Preview -->
+                        <div class="preview-section" id="previewSection" style="display: none;">
+                            <h4 class="mb-3">Detected Tables Preview</h4>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="totalTables">0</div>
+                                    <div class="stat-label">Tables Found</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="totalRows">0</div>
+                                    <div class="stat-label">Total Rows</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="totalColumns">0</div>
+                                    <div class="stat-label">Total Columns</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" id="pagesWithTables">0</div>
+                                    <div class="stat-label">Pages with Tables</div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mt-4 mb-3">Table Structure Preview</h5>
+                            <div class="preview-container">
+                                <table class="preview-table" id="previewTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Column 1</th>
+                                            <th>Column 2</th>
+                                            <th>Column 3</th>
+                                            <th>Column 4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Sample data 1</td>
+                                            <td>Sample data 2</td>
+                                            <td>Sample data 3</td>
+                                            <td>Sample data 4</td>
+                                        </tr>
+                                        <tr>
+                                            <td>More data 1</td>
+                                            <td>More data 2</td>
+                                            <td>More data 3</td>
+                                            <td>More data 4</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn process-btn btn-lg" id="convertToCsvBtn">
+                                <i class="bi bi-file-earmark-arrow-down"></i> Convert to CSV
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Converting PDF to CSV</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Analyzing PDF structure...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Conversion Completed Successfully!</h6>
+                            <p class="mb-3">Your PDF has been converted to CSV format with all detected tables.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadCsvBtn">
+                                    <i class="bi bi-download"></i> Download CSV File
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-lg ms-2" id="downloadExcelBtn">
+                                    <i class="bi bi-file-earmark-excel"></i> Download as Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const csvOptions = document.getElementById('csvOptions');
+            const tableDetection = document.getElementById('tableDetection');
+            const formatOptions = document.getElementById('formatOptions');
+            const previewSection = document.getElementById('previewSection');
+            const actionButtons = document.getElementById('actionButtons');
+            const convertToCsvBtn = document.getElementById('convertToCsvBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showConversionInterface();
+                        analyzePDF();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showConversionInterface() {
+                csvOptions.style.display = 'block';
+                tableDetection.style.display = 'block';
+                formatOptions.style.display = 'block';
+                previewSection.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            function analyzePDF() {
+                // Simulate PDF analysis
+                const totalTables = Math.floor(Math.random() * 8) + 2;
+                const totalRows = Math.floor(Math.random() * 100) + 20;
+                const totalColumns = Math.floor(Math.random() * 6) + 3;
+                const pagesWithTables = Math.floor(Math.random() * 5) + 1;
+                
+                // Update stats
+                document.getElementById('totalTables').textContent = totalTables;
+                document.getElementById('totalRows').textContent = totalRows;
+                document.getElementById('totalColumns').textContent = totalColumns;
+                document.getElementById('pagesWithTables').textContent = pagesWithTables;
+                
+                // Update preview table
+                updatePreviewTable(totalColumns);
+            }
+
+            function updatePreviewTable(columns) {
+                const previewTable = document.getElementById('previewTable');
+                const thead = previewTable.querySelector('thead tr');
+                const tbody = previewTable.querySelector('tbody');
+                
+                // Clear existing content
+                thead.innerHTML = '';
+                tbody.innerHTML = '';
+                
+                // Create headers
+                for (let i = 1; i <= columns; i++) {
+                    const th = document.createElement('th');
+                    th.textContent = `Column ${i}`;
+                    thead.appendChild(th);
+                }
+                
+                // Create sample rows
+                for (let row = 1; row <= 3; row++) {
+                    const tr = document.createElement('tr');
+                    for (let col = 1; col <= columns; col++) {
+                        const td = document.createElement('td');
+                        td.textContent = `Sample data ${row}-${col}`;
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+            }
+
+            // Convert to CSV button handler
+            convertToCsvBtn.addEventListener('click', () => {
+                // Validate options
+                if (!document.getElementById('autoDetectTables').checked && 
+                    !document.getElementById('manualTableSelection').checked) {
+                    alert('Please select at least one table detection method.');
+                    return;
+                }
+
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate conversion process
+                simulateConversion();
+            });
+
+            function simulateConversion() {
+                const steps = [
+                    { text: 'Analyzing PDF structure...', progress: 20 },
+                    { text: 'Detecting table layouts...', progress: 40 },
+                    { text: 'Extracting table data...', progress: 60 },
+                    { text: 'Converting to CSV format...', progress: 80 },
+                    { text: 'Finalizing conversion...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handlers
+            downloadCsvBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('CSV download functionality would be implemented here.');
+            });
+
+            downloadExcelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Excel download functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

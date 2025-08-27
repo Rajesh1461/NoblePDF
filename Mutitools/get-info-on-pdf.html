@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get ALL Info on PDF - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .info-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .analyze-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .info-tabs {
+            background: white;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+            background: #f8f9fa;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 0;
+            padding: 1rem 1.5rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            background: white;
+            color: #a8edea;
+            border-bottom: 3px solid #a8edea;
+        }
+        .tab-content {
+            padding: 2rem;
+        }
+        .info-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .info-value {
+            color: #6c757d;
+            font-family: monospace;
+            text-align: right;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .info-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .page-thumbnail {
+            width: 80px;
+            height: 100px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin: 0.5rem;
+        }
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+        }
+        .security-safe {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .security-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .security-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .chart-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            position: relative;
+        }
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .export-section {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .export-btn {
+            margin: 0.5rem;
+            border-radius: 20px;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            margin: 1rem 0;
+        }
+        .summary-stat {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .summary-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+             
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="info-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="info-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Get ALL Info on PDF</h1>
+                            <p class="lead text-muted">Comprehensive analysis and detailed information about your PDF documents</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here for analysis</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn analyze-btn btn-lg" id="analyzePdfBtn">
+                                <i class="bi bi-search"></i> Analyze PDF
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Analyzing PDF</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing analysis...</p>
+                        </div>
+
+                        <!-- PDF Information Tabs -->
+                        <div class="info-tabs" id="infoTabs" style="display: none;">
+                            <ul class="nav nav-tabs" id="infoTabList" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                                        <i class="bi bi-grid"></i> Overview
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                                        <i class="bi bi-file-text"></i> Details
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                                        <i class="bi bi-shield-check"></i> Security
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab">
+                                        <i class="bi bi-layers"></i> Content
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="technical-tab" data-bs-toggle="tab" data-bs-target="#technical" type="button" role="tab">
+                                        <i class="bi bi-gear"></i> Technical
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="infoTabContent">
+                                <!-- Overview Tab -->
+                                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                                    <div class="summary-card">
+                                        <h4 class="mb-3">PDF Summary</h4>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="summary-stat">
+                                                    <span class="summary-number" id="totalPages">0</span>
+                                                    <span class="summary-label">Total Pages</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="summary-stat">
+                                                    <span class="summary-number" id="fileSize">0</span>
+                                                    <span class="summary-label">File Size</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="summary-stat">
+                                                    <span class="summary-number" id="securityLevel">-</span>
+                                                    <span class="summary-label">Security Level</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="summary-stat">
+                                                    <span class="summary-number" id="compliance">-</span>
+                                                    <span class="summary-label">Compliance</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="chart-container">
+                                        <h5>Content Distribution</h5>
+                                        <div class="chart-label">
+                                            <span>Text Content</span>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="chart-bar" style="width: 75%"></div>
+                                        
+                                        <div class="chart-label">
+                                            <span>Images</span>
+                                            <span>20%</span>
+                                        </div>
+                                        <div class="chart-bar" style="width: 20%"></div>
+                                        
+                                        <div class="chart-label">
+                                            <span>Other Elements</span>
+                                            <span>5%</span>
+                                        </div>
+                                        <div class="chart-bar" style="width: 5%"></div>
+                                    </div>
+
+                                    <div class="export-section">
+                                        <h5>Export Analysis</h5>
+                                        <p class="text-muted">Download detailed analysis in various formats</p>
+                                        <button class="btn btn-outline-primary export-btn">
+                                            <i class="bi bi-file-pdf"></i> PDF Report
+                                        </button>
+                                        <button class="btn btn-outline-success export-btn">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </button>
+                                        <button class="btn btn-outline-info export-btn">
+                                            <i class="bi bi-file-text"></i> Text
+                                        </button>
+                                        <button class="btn btn-outline-warning export-btn">
+                                            <i class="bi bi-file-earmark-json"></i> JSON
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Details Tab -->
+                                <div class="tab-pane fade" id="details" role="tabpanel">
+                                    <div class="info-section">
+                                        <h5>Document Properties</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Title:</span>
+                                                <span class="info-value">Sample Document</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Author:</span>
+                                                <span class="info-value">John Doe</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Subject:</span>
+                                                <span class="info-value">Business Report</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Keywords:</span>
+                                                <span class="info-value">report, business, analysis</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Creator:</span>
+                                                <span class="info-value">Microsoft Word</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Producer:</span>
+                                                <span class="info-value">Adobe PDF Library</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-section">
+                                        <h5>File Information</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Creation Date:</span>
+                                                <span class="info-value">2024-01-15 10:30:00</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Modification Date:</span>
+                                                <span class="info-value">2024-01-20 14:45:00</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">PDF Version:</span>
+                                                <span class="info-value">1.7</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Page Layout:</span>
+                                                <span class="info-value">Single Page</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Page Mode:</span>
+                                                <span class="info-value">Use None</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Language:</span>
+                                                <span class="info-value">en-US</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Security Tab -->
+                                <div class="tab-pane fade" id="security" role="tabpanel">
+                                    <div class="info-section">
+                                        <h5>Security Features</h5>
+                                        <div class="security-indicator security-safe">
+                                            <i class="bi bi-shield-check"></i>
+                                            <span>No password protection</span>
+                                        </div>
+                                        <div class="security-indicator security-warning">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            <span>JavaScript enabled</span>
+                                        </div>
+                                        <div class="security-indicator security-safe">
+                                            <i class="bi bi-shield-check"></i>
+                                            <span>No digital signatures</span>
+                                        </div>
+                                        <div class="security-indicator security-danger">
+                                            <i class="bi bi-shield-x"></i>
+                                            <span>External links detected</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-section">
+                                        <h5>Permissions</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Printing:</span>
+                                                <span class="info-badge badge-success">Allowed</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Copying:</span>
+                                                <span class="info-badge badge-success">Allowed</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Modification:</span>
+                                                <span class="info-badge badge-warning">Restricted</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Form Filling:</span>
+                                                <span class="info-badge badge-success">Allowed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Content Tab -->
+                                <div class="tab-pane fade" id="content" role="tabpanel">
+                                    <div class="info-section">
+                                        <h5>Page Overview</h5>
+                                        <div class="d-flex flex-wrap">
+                                            <div class="page-thumbnail">Page 1</div>
+                                            <div class="page-thumbnail">Page 2</div>
+                                            <div class="page-thumbnail">Page 3</div>
+                                            <div class="page-thumbnail">Page 4</div>
+                                            <div class="page-thumbnail">Page 5</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-section">
+                                        <h5>Content Statistics</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Text Characters:</span>
+                                                <span class="info-value">15,432</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Images:</span>
+                                                <span class="info-value">8</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Tables:</span>
+                                                <span class="info-value">3</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Forms:</span>
+                                                <span class="info-value">2</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Annotations:</span>
+                                                <span class="info-value">5</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Bookmarks:</span>
+                                                <span class="info-value">12</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Technical Tab -->
+                                <div class="tab-pane fade" id="technical" role="tabpanel">
+                                    <div class="info-section">
+                                        <h5>Technical Specifications</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Compression:</span>
+                                                <span class="info-value">Flate</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Color Space:</span>
+                                                <span class="info-value">RGB</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Resolution:</span>
+                                                <span class="info-value">72 DPI</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Fonts:</span>
+                                                <span class="info-value">Embedded (3)</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Images:</span>
+                                                <span class="info-value">JPEG, PNG</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Metadata:</span>
+                                                <span class="info-value">Present</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-section">
+                                        <h5>Structure Analysis</h5>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Cross-References:</span>
+                                                <span class="info-value">Valid</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Linearized:</span>
+                                                <span class="info-value">No</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Tagged PDF:</span>
+                                                <span class="info-value">Yes</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Accessibility:</span>
+                                                <span class="info-badge badge-success">Compliant</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const actionButtons = document.getElementById('actionButtons');
+            const analyzePdfBtn = document.getElementById('analyzePdfBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const infoTabs = document.getElementById('infoTabs');
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showActionButtons();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                            <small class="text-muted">File size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showActionButtons() {
+                actionButtons.style.display = 'block';
+            }
+
+            // Analyze PDF button handler
+            analyzePdfBtn.addEventListener('click', () => {
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate analysis process
+                simulateAnalysis();
+            });
+
+            function simulateAnalysis() {
+                const steps = [
+                    { text: 'Loading PDF document...', progress: 20 },
+                    { text: 'Analyzing document structure...', progress: 40 },
+                    { text: 'Extracting metadata...', progress: 60 },
+                    { text: 'Analyzing content and security...', progress: 80 },
+                    { text: 'Generating comprehensive report...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showAnalysisResults();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showAnalysisResults() {
+                // Show info tabs
+                infoTabs.style.display = 'block';
+                
+                // Update summary statistics
+                document.getElementById('totalPages').textContent = '5';
+                document.getElementById('fileSize').textContent = '2.3 MB';
+                document.getElementById('securityLevel').textContent = 'Medium';
+                document.getElementById('compliance').textContent = 'PDF/A-1b';
+                
+                // Scroll to results
+                infoTabs.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        // Simulate file selection
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

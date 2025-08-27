@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert File to PDF - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .convert-container {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .convert-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #ffecd2;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 236, 210, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fcb69f;
+            background: rgba(252, 182, 159, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .file-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .supported-formats {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .format-item {
+            display: inline-block;
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 236, 210, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #fcb69f;
+            margin-bottom: 1rem;
+        }
+        
+        .file-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .file-preview::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: rgba(255, 236, 210, 0.1);
+            border: 1px dashed #ffecd2;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+          
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="convert-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="convert-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-file-earmark-arrow-down"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Convert File to PDF</h1>
+                            <p class="lead text-muted">Convert nearly any file format to PDF</p>
+                        </div>
+
+                        <!-- Supported Formats -->
+                        <div class="supported-formats">
+                            <h5 class="mb-3">Supported File Formats</h5>
+                            <div class="text-center">
+                                <span class="format-item">DOCX</span>
+                                <span class="format-item">DOC</span>
+                                <span class="format-item">XLSX</span>
+                                <span class="format-item">XLS</span>
+                                <span class="format-item">PPTX</span>
+                                <span class="format-item">PPT</span>
+                                <span class="format-item">TXT</span>
+                                <span class="format-item">RTF</span>
+                                <span class="format-item">PNG</span>
+                                <span class="format-item">JPG</span>
+                                <span class="format-item">GIF</span>
+                                <span class="format-item">BMP</span>
+                                <span class="format-item">HTML</span>
+                                <span class="format-item">XML</span>
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your file here</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="fileInput" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.png,.jpg,.jpeg,.gif,.bmp,.html,.xml" style="display: none;">
+                        </div>
+
+                        <!-- File Information -->
+                        <div class="file-info" id="fileInfo" style="display: none;">
+                            <h4 class="mb-3">File Information</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="fileName" class="form-label">File Name</label>
+                                        <input type="text" class="form-control" id="fileName" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fileType" class="form-label">File Type</label>
+                                        <input type="text" class="form-control" id="fileType" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fileSize" class="form-label">File Size</label>
+                                        <input type="text" class="form-control" id="fileSize" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="file-preview" id="filePreview">
+                                        <span>File Preview</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button class="btn convert-btn btn-lg" id="convertBtn">
+                                    <i class="bi bi-arrow-right-circle"></i> Convert to PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- API Key Section -->
+                        <div class="supported-formats mt-4">
+                            <h5 class="mb-2">Conversion API</h5>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-8">
+                                    <input type="password" id="cloudConvertKey" class="form-control mb-2" placeholder="Enter CloudConvert API Key (stored locally)" />
+                                    <input type="password" id="convertApiKey" class="form-control" placeholder="Optional: ConvertAPI Secret (fallback)" />
+                                </div>
+                                <div class="col-md-4 d-flex gap-2">
+                                    <button class="btn btn-outline-primary" id="saveApiKeyBtn"><i class="bi bi-key"></i> Save Keys</button>
+                                    <button class="btn btn-outline-secondary" id="clearApiKeyBtn"><i class="bi bi-x-circle"></i> Clear</button>
+                                </div>
+                            </div>
+                            <small class="text-muted">Keys are saved in your browser only. For production, use a backend proxy.</small>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="text-center mt-4" id="downloadSection" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5>Conversion Complete!</h5>
+                                <p>Your file has been successfully converted to PDF.</p>
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/convertapi-js/dist/convertapi.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/@cloudconvert/browser@1.3.0/dist/cloudconvert.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileType = document.getElementById('fileType');
+            const fileSize = document.getElementById('fileSize');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            let convertedPdfUrl = null;
+            let lastFile = null;
+            const apiKeyInput = document.getElementById('convertApiKey');
+            const ccKeyInput = document.getElementById('cloudConvertKey');
+            const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+            const clearApiKeyBtn = document.getElementById('clearApiKeyBtn');
+
+            // Load persisted API key
+            apiKeyInput.value = localStorage.getItem('convertapi_secret') || '';
+            ccKeyInput.value = localStorage.getItem('cloudconvert_key') || '';
+            saveApiKeyBtn.addEventListener('click', () => {
+                localStorage.setItem('convertapi_secret', apiKeyInput.value.trim());
+                localStorage.setItem('cloudconvert_key', ccKeyInput.value.trim());
+            });
+            clearApiKeyBtn.addEventListener('click', () => {
+                localStorage.removeItem('convertapi_secret');
+                localStorage.removeItem('cloudconvert_key');
+                apiKeyInput.value = '';
+                ccKeyInput.value = '';
+            });
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // File selection handler
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    lastFile = file;
+                    
+                    // Display file information
+                    fileName.value = file.name;
+                    fileType.value = file.type || 'Unknown';
+                    fileSize.value = formatFileSize(file.size);
+                    
+                    fileInfo.style.display = 'block';
+                    
+                    // Update upload area
+                    uploadArea.innerHTML = `
+                        <div class="mb-3">
+                            <i class="bi bi-file-earmark-check display-1 text-success"></i>
+                        </div>
+                        <h4>${file.name}</h4>
+                        <p class="text-success">File loaded successfully!</p>
+                    `;
+                }
+            });
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Convert button handler
+            convertBtn.addEventListener('click', async () => {
+                if (!lastFile) return;
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Converting...';
+                try {
+                    const ccKey = (ccKeyInput.value || localStorage.getItem('cloudconvert_key') || '').trim();
+                    const secret = (apiKeyInput.value || localStorage.getItem('convertapi_secret') || '').trim();
+                    const ext = getExtension(lastFile.name).toLowerCase();
+                    if (ccKey && window.CloudConvert) {
+                        convertedPdfUrl = await convertWithCloudConvert(ccKey, ext, lastFile);
+                    } else if (secret && window.ConvertApi) {
+                        convertedPdfUrl = await convertWithConvertApi(secret, ext, lastFile);
+                    } else {
+                        // Fallback demo conversion (images embedded, others as metadata)
+                        convertedPdfUrl = await buildPdfFromFile(lastFile);
+                    }
+                    downloadBtn.href = convertedPdfUrl;
+                    downloadBtn.download = (lastFile.name.replace(/\.[^.]+$/, '') || 'file') + '.pdf';
+                    downloadSection.style.display = 'block';
+                } catch (err) {
+                    console.error(err);
+                    alert('Conversion failed. Please check your API key or file format.');
+                }
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="bi bi-arrow-right-circle"></i> Convert to PDF';
+            });
+
+            function getExtension(name){
+                const m = name.match(/\.([^.]+)$/); return m ? m[1] : '';
+            }
+
+            async function convertWithConvertApi(secret, fromExt, file){
+                const convertApi = ConvertApi.auth(secret);
+                const params = convertApi.createParams();
+                params.add('File', file);
+                const result = await convertApi.convert(fromExt, 'pdf', params);
+                const fileObj = result.files[0];
+                // Download as blob URL
+                const res = await fetch(fileObj.Url);
+                const blob = await res.blob();
+                return URL.createObjectURL(blob);
+            }
+
+            async function convertWithCloudConvert(apiKey, fromExt, file){
+                const cloudConvert = new CloudConvert(apiKey);
+                // Create import/upload task
+                const job = await cloudConvert.jobs.create({
+                    tasks: {
+                        'import-my-file': { operation: 'import/upload' },
+                        'convert-my-file': { operation: 'convert', input: 'import-my-file', output_format: 'pdf' },
+                        'export-my-file': { operation: 'export/url', input: 'convert-my-file' }
+                    }
+                });
+                const uploadTask = job.tasks.filter(t => t.name === 'import-my-file')[0];
+                await cloudConvert.tasks.upload(uploadTask, file);
+                const completedJob = await cloudConvert.jobs.wait(job.id);
+                const exportTask = completedJob.tasks.filter(t => t.name === 'export-my-file' && t.status === 'finished')[0];
+                const fileUrl = exportTask.result.files[0].url;
+                const res = await fetch(fileUrl);
+                const blob = await res.blob();
+                return URL.createObjectURL(blob);
+            }
+
+            async function buildPdfFromFile(file) {
+                const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
+                const pdfDoc = await PDFDocument.create();
+                const page = pdfDoc.addPage([595, 842]);
+                const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+                const filename = file.name || 'file';
+                const type = file.type || 'application/octet-stream';
+                const sizeKb = (file.size / 1024).toFixed(1);
+                let y = 780;
+                page.drawText('Converted to PDF', { x: 50, y, size: 24, font: helvetica, color: rgb(0.2,0.2,0.2) });
+                y -= 40;
+                page.drawText('File: ' + filename, { x: 50, y, size: 12, font: helvetica });
+                y -= 18;
+                page.drawText('Type: ' + type, { x: 50, y, size: 12, font: helvetica });
+                y -= 18;
+                page.drawText('Size: ' + sizeKb + ' KB', { x: 50, y, size: 12, font: helvetica });
+                // If image, embed it
+                if (type.startsWith('image/')) {
+                    const bytes = new Uint8Array(await file.arrayBuffer());
+                    let img, dim;
+                    if (type === 'image/jpeg' || type === 'image/jpg') {
+                        img = await pdfDoc.embedJpg(bytes);
+                    } else {
+                        img = await pdfDoc.embedPng(bytes);
+                    }
+                    dim = img.scale(500 / img.width);
+                    page.drawImage(img, { x: 50, y: 260, width: img.width * dim, height: img.height * dim });
+                } else {
+                    page.drawText('Preview not available for this type. Original content not converted in demo.', { x: 50, y: 220, size: 10, font: helvetica, color: rgb(0.5,0.5,0.5) });
+                }
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                return url;
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                if (!convertedPdfUrl) e.preventDefault();
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

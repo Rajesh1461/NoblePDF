@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Images - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .extract-images-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .extract-images-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .extraction-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        .convert-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .image-gallery {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .image-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .image-item:hover {
+            border-color: #a8edea;
+            box-shadow: 0 5px 15px rgba(168, 237, 234, 0.1);
+        }
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .image-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .image-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            justify-content: center;
+        }
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 0.25rem 0.75rem;
+            color: #495057;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        .action-btn.download {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .action-btn.download:hover {
+            background: #c3e6cb;
+            border-color: #b1dfbb;
+        }
+        .extraction-stats {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .format-options {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .format-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .format-option:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .format-option.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        .format-icon {
+            font-size: 1.5rem;
+            color: #a8edea;
+        }
+        .quality-settings {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .quality-slider {
+            margin: 1rem 0;
+        }
+        .quality-value {
+            text-align: center;
+            font-weight: 600;
+            color: #a8edea;
+            margin-top: 0.5rem;
+        }
+        .page-selection {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .page-cell {
+            aspect-ratio: 1;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .page-cell:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        .page-cell.selected {
+            border-color: #a8edea;
+            background: #a8edea;
+            color: white;
+        }
+        .page-cell.has-images {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+        .page-cell.has-images.selected {
+            border-color: #a8edea;
+            background: #a8edea;
+        }
+        .bulk-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .bulk-action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 0.5rem 1rem;
+            color: #495057;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin: 0.25rem;
+        }
+        .bulk-action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        .bulk-action-btn.primary {
+            background: #a8edea;
+            color: white;
+            border-color: #a8edea;
+        }
+        .bulk-action-btn.primary:hover {
+            background: #9dd8d5;
+            border-color: #9dd8d5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+      
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="extract-images-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="extract-images-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-images"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Extract Images</h1>
+                            <p class="lead text-muted">Extract images from PDF documents with customizable quality and format options</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here to extract images</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Extraction Options -->
+                        <div class="extraction-options" id="extractionOptions" style="display: none;">
+                            <h4 class="mb-3">Extraction Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Image Format</label>
+                                        <select class="form-select" id="imageFormat">
+                                            <option value="png">PNG (Best Quality)</option>
+                                            <option value="jpeg">JPEG (Smaller Size)</option>
+                                            <option value="tiff">TIFF (High Quality)</option>
+                                            <option value="webp">WebP (Modern Format)</option>
+                                            <option value="bmp">BMP (Uncompressed)</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <label class="form-label">Quality</label>
+                                        <select class="form-select" id="imageQuality">
+                                            <option value="high">High Quality</option>
+                                            <option value="medium">Medium Quality</option>
+                                            <option value="low">Low Quality</option>
+                                            <option value="custom">Custom Quality</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Minimum Image Size</label>
+                                        <select class="form-select" id="minImageSize">
+                                            <option value="all">All Images</option>
+                                            <option value="100x100">100x100 pixels</option>
+                                            <option value="200x200">200x200 pixels</option>
+                                            <option value="500x500">500x500 pixels</option>
+                                            <option value="1000x1000">1000x1000 pixels</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <label class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="extractAllPages" checked>
+                                            <label class="form-check-label" for="extractAllPages">
+                                                Extract from all pages
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Format Options -->
+                        <div class="format-options" id="formatOptions" style="display: none;">
+                            <h4 class="mb-3">Format Options</h4>
+                            <div class="format-option" data-format="png">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>PNG</strong>
+                                    <small class="d-block text-muted">Lossless compression, supports transparency</small>
+                                </div>
+                            </div>
+                            <div class="format-option" data-format="jpeg">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>JPEG</strong>
+                                    <small class="d-block text-muted">Good compression, smaller file size</small>
+                                </div>
+                            </div>
+                            <div class="format-option" data-format="tiff">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>TIFF</strong>
+                                    <small class="d-block text-muted">High quality, professional use</small>
+                                </div>
+                            </div>
+                            <div class="format-option" data-format="webp">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>WebP</strong>
+                                    <small class="d-block text-muted">Modern format, excellent compression</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quality Settings -->
+                        <div class="quality-settings" id="qualitySettings" style="display: none;">
+                            <h4 class="mb-3">Quality Settings</h4>
+                            <div class="quality-slider">
+                                <label class="form-label">Compression Quality</label>
+                                <input type="range" class="form-range" id="qualitySlider" min="10" max="100" value="85">
+                                <div class="quality-value" id="qualityValue">85%</div>
+                                <small class="text-muted">Lower values = smaller file size, Higher values = better quality</small>
+                            </div>
+                        </div>
+
+                        <!-- Page Selection -->
+                        <div class="page-selection" id="pageSelection" style="display: none;">
+                            <h4 class="mb-3">Page Selection</h4>
+                            <div class="page-grid" id="pageGrid">
+                                <!-- Pages will be generated dynamically -->
+                            </div>
+                            <p class="text-muted text-center mt-2">Click on pages to select/deselect. Green pages contain images.</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg" id="extractImagesBtn">
+                                <i class="bi bi-images"></i> Extract Images from PDF
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Extracting Images</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Extraction Statistics -->
+                        <div class="extraction-stats" id="extractionStats" style="display: none;">
+                            <h6 class="mb-2">Extraction Summary</h6>
+                            <div class="stat-item">
+                                <span>Total Images Found:</span>
+                                <span id="totalImagesFound">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Total Size:</span>
+                                <span id="totalSize">0 KB</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Pages with Images:</span>
+                                <span id="pagesWithImages">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Average Image Size:</span>
+                                <span id="avgImageSize">0 KB</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Gallery -->
+                        <div class="image-gallery" id="imageGallery" style="display: none;">
+                            <h4 class="mb-3">Extracted Images</h4>
+                            <div class="gallery-grid" id="galleryGrid">
+                                <!-- Images will be displayed here -->
+                            </div>
+                        </div>
+
+                        <!-- Bulk Actions -->
+                        <div class="bulk-actions" id="bulkActions" style="display: none;">
+                            <h5 class="mb-3">Bulk Actions</h5>
+                            <div class="text-center">
+                                <button class="bulk-action-btn" id="selectAllBtn">
+                                    <i class="bi bi-check-all"></i> Select All
+                                </button>
+                                <button class="bulk-action-btn" id="deselectAllBtn">
+                                    <i class="bi bi-x-circle"></i> Deselect All
+                                </button>
+                                <button class="bulk-action-btn primary" id="downloadSelectedBtn">
+                                    <i class="bi bi-download"></i> Download Selected
+                                </button>
+                                <button class="bulk-action-btn" id="downloadAllBtn">
+                                    <i class="bi bi-download"></i> Download All
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Images Extracted Successfully!</h6>
+                            <p class="mb-3">All images have been extracted from your PDF. Use the gallery above to preview and download individual images or use bulk actions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const extractionOptions = document.getElementById('extractionOptions');
+            const formatOptions = document.getElementById('formatOptions');
+            const qualitySettings = document.getElementById('qualitySettings');
+            const pageSelection = document.getElementById('pageSelection');
+            const actionButtons = document.getElementById('actionButtons');
+            const extractImagesBtn = document.getElementById('extractImagesBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const extractionStats = document.getElementById('extractionStats');
+            const imageGallery = document.getElementById('imageGallery');
+            const bulkActions = document.getElementById('bulkActions');
+            const successSection = document.getElementById('successSection');
+            
+            // Format selection
+            const formatOptionsElements = document.querySelectorAll('.format-option');
+            const qualitySlider = document.getElementById('qualitySlider');
+            const qualityValue = document.getElementById('qualityValue');
+            
+            let selectedFormat = 'png';
+            let selectedQuality = 85;
+            let totalPages = 10;
+            let extractedImages = [];
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showExtractionInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showExtractionInterface() {
+                extractionOptions.style.display = 'block';
+                formatOptions.style.display = 'block';
+                qualitySettings.style.display = 'block';
+                pageSelection.style.display = 'block';
+                actionButtons.style.display = 'block';
+                
+                generatePageGrid();
+            }
+
+            function generatePageGrid() {
+                const pageGrid = document.getElementById('pageGrid');
+                pageGrid.innerHTML = '';
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageCell = document.createElement('div');
+                    pageCell.className = 'page-cell';
+                    pageCell.textContent = i;
+                    
+                    // Randomly mark some pages as having images
+                    if (Math.random() > 0.3) {
+                        pageCell.classList.add('has-images');
+                    }
+                    
+                    pageCell.addEventListener('click', () => {
+                        pageCell.classList.toggle('selected');
+                    });
+                    
+                    pageGrid.appendChild(pageCell);
+                }
+            }
+
+            // Format selection
+            formatOptionsElements.forEach(option => {
+                option.addEventListener('click', () => {
+                    formatOptionsElements.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedFormat = option.dataset.format;
+                });
+            });
+
+            // Quality slider
+            qualitySlider.addEventListener('input', (e) => {
+                selectedQuality = e.target.value;
+                qualityValue.textContent = selectedQuality + '%';
+            });
+
+            // Extract images button handler
+            extractImagesBtn.addEventListener('click', () => {
+                // Hide other sections
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate image extraction process
+                simulateImageExtraction();
+            });
+
+            function simulateImageExtraction() {
+                const steps = [
+                    { text: 'Analyzing PDF structure...', progress: 20 },
+                    { text: 'Identifying images...', progress: 40 },
+                    { text: 'Extracting image data...', progress: 60 },
+                    { text: 'Processing image formats...', progress: 80 },
+                    { text: 'Finalizing extraction...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showExtractionResults();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showExtractionResults() {
+                // Generate sample extracted images
+                extractedImages = generateSampleImages();
+                
+                // Show statistics
+                updateExtractionStats();
+                extractionStats.style.display = 'block';
+                
+                // Show image gallery
+                updateImageGallery();
+                imageGallery.style.display = 'block';
+                
+                // Show bulk actions
+                bulkActions.style.display = 'block';
+                
+                // Show success section
+                successSection.style.display = 'block';
+            }
+
+            function generateSampleImages() {
+                const images = [];
+                const formats = ['png', 'jpeg', 'tiff', 'webp'];
+                const sizes = ['100x150', '200x300', '300x400', '400x500', '500x600'];
+                
+                for (let i = 1; i <= 8; i++) {
+                    images.push({
+                        id: i,
+                        name: `image_${i}.${selectedFormat}`,
+                        format: selectedFormat,
+                        size: sizes[Math.floor(Math.random() * sizes.length)],
+                        fileSize: Math.floor(Math.random() * 500) + 100,
+                        page: Math.floor(Math.random() * totalPages) + 1,
+                        url: `https://via.placeholder.com/200x150/666666/FFFFFF?text=Image+${i}`
+                    });
+                }
+                
+                return images;
+            }
+
+            function updateExtractionStats() {
+                const totalImages = extractedImages.length;
+                const totalSize = extractedImages.reduce((sum, img) => sum + img.fileSize, 0);
+                const pagesWithImages = new Set(extractedImages.map(img => img.page)).size;
+                const avgSize = totalSize / totalImages;
+                
+                document.getElementById('totalImagesFound').textContent = totalImages;
+                document.getElementById('totalSize').textContent = formatFileSize(totalSize * 1024);
+                document.getElementById('pagesWithImages').textContent = pagesWithImages;
+                document.getElementById('avgImageSize').textContent = formatFileSize(avgSize * 1024);
+            }
+
+            function updateImageGallery() {
+                const galleryGrid = document.getElementById('galleryGrid');
+                galleryGrid.innerHTML = '';
+                
+                extractedImages.forEach(image => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item';
+                    imageItem.innerHTML = `
+                        <img src="${image.url}" class="image-preview" alt="${image.name}">
+                        <div class="image-info">
+                            <div><strong>${image.name}</strong></div>
+                            <div>${image.size} • ${formatFileSize(image.fileSize * 1024)}</div>
+                            <div>Page ${image.page}</div>
+                        </div>
+                        <div class="image-actions">
+                            <button class="action-btn download" onclick="downloadImage(${image.id})">
+                                <i class="bi bi-download"></i> Download
+                            </button>
+                        </div>
+                    `;
+                    galleryGrid.appendChild(imageItem);
+                });
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Global functions for image actions
+            window.downloadImage = function(id) {
+                const image = extractedImages.find(img => img.id === id);
+                if (image) {
+                    // In real app, this would trigger the actual download
+                    alert(`Downloading ${image.name}...`);
+                }
+            };
+
+            // Bulk action handlers
+            document.getElementById('selectAllBtn').addEventListener('click', () => {
+                // Implementation for select all
+                alert('Select all functionality would be implemented here.');
+            });
+
+            document.getElementById('deselectAllBtn').addEventListener('click', () => {
+                // Implementation for deselect all
+                alert('Deselect all functionality would be implemented here.');
+            });
+
+            document.getElementById('downloadSelectedBtn').addEventListener('click', () => {
+                // Implementation for download selected
+                alert('Download selected functionality would be implemented here.');
+            });
+
+            document.getElementById('downloadAllBtn').addEventListener('click', () => {
+                // Implementation for download all
+                alert('Download all functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        // Simulate file selection
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

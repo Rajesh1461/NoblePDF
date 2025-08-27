@@ -1,0 +1,41 @@
+.footer-pad {
+	width: 100%;
+	min-height: 48px;
+	background: transparent;
+	/* Reserve space without visual noise; adjust if you want a visible bar */
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2147483647;
+}
+
+.footer-pad.footer-solid {
+	background: rgba(150, 148, 148, 0.329);
+	border-top: 1px solid rgb(2, 1, 1);
+}
+
+.footer-pad .footer-content {
+	width: 100%;
+	margin: 0;
+	padding: 12px 24px;
+	color: inherit;
+}
+
+/* Feature group header styling */
+.feature-group-header .menu-title {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 0.5rem;
+}
+
+@media (max-width: 576px) {
+	.footer-pad { min-height: 36px; }
+	.footer-pad .footer-content { padding: 10px 16px; }
+	
+	.feature-group-header .menu-title {
+		font-size: 1.1rem;
+	}
+}
+

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Watermark - NoblePDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .watermark-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .watermark-creator {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .watermark-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .watermark-canvas {
+            border: 2px dashed #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+            cursor: crosshair;
+        }
+        
+        .watermark-options {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .watermark-template {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .watermark-template:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .watermark-template.selected {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-picker:hover {
+            transform: scale(1.1);
+        }
+        
+        .watermark-type-selector {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .type-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-option:hover {
+            background: #e9ecef;
+        }
+        
+        .type-option.selected {
+            background: #667eea;
+            color: white;
+        }
+        
+        .type-option input[type="radio"] {
+            margin: 0;
+        }
+        
+        .image-upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .image-upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f4ff;
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .pattern-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .pattern-option {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .pattern-option:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+        
+        .pattern-option.selected {
+            border-color: #667eea;
+            border-width: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="watermark-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-water me-3"></i>Add Watermark
+                </h1>
+                <p class="lead text-muted">Add professional watermarks to protect and brand your PDF documents</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mx-4" role="alert">
+                <h5><i class="fas fa-info-circle me-2"></i>Professional Watermarking</h5>
+                <p class="mb-0">Create text, image, or pattern watermarks with advanced positioning and styling options. Perfect for branding, copyright protection, and document identification.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Watermark Creator -->
+            <div class="watermark-creator mx-4">
+                <h5><i class="fas fa-edit me-2"></i>Create Watermark</h5>
+                
+                <!-- Watermark Type Selector -->
+                <div class="watermark-type-selector">
+                    <h6><i class="fas fa-layer-group me-2"></i>Watermark Type</h6>
+                    <div class="type-option" onclick="selectWatermarkType('text')">
+                        <input type="radio" name="watermarkType" value="text" checked>
+                        <i class="fas fa-font fa-2x"></i>
+                        <div>
+                            <strong>Text Watermark</strong>
+                            <br><small>Add text-based watermarks</small>
+                        </div>
+                    </div>
+                    <div class="type-option" onclick="selectWatermarkType('image')">
+                        <input type="radio" name="watermarkType" value="image">
+                        <i class="fas fa-image fa-2x"></i>
+                        <div>
+                            <strong>Image Watermark</strong>
+                            <br><small>Use images as watermarks</small>
+                        </div>
+                    </div>
+                    <div class="type-option" onclick="selectWatermarkType('pattern')">
+                        <input type="radio" name="watermarkType" value="pattern">
+                        <i class="fas fa-bezier-curve fa-2x"></i>
+                        <div>
+                            <strong>Pattern Watermark</strong>
+                            <br><small>Apply repeating patterns</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Text Watermark Options -->
+                <div id="textOptions" class="watermark-options">
+                    <h6><i class="fas fa-font me-2"></i>Text Watermark Options</h6>
+                    
+                    <!-- Quick Templates -->
+                    <div class="mb-3">
+                        <h6>Quick Templates</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="watermark-template" onclick="selectTemplate('confidential')">
+                                    <h6>CONFIDENTIAL</h6>
+                                    <small class="text-muted">Red confidential text</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="watermark-template" onclick="selectTemplate('draft')">
+                                    <h6>DRAFT</h6>
+                                    <small class="text-muted">Blue draft text</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="watermark-template" onclick="selectTemplate('sample')">
+                                    <h6>SAMPLE</h6>
+                                    <small class="text-muted">Gray sample text</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="watermark-template" onclick="selectTemplate('approved')">
+                                    <h6>APPROVED</h6>
+                                    <small class="text-muted">Green approved text</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Watermark Text</label>
+                                <input type="text" class="form-control" id="watermarkText" placeholder="Enter watermark text..." value="CONFIDENTIAL">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Font Family</label>
+                                <select class="form-select" id="fontFamily">
+                                    <option value="Arial" selected>Arial</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Courier New">Courier New</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Font Size</label>
+                                <input type="range" class="form-range" id="fontSize" min="12" max="72" value="36">
+                                <small class="text-muted">Size: <span id="fontSizeValue">36</span>pt</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Text Color</label>
+                                <div class="d-flex gap-2">
+                                    <input type="color" class="color-picker" id="textColor" value="#dc3545">
+                                    <span class="align-self-center">Selected color</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Opacity</label>
+                                <input type="range" class="form-range" id="opacity" min="10" max="100" value="30">
+                                <small class="text-muted">Opacity: <span id="opacityValue">30</span>%</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Rotation</label>
+                                <input type="range" class="form-range" id="rotation" min="-45" max="45" value="-45">
+                                <small class="text-muted">Rotation: <span id="rotationValue">-45</span>°</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Watermark Options -->
+                <div id="imageOptions" class="watermark-options" style="display: none;">
+                    <h6><i class="fas fa-image me-2"></i>Image Watermark Options</h6>
+                    
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                        <p>Click to upload image watermark</p>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <div id="imagePreviewContainer" style="display: none;">
+                        <img id="imagePreview" class="image-preview">
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                <i class="fas fa-trash me-1"></i>Remove Image
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Image Scale</label>
+                                <input type="range" class="form-range" id="imageScale" min="25" max="200" value="100">
+                                <small class="text-muted">Scale: <span id="imageScaleValue">100</span>%</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Image Opacity</label>
+                                <input type="range" class="form-range" id="imageOpacity" min="10" max="100" value="50">
+                                <small class="text-muted">Opacity: <span id="imageOpacityValue">50</span>%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pattern Watermark Options -->
+                <div id="patternOptions" class="watermark-options" style="display: none;">
+                    <h6><i class="fas fa-bezier-curve me-2"></i>Pattern Watermark Options</h6>
+                    
+                    <div class="pattern-selector">
+                        <div class="pattern-option" onclick="selectPattern('diagonal')" style="background-image: linear-gradient(45deg, #667eea 25%, transparent 25%), linear-gradient(-45deg, #667eea 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #667eea 75%), linear-gradient(-45deg, transparent 75%, #667eea 75%);"></div>
+                        <div class="pattern-option" onclick="selectPattern('dots')" style="background-image: radial-gradient(circle, #667eea 1px, transparent 1px); background-size: 20px 20px;"></div>
+                        <div class="pattern-option" onclick="selectPattern('lines')" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, #667eea 5px, #667eea 10px);"></div>
+                        <div class="pattern-option" onclick="selectPattern('grid')" style="background-image: linear-gradient(#667eea 1px, transparent 1px), linear-gradient(90deg, #667eea 1px, transparent 1px); background-size: 20px 20px;"></div>
+                        <div class="pattern-option" onclick="selectPattern('zigzag')" style="background-image: linear-gradient(45deg, #667eea 25%, transparent 25%), linear-gradient(-45deg, #667eea 25%, transparent 25%); background-size: 20px 20px;"></div>
+                        <div class="pattern-option" onclick="selectPattern('waves')" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, #667eea 5px, #667eea 10px); background-size: 20px 20px;"></div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pattern Color</label>
+                                <input type="color" class="color-picker" id="patternColor" value="#667eea">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pattern Opacity</label>
+                                <input type="range" class="form-range" id="patternOpacity" min="10" max="100" value="40">
+                                <small class="text-muted">Opacity: <span id="patternOpacityValue">40</span>%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Watermark Preview -->
+                <div class="watermark-preview">
+                    <h6><i class="fas fa-eye me-2"></i>Watermark Preview</h6>
+                    <canvas id="watermarkCanvas" class="watermark-canvas" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Watermark Options -->
+            <div class="watermark-options mx-4">
+                <h5><i class="fas fa-cogs me-2"></i>Watermark Options</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Position</label>
+                            <select class="form-select" id="watermarkPosition">
+                                <option value="center" selected>Center</option>
+                                <option value="top-left">Top Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="tile">Tile (Repeat)</option>
+                                <option value="custom">Custom Position</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apply to Pages</label>
+                            <select class="form-select" id="applyToPages">
+                                <option value="all" selected>All Pages</option>
+                                <option value="first">First Page Only</option>
+                                <option value="last">Last Page Only</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="customPagesInput" style="display: none;">
+                            <label class="form-label">Page Range (e.g., 1-5, 7, 9-12)</label>
+                            <input type="text" class="form-control" id="customPages" placeholder="1-5, 7, 9-12">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Spacing (for tile mode)</label>
+                            <input type="range" class="form-range" id="spacing" min="50" max="300" value="150">
+                            <small class="text-muted">Spacing: <span id="spacingValue">150</span>px</small>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="behindContent" checked>
+                                <label class="form-check-label" for="behindContent">
+                                    Place behind content
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="printWatermark" checked>
+                                <label class="form-check-label" for="printWatermark">
+                                    Include in printed version
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apply Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="applyBtn" onclick="simulateWatermarking()" disabled>
+                    <i class="fas fa-water me-2"></i>Apply Watermark to PDF
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Applying Watermark to PDF</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing watermarking process...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Watermarking Complete!</h5>
+                <p>Your watermark has been successfully applied to the PDF.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Watermarked PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Watermark Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        const watermarkCanvas = document.getElementById('watermarkCanvas');
+        const ctx = watermarkCanvas.getContext('2d');
+
+        let currentWatermarkType = 'text';
+        let selectedImage = null;
+
+        // Initialize
+        window.onload = function() {
+            updateWatermarkPreview();
+            setupEventListeners();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Image upload
+            document.getElementById('imageUploadArea').addEventListener('click', () => {
+                document.getElementById('imageInput').click();
+            });
+
+            document.getElementById('imageInput').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageUpload(e.target.files[0]);
+                }
+            });
+
+            // Watermark controls
+            document.getElementById('watermarkText').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('fontFamily').addEventListener('change', updateWatermarkPreview);
+            document.getElementById('fontSize').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('textColor').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('opacity').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('rotation').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('imageScale').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('imageOpacity').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('patternColor').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('patternOpacity').addEventListener('input', updateWatermarkPreview);
+            document.getElementById('spacing').addEventListener('input', updateWatermarkPreview);
+
+            // Page range controls
+            document.getElementById('applyToPages').addEventListener('change', toggleCustomPages);
+            document.getElementById('customPages').addEventListener('input', validateCustomPages);
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                applyBtn.disabled = false;
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            applyBtn.disabled = true;
+            fileInput.value = '';
+        }
+
+        function selectWatermarkType(type) {
+            currentWatermarkType = type;
+            
+            // Hide all options
+            document.getElementById('textOptions').style.display = 'none';
+            document.getElementById('imageOptions').style.display = 'none';
+            document.getElementById('patternOptions').style.display = 'none';
+            
+            // Show selected options
+            document.getElementById(type + 'Options').style.display = 'block';
+            
+            // Update radio button
+            document.querySelector(`input[value="${type}"]`).checked = true;
+            
+            updateWatermarkPreview();
+        }
+
+        function selectTemplate(template) {
+            const textInput = document.getElementById('watermarkText');
+            const textColor = document.getElementById('textColor');
+            
+            switch(template) {
+                case 'confidential':
+                    textInput.value = 'CONFIDENTIAL';
+                    textColor.value = '#dc3545';
+                    break;
+                case 'draft':
+                    textInput.value = 'DRAFT';
+                    textColor.value = '#007bff';
+                    break;
+                case 'sample':
+                    textInput.value = 'SAMPLE';
+                    textColor.value = '#6c757d';
+                    break;
+                case 'approved':
+                    textInput.value = 'APPROVED';
+                    textColor.value = '#28a745';
+                    break;
+            }
+            
+            updateWatermarkPreview();
+        }
+
+        function handleImageUpload(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage = e.target.result;
+                    document.getElementById('imagePreview').src = selectedImage;
+                    document.getElementById('imagePreviewContainer').style.display = 'block';
+                    updateWatermarkPreview();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a valid image file.');
+            }
+        }
+
+        function removeImage() {
+            selectedImage = null;
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imageInput').value = '';
+            updateWatermarkPreview();
+        }
+
+        function selectPattern(pattern) {
+            // Remove previous selection
+            document.querySelectorAll('.pattern-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selection to clicked pattern
+            event.target.classList.add('selected');
+            
+            updateWatermarkPreview();
+        }
+
+        function updateWatermarkPreview() {
+            // Clear canvas
+            ctx.clearRect(0, 0, watermarkCanvas.width, watermarkCanvas.height);
+            
+            // Set background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, watermarkCanvas.width, watermarkCanvas.height);
+            
+            if (currentWatermarkType === 'text') {
+                drawTextWatermark();
+            } else if (currentWatermarkType === 'image') {
+                drawImageWatermark();
+            } else if (currentWatermarkType === 'pattern') {
+                drawPatternWatermark();
+            }
+            
+            // Update display values
+            updateDisplayValues();
+        }
+
+        function drawTextWatermark() {
+            const text = document.getElementById('watermarkText').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            const textColor = document.getElementById('textColor').value;
+            const opacity = parseInt(document.getElementById('opacity').value) / 100;
+            const rotation = parseInt(document.getElementById('rotation').value);
+            
+            ctx.save();
+            ctx.translate(watermarkCanvas.width / 2, watermarkCanvas.height / 2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.globalAlpha = opacity;
+            
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 0, 0);
+            
+            ctx.restore();
+        }
+
+        function drawImageWatermark() {
+            if (!selectedImage) return;
+            
+            const scale = parseInt(document.getElementById('imageScale').value) / 100;
+            const opacity = parseInt(document.getElementById('imageOpacity').value) / 100;
+            
+            const img = new Image();
+            img.onload = function() {
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                const x = (watermarkCanvas.width - scaledWidth) / 2;
+                const y = (watermarkCanvas.height - scaledHeight) / 2;
+                
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                ctx.restore();
+            };
+            img.src = selectedImage;
+        }
+
+        function drawPatternWatermark() {
+            const color = document.getElementById('patternColor').value;
+            const opacity = parseInt(document.getElementById('patternOpacity').value) / 100;
+            
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = color;
+            
+            // Draw a simple pattern (diagonal lines)
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < watermarkCanvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + 20, watermarkCanvas.height);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+
+        function updateDisplayValues() {
+            document.getElementById('fontSizeValue').textContent = document.getElementById('fontSize').value;
+            document.getElementById('opacityValue').textContent = document.getElementById('opacity').value;
+            document.getElementById('rotationValue').textContent = document.getElementById('rotation').value;
+            document.getElementById('imageScaleValue').textContent = document.getElementById('imageScale').value;
+            document.getElementById('imageOpacityValue').textContent = document.getElementById('imageOpacity').value;
+            document.getElementById('patternOpacityValue').textContent = document.getElementById('patternOpacity').value;
+            document.getElementById('spacingValue').textContent = document.getElementById('spacing').value;
+        }
+
+        function toggleCustomPages() {
+            const customPagesInput = document.getElementById('customPagesInput');
+            const applyToPages = document.getElementById('applyToPages').value;
+            
+            if (applyToPages === 'custom') {
+                customPagesInput.style.display = 'block';
+            } else {
+                customPagesInput.style.display = 'none';
+            }
+        }
+
+        function validateCustomPages() {
+            const customPages = document.getElementById('customPages').value;
+            const pattern = /^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/;
+            
+            if (customPages && !pattern.test(customPages)) {
+                document.getElementById('customPages').classList.add('is-invalid');
+            } else {
+                document.getElementById('customPages').classList.remove('is-invalid');
+            }
+        }
+
+        function simulateWatermarking() {
+            progressSection.style.display = 'block';
+            applyBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Analyzing PDF structure...', progress: 20 },
+                { text: 'Creating watermark overlay...', progress: 40 },
+                { text: 'Applying watermark to pages...', progress: 60 },
+                { text: 'Optimizing watermark positioning...', progress: 80 },
+                { text: 'Finalizing watermarked PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'watermarked-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            applyBtn.disabled = true;
+            resetUpload();
+            removeImage();
+            selectWatermarkType('text');
+            updateWatermarkPreview();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

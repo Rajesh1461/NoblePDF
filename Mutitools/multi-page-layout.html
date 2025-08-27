@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page Layout - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .layout-container {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .layout-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #ff9a9e;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 154, 158, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fecfef;
+            background: rgba(254, 207, 239, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .layout-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .layout-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .layout-grid {
+            display: grid;
+            gap: 10px;
+            margin: 2rem auto;
+            max-width: 400px;
+        }
+        
+        .layout-grid.grid-2x2 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+        
+        .layout-grid.grid-3x3 {
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+        }
+        
+        .layout-grid.grid-2x3 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+        }
+        
+        .layout-grid.grid-3x2 {
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+        
+        .layout-grid.grid-4x4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr 1fr;
+        }
+        
+        .page-slot {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .page-slot.filled {
+            background: #ff9a9e;
+            border-color: #ff9a9e;
+            color: white;
+        }
+        
+        .page-slot:hover {
+            border-color: #ff9a9e;
+            background: rgba(255, 154, 158, 0.1);
+        }
+        
+        .layout-btn {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .layout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 154, 158, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+        
+        .layout-preset {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .layout-preset:hover {
+            border-color: #ff9a9e;
+            background: rgba(255, 154, 158, 0.05);
+        }
+        
+        .layout-preset.selected {
+            border-color: #ff9a9e;
+            background: rgba(255, 154, 158, 0.1);
+        }
+        
+        .preset-icon {
+            font-size: 2rem;
+            color: #ff9a9e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-list {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .file-item:hover {
+            border-color: #ff9a9e;
+            background: rgba(255, 154, 158, 0.05);
+        }
+        
+        .file-number {
+            background: #ff9a9e;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="layout-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="layout-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">Multi-Page Layout</h1>
+                            <p class="lead text-muted">Merge multiple PDF pages into a single page with custom layouts</p>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-danger mb-3"></i>
+                            <h4 class="mb-3">Drop your PDFs here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFiles" accept=".pdf" multiple style="display: none;">
+                            <button class="btn btn-outline-danger btn-lg" onclick="document.getElementById('pdfFiles').click()">
+                                Choose PDF Files
+                            </button>
+                        </div>
+
+                        <!-- File List -->
+                        <div class="file-list" id="fileList" style="display: none;">
+                            <h5 class="mb-3">Selected Files</h5>
+                            <div id="fileItems"></div>
+                        </div>
+
+                        <!-- Layout Options -->
+                        <div class="layout-options" id="layoutOptions" style="display: none;">
+                            <h4 class="mb-4">Layout Configuration</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Layout Preset</label>
+                                        <div class="layout-preset" data-layout="2x2" onclick="selectLayout('2x2')">
+                                            <div class="preset-icon">
+                                                <i class="bi bi-grid-2x2"></i>
+                                            </div>
+                                            <strong>2×2 Grid</strong>
+                                            <div class="text-muted small">4 pages per sheet</div>
+                                        </div>
+                                        
+                                        <div class="layout-preset" data-layout="3x3" onclick="selectLayout('3x3')">
+                                            <div class="preset-icon">
+                                                <i class="bi bi-grid-3x3"></i>
+                                            </div>
+                                            <strong>3×3 Grid</strong>
+                                            <div class="text-muted small">9 pages per sheet</div>
+                                        </div>
+                                        
+                                        <div class="layout-preset" data-layout="2x3" onclick="selectLayout('2x3')">
+                                            <div class="preset-icon">
+                                                <i class="bi bi-grid-2x3"></i>
+                                            </div>
+                                            <strong>2×3 Grid</strong>
+                                            <div class="text-muted small">6 pages per sheet</div>
+                                        </div>
+                                        
+                                        <div class="layout-preset" data-layout="3x2" onclick="selectLayout('3x2')">
+                                            <div class="preset-icon">
+                                                <i class="bi bi-grid-3x2"></i>
+                                            </div>
+                                            <strong>3×2 Grid</strong>
+                                            <div class="text-muted small">6 pages per sheet</div>
+                                        </div>
+                                        
+                                        <div class="layout-preset" data-layout="4x4" onclick="selectLayout('4x4')">
+                                            <div class="preset-icon">
+                                                <i class="bi bi-grid-4x4"></i>
+                                            </div>
+                                            <strong>4×4 Grid</strong>
+                                            <div class="text-muted small">16 pages per sheet</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Page Settings</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="autoRotate" checked>
+                                            <label class="form-check-label" for="autoRotate">
+                                                Auto-rotate pages for best fit
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="maintainAspect" checked>
+                                            <label class="form-check-label" for="maintainAspect">
+                                                Maintain aspect ratio
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="addBorders">
+                                            <label class="form-check-label" for="addBorders">
+                                                Add borders between pages
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Format</label>
+                                        <select class="form-select" id="outputFormat">
+                                            <option value="pdf">PDF</option>
+                                            <option value="pdfa">PDF/A</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Page Size</label>
+                                        <select class="form-select" id="pageSize">
+                                            <option value="a4">A4 (210 × 297 mm)</option>
+                                            <option value="letter">Letter (8.5 × 11 in)</option>
+                                            <option value="legal">Legal (8.5 × 14 in)</option>
+                                            <option value="a3">A3 (297 × 420 mm)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Layout Preview -->
+                        <div class="layout-preview" id="layoutPreview" style="display: none;">
+                            <h5 class="mb-3">Layout Preview</h5>
+                            <div class="layout-grid grid-2x2" id="layoutGrid">
+                                <div class="page-slot" data-slot="1">Page 1</div>
+                                <div class="page-slot" data-slot="2">Page 2</div>
+                                <div class="page-slot" data-slot="3">Page 3</div>
+                                <div class="page-slot" data-slot="4">Page 4</div>
+                            </div>
+                            <p class="text-muted mt-2">Preview of how pages will be arranged on each sheet</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn layout-btn btn-lg text-white me-3" id="layoutBtn">
+                                <i class="bi bi-grid-3x3-gap me-2"></i>Create Layout
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFiles = [];
+        let selectedLayout = '2x2';
+
+        document.getElementById('pdfFiles').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFiles').click());
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            const pdfFiles = files.filter(file => file.type === 'application/pdf');
+            
+            if (pdfFiles.length > 0) {
+                selectedFiles = pdfFiles;
+                processFiles(pdfFiles);
+            } else {
+                alert('Please select valid PDF files.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(event.dataTransfer.files);
+            const pdfFiles = files.filter(file => file.type === 'application/pdf');
+            
+            if (pdfFiles.length > 0) {
+                selectedFiles = pdfFiles;
+                processFiles(pdfFiles);
+            }
+        }
+
+        function processFiles(files) {
+            showFileList();
+            showLayoutOptions();
+            showLayoutPreview();
+            showActionButtons();
+            updateFileList(files);
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${files.length} PDF files selected</h4>
+                <p class="text-muted">Ready to create multi-page layout</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change Files</button>
+            `;
+        }
+
+        function showFileList() {
+            document.getElementById('fileList').style.display = 'block';
+        }
+
+        function showLayoutOptions() {
+            document.getElementById('layoutOptions').style.display = 'block';
+        }
+
+        function showLayoutPreview() {
+            document.getElementById('layoutPreview').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function updateFileList(files) {
+            const fileItems = document.getElementById('fileItems');
+            fileItems.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-number">${index + 1}</div>
+                    <div class="flex-grow-1">
+                        <strong>${file.name}</strong>
+                        <div class="text-muted small">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+                fileItems.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            if (selectedFiles.length === 0) {
+                resetForm();
+            } else {
+                updateFileList(selectedFiles);
+            }
+        }
+
+        function selectLayout(layout) {
+            selectedLayout = layout;
+            
+            // Update selected state
+            document.querySelectorAll('.layout-preset').forEach(preset => {
+                preset.classList.remove('selected');
+            });
+            event.target.closest('.layout-preset').classList.add('selected');
+            
+            // Update preview grid
+            updateLayoutPreview(layout);
+        }
+
+        function updateLayoutPreview(layout) {
+            const layoutGrid = document.getElementById('layoutGrid');
+            layoutGrid.className = `layout-grid grid-${layout}`;
+            
+            // Clear existing slots
+            layoutGrid.innerHTML = '';
+            
+            // Get grid dimensions
+            const [cols, rows] = layout.split('x').map(Number);
+            const totalSlots = cols * rows;
+            
+            // Create slots
+            for (let i = 1; i <= totalSlots; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'page-slot';
+                slot.dataset.slot = i;
+                slot.textContent = `Page ${i}`;
+                
+                // Fill slots based on available files
+                if (i <= selectedFiles.length) {
+                    slot.classList.add('filled');
+                    slot.textContent = `File ${i}`;
+                }
+                
+                layoutGrid.appendChild(slot);
+            }
+        }
+
+        function resetForm() {
+            selectedFiles = [];
+            selectedLayout = '2x2';
+            
+            document.getElementById('fileList').style.display = 'none';
+            document.getElementById('layoutOptions').style.display = 'none';
+            document.getElementById('layoutPreview').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // Reset layout selection
+            document.querySelectorAll('.layout-preset').forEach(preset => {
+                preset.classList.remove('selected');
+            });
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-danger mb-3"></i>
+                <h4 class="mb-3">Drop your PDFs here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFiles" accept=".pdf" multiple style="display: none;">
+                <button class="btn btn-outline-danger btn-lg" onclick="document.getElementById('pdfFiles').click()">
+                    Choose PDF Files
+                    </button>
+            `;
+            
+            document.getElementById('pdfFiles').value = '';
+            
+            // Reset preview to default
+            updateLayoutPreview('2x2');
+        }
+
+        // Layout button handler
+        document.getElementById('layoutBtn').addEventListener('click', function() {
+            if (selectedFiles.length === 0) {
+                alert('Please select PDF files first.');
+                return;
+            }
+            
+            const layout = selectedLayout;
+            const [cols, rows] = layout.split('x').map(Number);
+            const totalSlots = cols * rows;
+            const pageSize = document.getElementById('pageSize').value;
+            const outputFormat = document.getElementById('outputFormat').value;
+            
+            let message = `Creating multi-page layout...\n\n`;
+            message += `Files: ${selectedFiles.length}\n`;
+            message += `Layout: ${layout} (${totalSlots} pages per sheet)\n`;
+            message += `Page Size: ${pageSize}\n`;
+            message += `Output: ${outputFormat}\n`;
+            message += `\nThis is a demo page. In a real application, the PDFs would be merged into a ${layout} layout.`;
+            
+            alert(message);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

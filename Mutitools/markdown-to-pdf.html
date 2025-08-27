@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to PDF - NoblePDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .markdown-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1400px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .editor-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .markdown-editor {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 400px;
+            background: #f8f9fa;
+        }
+        
+        .markdown-editor:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: white;
+        }
+        
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+            min-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .conversion-options {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .editor-toolbar {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .editor-btn {
+            background: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .editor-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .template-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .preview-content h1, .preview-content h2, .preview-content h3 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        
+        .preview-content h1 {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.3em;
+        }
+        
+        .preview-content h2 {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 0.2em;
+        }
+        
+        .preview-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+        
+        .preview-content pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            overflow-x: auto;
+        }
+        
+        .preview-content blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+            margin-left: 0;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .preview-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .preview-content th, .preview-content td {
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        
+        .preview-content th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .preview-content ul, .preview-content ol {
+            padding-left: 20px;
+        }
+        
+        .preview-content li {
+            margin: 5px 0;
+        }
+        
+        .preview-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .preview-content hr {
+            border: none;
+            border-top: 2px solid #e9ecef;
+            margin: 20px 0;
+        }
+        
+        .word-count {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #6c757d;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">            
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="markdown-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-markdown me-3"></i>Markdown to PDF
+                </h1>
+                <p class="lead text-muted">Convert Markdown text to professional PDF documents with live preview and formatting</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mx-4" role="alert">
+                <h5><i class="fas fa-info-circle me-2"></i>Smart Markdown Conversion</h5>
+                <p class="mb-0">Write or paste Markdown content and see a live preview. Convert to PDF with customizable styling, fonts, and layout options. Perfect for documentation, reports, and technical writing.</p>
+            </div>
+
+            <!-- Editor Section -->
+            <div class="editor-section mx-4">
+                <h5><i class="fas fa-edit me-2"></i>Markdown Editor</h5>
+                <div class="mb-3">
+                    <div class="editor-toolbar">
+                        <button class="editor-btn" onclick="insertMarkdown('h1')">H1</button>
+                        <button class="editor-btn" onclick="insertMarkdown('h2')">H2</button>
+                        <button class="editor-btn" onclick="insertMarkdown('h3')">H3</button>
+                        <button class="editor-btn" onclick="insertMarkdown('bold')">Bold</button>
+                        <button class="editor-btn" onclick="insertMarkdown('italic')">Italic</button>
+                        <button class="editor-btn" onclick="insertMarkdown('code')">Code</button>
+                        <button class="editor-btn" onclick="insertMarkdown('link')">Link</button>
+                        <button class="editor-btn" onclick="insertMarkdown('list')">List</button>
+                        <button class="editor-btn" onclick="insertMarkdown('table')">Table</button>
+                        <button class="editor-btn" onclick="clearEditor()">Clear</button>
+                    </div>
+                    <textarea class="form-control markdown-editor" id="markdownInput" placeholder="Enter your Markdown content here..."></textarea>
+                    <div class="mt-2 text-end">
+                        <span class="word-count" id="wordCount">0 words, 0 characters</span>
+                    </div>
+                </div>
+                
+                <!-- Markdown Templates -->
+                <div class="mb-3">
+                    <h6><i class="fas fa-layer-group me-2"></i>Quick Templates</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="template-item" onclick="loadTemplate('basic')">
+                                <h6>Basic Document</h6>
+                                <small class="text-muted">Simple text with headings</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-item" onclick="loadTemplate('technical')">
+                                <h6>Technical Doc</h6>
+                                <small class="text-muted">Code blocks and lists</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-item" onclick="loadTemplate('report')">
+                                <h6>Report</h6>
+                                <small class="text-muted">Structured report format</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Split Layout: Editor and Preview -->
+            <div class="split-layout mx-4">
+                <!-- Live Preview -->
+                <div class="preview-section">
+                    <h5><i class="fas fa-eye me-2"></i>Live Preview</h5>
+                    <div class="preview-content" id="previewContent">
+                        <div class="text-center text-muted p-4">
+                            <i class="fas fa-eye-slash fa-2x mb-3"></i>
+                            <p>Preview will appear here as you type Markdown</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Options -->
+            <div class="conversion-options mx-4">
+                <h5><i class="fas fa-cogs me-2"></i>Conversion Options</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Page Size</label>
+                            <select class="form-select" id="pageSize">
+                                <option value="a4" selected>A4 (210 × 297 mm)</option>
+                                <option value="letter">Letter (8.5 × 11 in)</option>
+                                <option value="legal">Legal (8.5 × 14 in)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Font Family</label>
+                            <select class="form-select" id="fontFamily">
+                                <option value="serif" selected>Serif (Times New Roman)</option>
+                                <option value="sans-serif">Sans-serif (Arial)</option>
+                                <option value="monospace">Monospace (Courier)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Font Size</label>
+                            <select class="form-select" id="fontSize">
+                                <option value="small">Small (10pt)</option>
+                                <option value="medium" selected>Medium (12pt)</option>
+                                <option value="large">Large (14pt)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Line Spacing</label>
+                            <select class="form-select" id="lineSpacing">
+                                <option value="single" selected>Single (1.0)</option>
+                                <option value="one-half">One and Half (1.5)</option>
+                                <option value="double">Double (2.0)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Convert Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="convertBtn" onclick="simulateConversion()" disabled>
+                    <i class="fas fa-magic me-2"></i>Convert to PDF
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Converting Markdown to PDF</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing conversion...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Conversion Complete!</h5>
+                <p>Your Markdown has been successfully converted to PDF.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Convert Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const markdownInput = document.getElementById('markdownInput');
+        const previewContent = document.getElementById('previewContent');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        const wordCount = document.getElementById('wordCount');
+
+        // Load default template
+        window.onload = function() {
+            loadTemplate('basic');
+        };
+
+        // Live preview update
+        markdownInput.addEventListener('input', updatePreview);
+
+        function updatePreview() {
+            const markdown = markdownInput.value;
+            if (markdown.trim()) {
+                previewContent.innerHTML = renderMarkdown(markdown);
+                convertBtn.disabled = false;
+                updateWordCount(markdown);
+            } else {
+                previewContent.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-eye-slash fa-2x mb-3"></i><p>Preview will appear here as you type Markdown</p></div>';
+                convertBtn.disabled = true;
+                wordCount.textContent = '0 words, 0 characters';
+            }
+        }
+
+        function updateWordCount(text) {
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const characters = text.length;
+            wordCount.textContent = `${words} words, ${characters} characters`;
+        }
+
+        function renderMarkdown(markdown) {
+            let html = markdown
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                
+                // Bold and italic
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                
+                // Code blocks
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                
+                // Links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                
+                // Lists
+                .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                .replace(/^- (.*$)/gim, '<li>$1</li>')
+                
+                // Blockquotes
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                
+                // Horizontal rules
+                .replace(/^---$/gim, '<hr>')
+                
+                // Line breaks
+                .replace(/\n/g, '<br>');
+            
+            // Wrap lists
+            html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+            
+            return html;
+        }
+
+        function insertMarkdown(type) {
+            const textarea = markdownInput;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            let insertText = '';
+            switch(type) {
+                case 'h1':
+                    insertText = `# ${selectedText || 'Heading 1'}`;
+                    break;
+                case 'h2':
+                    insertText = `## ${selectedText || 'Heading 2'}`;
+                    break;
+                case 'h3':
+                    insertText = `### ${selectedText || 'Heading 3'}`;
+                    break;
+                case 'bold':
+                    insertText = `**${selectedText || 'Bold text'}`;
+                    break;
+                case 'italic':
+                    insertText = `*${selectedText || 'Italic text'}`;
+                    break;
+                case 'code':
+                    insertText = `\`${selectedText || 'code'}\``;
+                    break;
+                case 'link':
+                    insertText = `[${selectedText || 'Link text'}](https://example.com)`;
+                    break;
+                case 'list':
+                    insertText = `* ${selectedText || 'List item 1'}\n* List item 2\n* List item 3`;
+                    break;
+                case 'table':
+                    insertText = `| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Data 1   | Data 2   | Data 3   |`;
+                    break;
+            }
+            
+            textarea.value = textarea.value.substring(0, start) + insertText + textarea.value.substring(end);
+            textarea.focus();
+            updatePreview();
+        }
+
+        function clearEditor() {
+            markdownInput.value = '';
+            updatePreview();
+        }
+
+        function loadTemplate(template) {
+            let markdown = '';
+            switch(template) {
+                case 'basic':
+                    markdown = `# Welcome to My Document
+
+This is a basic Markdown document template that you can customize for your needs.
+
+## Features
+
+- Clean and simple layout
+- Professional appearance
+- Easy to customize
+- **Bold text** and *italic text*
+- \`Inline code\` support
+
+## Getting Started
+
+1. Edit this content
+2. Use the toolbar buttons
+3. See live preview
+4. Convert to PDF
+
+---
+
+*You can add more content, images, and formatting as needed.*`;
+                    break;
+                case 'technical':
+                    markdown = `# Technical Documentation
+
+## Overview
+
+This document provides technical specifications and implementation details.
+
+## Code Examples
+
+### JavaScript Function
+
+\`\`\`javascript
+function calculateSum(a, b) {
+    return a + b;
+}
+
+// Usage
+const result = calculateSum(5, 3);
+console.log(result); // Output: 8
+\`\`\`
+
+## Configuration
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| Debug | true | Enable debug mode |
+| Port | 8080 | Server port |
+
+## Installation
+
+\`\`\`bash
+npm install my-package
+npm run start
+\`\`\``;
+                    break;
+                case 'report':
+                    markdown = `# Quarterly Report
+
+**Date:** ${new Date().toLocaleDateString()}  
+**Author:** [Your Name]  
+**Department:** [Department Name]
+
+## Executive Summary
+
+This report provides an overview of our quarterly performance and key achievements.
+
+## Key Metrics
+
+- Q1 Revenue: $1.2M
+- Q2 Revenue: $1.4M
+- Q3 Revenue: $1.6M
+- **Growth Rate: 33%**
+
+## Next Quarter Goals
+
+1. [ ] Increase revenue by 25%
+2. [ ] Launch new product line
+3. [ ] Improve customer satisfaction score
+
+---
+
+*Report prepared by the Business Development Team*`;
+                    break;
+            }
+            
+            markdownInput.value = markdown;
+            updatePreview();
+        }
+
+        function simulateConversion() {
+            progressSection.style.display = 'block';
+            convertBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Parsing Markdown syntax...', progress: 20 },
+                { text: 'Applying formatting and styles...', progress: 40 },
+                { text: 'Generating PDF layout...', progress: 60 },
+                { text: 'Rendering content...', progress: 80 },
+                { text: 'Finalizing PDF document...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'converted-markdown.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            convertBtn.disabled = true;
+            markdownInput.value = '';
+            updatePreview();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

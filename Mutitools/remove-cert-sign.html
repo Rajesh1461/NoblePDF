@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Certificate Sign - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .cert-remove-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .cert-info {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .cert-details {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .cert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cert-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-revoked {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .remove-options {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .cert-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .cert-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .warning-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="cert-remove-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-shield-x me-3"></i>Remove Certificate Sign
+                </h1>
+                <p class="lead text-muted">Remove digital certificate signatures from your PDF documents</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mx-4" role="alert">
+                <h5><i class="fas fa-info-circle me-2"></i>Certificate Removal Tool</h5>
+                <p class="mb-0">Remove digital signatures and certificates from signed PDF documents. This tool will permanently remove all signature information while preserving the document content.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload Signed PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop Signed PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Certificate Information -->
+            <div class="cert-info mx-4" id="certInfo" style="display: none;">
+                <h5><i class="fas fa-certificate me-2"></i>Certificate Information</h5>
+                <div class="cert-details">
+                    <div class="cert-item">
+                        <span><strong>Document Status:</strong></span>
+                        <span class="cert-status status-valid">Digitally Signed</span>
+                    </div>
+                    <div class="cert-item">
+                        <span><strong>Signer Name:</strong></span>
+                        <span>John Doe</span>
+                    </div>
+                    <div class="cert-item">
+                        <span><strong>Certificate Issuer:</strong></span>
+                        <span>DigiCert Inc</span>
+                    </div>
+                    <div class="cert-item">
+                        <span><strong>Signature Date:</strong></span>
+                        <span>2024-01-15 14:30:25</span>
+                    </div>
+                    <div class="cert-item">
+                        <span><strong>Certificate Valid Until:</strong></span>
+                        <span>2025-01-15 14:30:25</span>
+                    </div>
+                    <div class="cert-item">
+                        <span><strong>Signature Algorithm:</strong></span>
+                        <span>SHA-256 with RSA</span>
+                    </div>
+                </div>
+            </div>
+
+                        <!-- Remove Options -->
+                        <div class="remove-options" id="removeOptions" style="display: none;">
+                            <h4 class="mb-3">Removal Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="removeSignature" checked>
+                                            <label class="form-check-label" for="removeSignature">
+                                                Remove digital signature
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="removeCertChain">
+                                            <label class="form-check-label" for="removeCertChain">
+                                                Remove certificate chain
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="preserveContent">
+                                            <label class="form-check-label" for="preserveContent">
+                                                Preserve document content
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="createBackup">
+                                            <label class="form-check-label" for="createBackup">
+                                                Create backup copy
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+            <!-- Warning Alert -->
+            <div class="warning-alert mx-4" id="warningAlert" style="display: none;">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i> Important Notice</h6>
+                <p class="mb-0">Removing digital signatures will make the document unsigned. This action cannot be undone and may affect the document's legal validity.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center p-4" id="actionButtons" style="display: none;">
+                <button class="btn btn-primary btn-lg me-3" id="analyzeBtn">
+                    <i class="fas fa-search me-2"></i> Analyze Document
+                </button>
+                <button class="btn btn-primary btn-lg" id="removeBtn">
+                    <i class="fas fa-shield-x me-2"></i> Remove Certificate
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Processing Document</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Certificate Removed Successfully!</h5>
+                <p>The digital certificate has been removed from your PDF document. The document is now unsigned and ready for download.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Unsigned PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Remove Another Certificate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const certInfo = document.getElementById('certInfo');
+        const removeOptions = document.getElementById('removeOptions');
+        const warningAlert = document.getElementById('warningAlert');
+        const actionButtons = document.getElementById('actionButtons');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const removeBtn = document.getElementById('removeBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+
+                    // Initialize
+        window.onload = function() {
+            setupEventListeners();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                showCertificateInterface();
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop Signed PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            fileInput.value = '';
+            hideCertificateInterface();
+        }
+
+        function showCertificateInterface() {
+            certInfo.style.display = 'block';
+            removeOptions.style.display = 'block';
+            warningAlert.style.display = 'block';
+            actionButtons.style.display = 'block';
+        }
+
+        function hideCertificateInterface() {
+            certInfo.style.display = 'none';
+            removeOptions.style.display = 'none';
+            warningAlert.style.display = 'none';
+            actionButtons.style.display = 'none';
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+        }
+
+        // Analyze button handler
+        analyzeBtn.addEventListener('click', () => {
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-hourglass-half me-2"></i> Analyzing...';
+            
+            setTimeout(() => {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-search me-2"></i> Analyze Document';
+                alert('Document analysis completed. The certificate information has been verified.');
+            }, 2000);
+        });
+
+        // Remove button handler
+        removeBtn.addEventListener('click', () => {
+            if (!confirm('Are you sure you want to remove the digital certificate? This action cannot be undone.')) {
+                return;
+            }
+
+            // Hide other sections
+            actionButtons.style.display = 'none';
+            warningAlert.style.display = 'none';
+            
+            // Show progress section
+            progressSection.style.display = 'block';
+            
+            // Simulate removal process
+            simulateRemovalProcess();
+        });
+
+        function simulateRemovalProcess() {
+            const steps = [
+                { text: 'Validating document integrity...', progress: 20 },
+                { text: 'Extracting certificate data...', progress: 40 },
+                { text: 'Removing digital signature...', progress: 60 },
+                { text: 'Cleaning certificate chain...', progress: 80 },
+                { text: 'Finalizing document...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'unsigned-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            resetUpload();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

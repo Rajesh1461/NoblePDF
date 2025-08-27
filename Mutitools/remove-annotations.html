@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Annotations - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .annotations-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .annotations-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .remove-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .annotations-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-page {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1rem 0;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .annotation-highlight {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background: rgba(255, 255, 0, 0.3);
+            border: 2px solid #ffc107;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #856404;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .annotation-highlight:hover {
+            background: rgba(255, 255, 0, 0.5);
+            transform: scale(1.05);
+        }
+        .annotation-highlight.selected {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .annotation-comment {
+            position: absolute;
+            top: 120px;
+            left: 50px;
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid #007bff;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            color: #0056b3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .annotation-comment:hover {
+            background: rgba(0, 123, 255, 0.2);
+            transform: scale(1.05);
+        }
+        .annotation-comment.selected {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .annotation-drawing {
+            position: absolute;
+            top: 180px;
+            left: 50px;
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            color: #155724;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .annotation-drawing:hover {
+            background: rgba(40, 167, 69, 0.2);
+            transform: scale(1.05);
+        }
+        .annotation-drawing.selected {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .annotation-stamp {
+            position: absolute;
+            top: 240px;
+            left: 50px;
+            background: rgba(108, 117, 125, 0.1);
+            border: 1px solid #6c757d;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .annotation-stamp:hover {
+            background: rgba(108, 117, 125, 0.2);
+            transform: scale(1.05);
+        }
+        .annotation-stamp.selected {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .remove-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .annotation-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .annotation-type {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .annotation-type:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .annotation-type.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        .type-icon {
+            font-size: 1.5rem;
+            color: #a8edea;
+            margin-bottom: 0.5rem;
+        }
+        .type-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+        }
+        .type-count {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .bulk-actions {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .annotations-list {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .annotation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .annotation-item:hover {
+            background: #e9ecef;
+        }
+        .annotation-item.selected {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+        }
+        .annotation-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .annotation-icon {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .annotation-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .annotation-name {
+            font-weight: 500;
+            color: #495057;
+        }
+        .annotation-page {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .annotation-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .remove-annotation-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 15px;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .annotations-summary {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #856404;
+        }
+        .summary-icon {
+            color: #856404;
+            margin-right: 0.5rem;
+        }
+        .page-navigation {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .page-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .page-btn.active {
+            background: #a8edea;
+            color: white;
+            border-color: #a8edea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+     
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="annotations-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="annotations-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-pencil-square"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Remove Annotations</h1>
+                            <p class="lead text-muted">Clean up PDFs by removing comments, highlights, drawings, and other annotations</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to remove annotations</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Annotations Preview -->
+                        <div class="annotations-preview" id="annotationsPreview" style="display: none;">
+                            <h4 class="mb-3">Annotations Preview (Click to Select for Removal)</h4>
+                            <div class="preview-page">
+                                <div class="annotation-highlight" data-type="highlight" data-id="1">
+                                    <i class="bi bi-highlighter"></i> Highlight
+                                </div>
+                                <div class="annotation-comment" data-type="comment" data-id="2">
+                                    <i class="bi bi-chat-text"></i> Comment
+                                </div>
+                                <div class="annotation-drawing" data-type="drawing" data-id="3">
+                                    <i class="bi bi-pencil"></i> Drawing
+                                </div>
+                                <div class="annotation-stamp" data-type="stamp" data-id="4">
+                                    <i class="bi bi-stamp"></i> Stamp
+                                </div>
+                                <div class="text-muted">
+                                    <i class="bi bi-file-pdf"></i> PDF Content with Annotations
+                                </div>
+                            </div>
+                            <p class="text-muted text-center">Click on annotations to select them for removal</p>
+                        </div>
+
+                        <!-- Remove Options -->
+                        <div class="remove-options" id="removeOptions" style="display: none;">
+                            <h4 class="mb-3">Annotation Types to Remove</h4>
+                            <div class="annotation-types">
+                                <div class="annotation-type" data-type="highlights">
+                                    <div class="type-icon">
+                                        <i class="bi bi-highlighter"></i>
+                                    </div>
+                                    <div class="type-label">Highlights</div>
+                                    <div class="type-count">3 found</div>
+                                </div>
+                                <div class="annotation-type" data-type="comments">
+                                    <div class="type-icon">
+                                        <i class="bi bi-chat-text"></i>
+                                    </div>
+                                    <div class="type-label">Comments</div>
+                                    <div class="type-count">5 found</div>
+                                </div>
+                                <div class="annotation-type" data-type="drawings">
+                                    <div class="type-icon">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <div class="type-label">Drawings</div>
+                                    <div class="type-count">2 found</div>
+                                </div>
+                                <div class="annotation-type" data-type="stamps">
+                                    <div class="type-icon">
+                                        <i class="bi bi-stamp"></i>
+                                    </div>
+                                    <div class="type-label">Stamps</div>
+                                    <div class="type-count">1 found</div>
+                                </div>
+                                <div class="annotation-type" data-type="underlines">
+                                    <div class="type-icon">
+                                        <i class="bi bi-underline"></i>
+                                    </div>
+                                    <div class="type-label">Underlines</div>
+                                    <div class="type-count">4 found</div>
+                                </div>
+                                <div class="annotation-type" data-type="strikethrough">
+                                    <div class="type-icon">
+                                        <i class="bi bi-type-strikethrough"></i>
+                                    </div>
+                                    <div class="type-label">Strikethrough</div>
+                                    <div class="type-count">0 found</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Actions -->
+                        <div class="bulk-actions" id="bulkActions" style="display: none;">
+                            <h5 class="mb-3">Bulk Actions</h5>
+                            <div class="action-buttons">
+                                <button class="btn btn-outline-primary action-btn" id="selectAllBtn">
+                                    <i class="bi bi-check-all"></i> Select All
+                                </button>
+                                <button class="btn btn-outline-secondary action-btn" id="deselectAllBtn">
+                                    <i class="bi bi-x-circle"></i> Deselect All
+                                </button>
+                                <button class="btn btn-outline-danger action-btn" id="removeSelectedBtn">
+                                    <i class="bi bi-trash"></i> Remove Selected
+                                </button>
+                                <button class="btn btn-outline-warning action-btn" id="removeAllBtn">
+                                    <i class="bi bi-trash-fill"></i> Remove All Annotations
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Page Navigation -->
+                        <div class="page-navigation" id="pageNavigation" style="display: none;">
+                            <h5 class="mb-3">Navigate Pages</h5>
+                            <div class="page-buttons">
+                                <button class="btn btn-outline-secondary page-btn active" data-page="1">Page 1</button>
+                                <button class="btn btn-outline-secondary page-btn" data-page="2">Page 2</button>
+                                <button class="btn btn-outline-secondary page-btn" data-page="3">Page 3</button>
+                                <button class="btn btn-outline-secondary page-btn" data-page="4">Page 4</button>
+                                <button class="btn btn-outline-secondary page-btn" data-page="5">Page 5</button>
+                            </div>
+                        </div>
+
+                        <!-- Annotations List -->
+                        <div class="annotations-list" id="annotationsList" style="display: none;">
+                            <h4 class="mb-3">Annotations Found</h4>
+                            <div id="annotationsContainer">
+                                <!-- Annotations will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn remove-btn btn-lg" id="removeAnnotationsBtn">
+                                <i class="bi bi-pencil-square"></i> Remove Selected Annotations
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Removing Annotations</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing removal process...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Annotations Removed Successfully!</h6>
+                            <p class="mb-3">Selected annotations have been removed from your PDF. The document is now cleaner and ready for use.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Cleaned PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const annotationsPreview = document.getElementById('annotationsPreview');
+            const removeOptions = document.getElementById('removeOptions');
+            const bulkActions = document.getElementById('bulkActions');
+            const pageNavigation = document.getElementById('pageNavigation');
+            const annotationsList = document.getElementById('annotationsList');
+            const actionButtons = document.getElementById('actionButtons');
+            const removeAnnotationsBtn = document.getElementById('removeAnnotationsBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Annotation selection
+            let selectedAnnotations = [];
+            let selectedTypes = [];
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showAnnotationsInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                            <small class="text-muted">File size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showAnnotationsInterface() {
+                annotationsPreview.style.display = 'block';
+                removeOptions.style.display = 'block';
+                bulkActions.style.display = 'block';
+                pageNavigation.style.display = 'block';
+                annotationsList.style.display = 'block';
+                actionButtons.style.display = 'block';
+                
+                // Populate annotations list
+                populateAnnotationsList();
+                
+                // Setup annotation preview interactions
+                setupAnnotationPreview();
+            }
+
+            function setupAnnotationPreview() {
+                const annotations = document.querySelectorAll('[data-type]');
+                annotations.forEach(annotation => {
+                    annotation.addEventListener('click', () => {
+                        const type = annotation.dataset.type;
+                        const id = annotation.dataset.id;
+                        
+                        if (annotation.classList.contains('selected')) {
+                            annotation.classList.remove('selected');
+                            selectedAnnotations = selectedAnnotations.filter(a => a.id !== id);
+                        } else {
+                            annotation.classList.add('selected');
+                            selectedAnnotations.push({ id, type, element: annotation });
+                        }
+                        
+                        updateActionButton();
+                    });
+                });
+            }
+
+            function populateAnnotationsList() {
+                const container = document.getElementById('annotationsContainer');
+                const annotations = [
+                    { id: 1, type: 'highlight', name: 'Yellow Highlight', page: 1, icon: 'bi-highlighter' },
+                    { id: 2, type: 'comment', name: 'Review Comment', page: 1, icon: 'bi-chat-text' },
+                    { id: 3, type: 'drawing', name: 'Freehand Drawing', page: 1, icon: 'bi-pencil' },
+                    { id: 4, type: 'stamp', name: 'Approved Stamp', page: 1, icon: 'bi-stamp' },
+                    { id: 5, type: 'highlight', name: 'Green Highlight', page: 2, icon: 'bi-highlighter' },
+                    { id: 6, type: 'comment', name: 'Feedback Note', page: 2, icon: 'bi-chat-text' },
+                    { id: 7, type: 'underline', name: 'Important Text', page: 3, icon: 'bi-underline' }
+                ];
+                
+                container.innerHTML = '';
+                annotations.forEach(annotation => {
+                    const item = document.createElement('div');
+                    item.className = 'annotation-item';
+                    item.dataset.id = annotation.id;
+                    
+                    item.innerHTML = `
+                        <div class="annotation-info">
+                            <div class="annotation-icon">
+                                <i class="${annotation.icon}"></i>
+                            </div>
+                            <div class="annotation-details">
+                                <div class="annotation-name">${annotation.name}</div>
+                                <div class="annotation-page">Page ${annotation.page}</div>
+                            </div>
+                        </div>
+                        <div class="annotation-actions">
+                            <button class="btn btn-outline-danger remove-annotation-btn" onclick="removeSingleAnnotation(${annotation.id})">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        item.classList.toggle('selected');
+                        updateActionButton();
+                    });
+                    
+                    container.appendChild(item);
+                });
+            }
+
+            // Annotation type selection
+            const annotationTypes = document.querySelectorAll('.annotation-type');
+            annotationTypes.forEach(type => {
+                type.addEventListener('click', () => {
+                    type.classList.toggle('selected');
+                    const typeName = type.dataset.type;
+                    
+                    if (type.classList.contains('selected')) {
+                        selectedTypes.push(typeName);
+                    } else {
+                        selectedTypes = selectedTypes.filter(t => t !== typeName);
+                    }
+                    
+                    updateActionButton();
+                });
+            });
+
+            // Bulk action buttons
+            document.getElementById('selectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.annotation-item').forEach(item => {
+                    item.classList.add('selected');
+                });
+                updateActionButton();
+            });
+
+            document.getElementById('deselectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.annotation-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                updateActionButton();
+            });
+
+            document.getElementById('removeSelectedBtn').addEventListener('click', () => {
+                const selected = document.querySelectorAll('.annotation-item.selected');
+                if (selected.length > 0) {
+                    removeAnnotations();
+                } else {
+                    alert('Please select annotations to remove.');
+                }
+            });
+
+            document.getElementById('removeAllBtn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to remove ALL annotations from this PDF?')) {
+                    removeAnnotations();
+                }
+            });
+
+            // Page navigation
+            const pageButtons = document.querySelectorAll('.page-btn');
+            pageButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    pageButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    // In real app, this would load the specific page
+                });
+            });
+
+            function updateActionButton() {
+                const selectedCount = document.querySelectorAll('.annotation-item.selected').length;
+                if (selectedCount > 0) {
+                    removeAnnotationsBtn.textContent = `Remove ${selectedCount} Selected Annotations`;
+                } else {
+                    removeAnnotationsBtn.textContent = 'Remove Selected Annotations';
+                }
+            }
+
+            function removeAnnotations() {
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate removal process
+                simulateRemovalProcess();
+            }
+
+            function simulateRemovalProcess() {
+                const steps = [
+                    { text: 'Analyzing annotations...', progress: 20 },
+                    { text: 'Preparing for removal...', progress: 40 },
+                    { text: 'Removing selected annotations...', progress: 60 },
+                    { text: 'Cleaning up document...', progress: 80 },
+                    { text: 'Finalizing cleaned PDF...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showSuccess();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showSuccess() {
+                // Show success section
+                successSection.style.display = 'block';
+                
+                // Scroll to success
+                successSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        // Simulate file selection
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+
+            // Global function for removing single annotation
+            window.removeSingleAnnotation = function(id) {
+                const item = document.querySelector(`[data-id="${id}"]`);
+                if (item) {
+                    item.remove();
+                    updateActionButton();
+                }
+            };
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

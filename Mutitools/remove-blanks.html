@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Blank Pages - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .blanks-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .blanks-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .remove-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .page-analysis {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .page-item {
+            aspect-ratio: 0.7;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #f8f9fa;
+        }
+        .page-item:hover {
+            border-color: #a8edea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .page-item.blank {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .page-item.content {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .page-item.mixed {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        .page-item.selected {
+            border-color: #a8edea;
+            border-width: 3px;
+            transform: scale(1.05);
+        }
+        .page-number {
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.2rem;
+        }
+        .page-status {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        .status-blank {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-content {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-mixed {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .page-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-container {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        .preview-box {
+            flex: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        .preview-image {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin: 1rem 0;
+        }
+        .blank-detection {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .detection-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .detection-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .detection-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .threshold-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .threshold-slider {
+            width: 150px;
+        }
+        .threshold-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+        }
+        .blank-summary {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            color: #856404;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #856404;
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .bulk-actions {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .removal-results {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            border: 1px solid #e9ecef;
+        }
+        .result-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .result-value {
+            color: #6c757d;
+            font-family: monospace;
+        }
+        .result-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+          
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="blanks-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="blanks-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-file-earmark-minus"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Remove Blank Pages</h1>
+                            <p class="lead text-muted">Automatically detect and remove blank or near-blank pages from your PDF documents</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to remove blank pages</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Page Analysis -->
+                        <div class="page-analysis" id="pageAnalysis" style="display: none;">
+                            <h4 class="mb-3">Page Analysis Results</h4>
+                            <div class="page-grid" id="pageGrid">
+                                <!-- Pages will be populated dynamically -->
+                            </div>
+                            <p class="text-muted text-center mt-3">Click on pages to select/deselect them for removal</p>
+                        </div>
+
+                        <!-- Blank Detection Settings -->
+                        <div class="blank-detection" id="blankDetection" style="display: none;">
+                            <h4 class="mb-3">Blank Page Detection Settings</h4>
+                            <div class="detection-option">
+                                <div>
+                                    <div class="detection-label">Content Threshold</div>
+                                    <div class="detection-description">Minimum percentage of content required to consider a page non-blank</div>
+                                </div>
+                                <div class="threshold-control">
+                                    <input type="range" class="threshold-slider" id="contentThreshold" min="1" max="20" value="5">
+                                    <span class="threshold-value" id="thresholdValue">5%</span>
+                                </div>
+                            </div>
+                            <div class="detection-option">
+                                <div>
+                                    <div class="detection-label">Ignore Headers/Footers</div>
+                                    <div class="detection-description">Don't count page headers and footers as content</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ignoreHeaders" checked>
+                                </div>
+                            </div>
+                            <div class="detection-option">
+                                <div>
+                                    <div class="detection-label">Ignore Page Numbers</div>
+                                    <div class="detection-description">Don't count page numbers as content</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="ignorePageNumbers" checked>
+                                </div>
+                            </div>
+                            <div class="detection-option">
+                                <div>
+                                    <div class="detection-label">Advanced Content Analysis</div>
+                                    <div class="detection-description">Use AI-powered analysis for better blank page detection</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="advancedAnalysis">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Blank Page Summary -->
+                        <div class="blank-summary" id="blankSummary" style="display: none;">
+                            <h5 class="mb-3"><i class="bi bi-info-circle"></i> Blank Page Summary</h5>
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number" id="totalPages">0</span>
+                                    <span class="stat-label">Total Pages</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="blankPages">0</span>
+                                    <span class="stat-label">Blank Pages</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="contentPages">0</span>
+                                    <span class="stat-label">Content Pages</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="mixedPages">0</span>
+                                    <span class="stat-label">Mixed Pages</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Actions -->
+                        <div class="bulk-actions" id="bulkActions" style="display: none;">
+                            <h5 class="mb-3">Bulk Actions</h5>
+                            <div class="action-buttons">
+                                <button class="btn btn-outline-primary action-btn" id="selectAllBlanksBtn">
+                                    <i class="bi bi-check-all"></i> Select All Blanks
+                                </button>
+                                <button class="btn btn-outline-secondary action-btn" id="deselectAllBtn">
+                                    <i class="bi bi-x-circle"></i> Deselect All
+                                </button>
+                                <button class="btn btn-outline-warning action-btn" id="autoDetectBtn">
+                                    <i class="bi bi-magic"></i> Auto-Detect Blanks
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Page Preview -->
+                        <div class="page-preview" id="pagePreview" style="display: none;">
+                            <h4 class="mb-3">Page Preview</h4>
+                            <div class="preview-container">
+                                <div class="preview-box">
+                                    <div class="preview-title">Before Removal</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-file-pdf display-4"></i>
+                                        <div>Original PDF with blank pages</div>
+                                    </div>
+                                    <small class="text-muted">Includes all pages including blanks</small>
+                                </div>
+                                <div class="preview-box">
+                                    <div class="preview-title">After Removal</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-file-pdf display-4"></i>
+                                        <div>Cleaned PDF without blanks</div>
+                                    </div>
+                                    <small class="text-muted">Only content pages remain</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn remove-btn btn-lg" id="removeBlanksBtn">
+                                <i class="bi bi-file-earmark-minus"></i> Remove Selected Blank Pages
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Removing Blank Pages</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing removal process...</p>
+                        </div>
+
+                        <!-- Removal Results -->
+                        <div class="removal-results" id="removalResults" style="display: none;">
+                            <h4 class="mb-3">Removal Results</h4>
+                            <div class="result-item">
+                                <span class="result-label">Pages Analyzed:</span>
+                                <span class="result-value">8</span>
+                                <span class="result-status status-info">Complete</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Blank Pages Detected:</span>
+                                <span class="result-value">3</span>
+                                <span class="result-status status-info">Found</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Pages Removed:</span>
+                                <span class="result-value">3</span>
+                                <span class="result-status status-success">Removed</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Content Pages Kept:</span>
+                                <span class="result-value">5</span>
+                                <span class="result-status status-success">Preserved</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">File Size Reduction:</span>
+                                <span class="result-value">-1.8 MB</span>
+                                <span class="result-status status-success">Optimized</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Processing Time:</span>
+                                <span class="result-value">2.1 seconds</span>
+                                <span class="result-status status-success">Complete</span>
+                            </div>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Blank Pages Removed Successfully!</h6>
+                            <p class="mb-3">Selected blank pages have been removed from your PDF. The document is now cleaner and more compact.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Cleaned PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const pageAnalysis = document.getElementById('pageAnalysis');
+            const blankDetection = document.getElementById('blankDetection');
+            const blankSummary = document.getElementById('blankSummary');
+            const bulkActions = document.getElementById('bulkActions');
+            const pagePreview = document.getElementById('pagePreview');
+            const actionButtons = document.getElementById('actionButtons');
+            const removeBlanksBtn = document.getElementById('removeBlanksBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const removalResults = document.getElementById('removalResults');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Threshold slider
+            const contentThreshold = document.getElementById('contentThreshold');
+            const thresholdValue = document.getElementById('thresholdValue');
+            
+            let selectedPages = [];
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showBlanksInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                            <small class="text-muted">File size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showBlanksInterface() {
+                pageAnalysis.style.display = 'block';
+                blankDetection.style.display = 'block';
+                blankSummary.style.display = 'block';
+                bulkActions.style.display = 'block';
+                pagePreview.style.display = 'block';
+                actionButtons.style.display = 'block';
+                
+                // Populate page grid
+                populatePageGrid();
+                
+                // Update summary stats
+                updateSummaryStats();
+            }
+
+            function populatePageGrid() {
+                const pageGrid = document.getElementById('pageGrid');
+                pageGrid.innerHTML = '';
+                
+                const pages = [
+                    { number: 1, status: 'content', content: '85%' },
+                    { number: 2, status: 'blank', content: '2%' },
+                    { number: 3, status: 'content', content: '92%' },
+                    { number: 4, status: 'mixed', content: '15%' },
+                    { number: 5, status: 'blank', content: '1%' },
+                    { number: 6, status: 'content', content: '78%' },
+                    { number: 7, status: 'blank', content: '3%' },
+                    { number: 8, status: 'content', content: '89%' }
+                ];
+                
+                pages.forEach(page => {
+                    const pageItem = document.createElement('div');
+                    pageItem.className = `page-item ${page.status}`;
+                    pageItem.dataset.page = page.number;
+                    pageItem.dataset.status = page.status;
+                    
+                    pageItem.innerHTML = `
+                        <div class="page-number">${page.number}</div>
+                        <div class="page-status status-${page.status}">
+                            ${page.status.charAt(0).toUpperCase() + page.status.slice(1)}
+                        </div>
+                    `;
+                    
+                    pageItem.addEventListener('click', () => {
+                        if (page.status === 'blank' || page.status === 'mixed') {
+                            pageItem.classList.toggle('selected');
+                            updateSelectedPages();
+                        }
+                    });
+                    
+                    pageGrid.appendChild(pageItem);
+                });
+            }
+
+            function updateSummaryStats() {
+                document.getElementById('totalPages').textContent = '8';
+                document.getElementById('blankPages').textContent = '3';
+                document.getElementById('contentPages').textContent = '4';
+                document.getElementById('mixedPages').textContent = '1';
+            }
+
+            function updateSelectedPages() {
+                const selected = document.querySelectorAll('.page-item.selected');
+                selectedPages = Array.from(selected).map(item => ({
+                    page: parseInt(item.dataset.page),
+                    status: item.dataset.status
+                }));
+                
+                if (selectedPages.length > 0) {
+                    removeBlanksBtn.textContent = `Remove ${selectedPages.length} Selected Pages`;
+                } else {
+                    removeBlanksBtn.textContent = 'Remove Selected Blank Pages';
+                }
+            }
+
+            // Threshold slider
+            contentThreshold.addEventListener('input', (e) => {
+                thresholdValue.textContent = e.target.value + '%';
+            });
+
+            // Bulk action buttons
+            document.getElementById('selectAllBlanksBtn').addEventListener('click', () => {
+                document.querySelectorAll('.page-item.blank, .page-item.mixed').forEach(item => {
+                    item.classList.add('selected');
+                });
+                updateSelectedPages();
+            });
+
+            document.getElementById('deselectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.page-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                updateSelectedPages();
+            });
+
+            document.getElementById('autoDetectBtn').addEventListener('click', () => {
+                // Auto-select pages below threshold
+                const threshold = parseInt(contentThreshold.value);
+                document.querySelectorAll('.page-item').forEach(item => {
+                    const status = item.dataset.status;
+                    if (status === 'blank' || (status === 'mixed' && threshold > 10)) {
+                        item.classList.add('selected');
+                    }
+                });
+                updateSelectedPages();
+            });
+
+            // Remove blanks button handler
+            removeBlanksBtn.addEventListener('click', () => {
+                if (selectedPages.length === 0) {
+                    alert('Please select pages to remove.');
+                    return;
+                }
+
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate removal process
+                simulateRemovalProcess();
+            });
+
+            function simulateRemovalProcess() {
+                const steps = [
+                    { text: 'Analyzing selected pages...', progress: 20 },
+                    { text: 'Preparing for removal...', progress: 40 },
+                    { text: 'Removing blank pages...', progress: 60 },
+                    { text: 'Reorganizing document...', progress: 80 },
+                    { text: 'Finalizing cleaned PDF...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showResults();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showResults() {
+                // Show removal results
+                removalResults.style.display = 'block';
+                
+                // Show success section
+                successSection.style.display = 'block';
+                
+                // Scroll to results
+                successSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        // Simulate file selection
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

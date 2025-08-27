@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign with Certificate - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .cert-sign-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .cert-sign-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .certificate-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .certificate-input-group {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            margin: 1rem 0;
+        }
+        
+        .certificate-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .certificate-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        
+        .cert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e3f2fd;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cert-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-revoked {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .signature-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        
+        .error-alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #721c24;
+        }
+        
+        .certificate-upload {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .certificate-upload:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .certificate-upload.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .certificate-type {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .type-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-option:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .type-option.selected {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+        
+        .type-icon {
+            font-size: 2rem;
+            color: #667eea;
+        }
+        
+        .signature-position {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .position-cell {
+            aspect-ratio: 1;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .position-cell:hover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+        
+        .position-cell.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .certificate-details {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            margin: 1rem 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .certificate-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: #495057;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .action-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .action-btn.primary:hover {
+            background: #5a6fd8;
+            border-color: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble  PDF" height="40">
+                <span class="ms-2 fw-bold">Noble  PDF</span>
+            </a>        
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="cert-sign-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="cert-sign-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Sign with Certificate</h1>
+                            <p class="lead text-muted">Digitally sign your PDF documents with trusted digital certificates</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here to sign</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Certificate Form -->
+                        <div class="certificate-form" id="certificateForm" style="display: none;">
+                            <h4 class="mb-3">Select Certificate Type</h4>
+                            
+                            <!-- Certificate Type Selection -->
+                            <div class="certificate-type">
+                                <div class="type-option" data-type="file">
+                                    <div class="type-icon">
+                                        <i class="bi bi-file-earmark-certificate"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Certificate File (.p12, .pfx, .pem)</strong>
+                                        <small class="d-block text-muted">Upload your digital certificate file</small>
+                                    </div>
+                                </div>
+                                <div class="type-option" data-type="store">
+                                    <div class="type-icon">
+                                        <i class="bi bi-key"></i>
+                                    </div>
+                                    <div>
+                                        <strong>System Certificate Store</strong>
+                                        <small class="d-block text-muted">Use certificates from your system</small>
+                                    </div>
+                                </div>
+                                <div class="type-option" data-type="smartcard">
+                                    <div class="type-icon">
+                                        <i class="bi bi-credit-card"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Smart Card / USB Token</strong>
+                                        <small class="d-block text-muted">Use hardware security modules</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Certificate File Upload -->
+                            <div class="certificate-upload" id="certificateUpload" style="display: none;">
+                                <div class="mb-3">
+                                    <i class="bi bi-file-earmark-arrow-up display-1 text-primary"></i>
+                                </div>
+                                <h5>Upload Your Certificate</h5>
+                                <p class="text-muted">Drop your certificate file here or click to browse</p>
+                                <input type="file" id="certFile" accept=".p12,.pfx,.pem,.crt,.cer" style="display: none;">
+                                <button class="btn btn-outline-primary mt-2" id="browseCertBtn">
+                                    <i class="bi bi-folder2-open"></i> Browse Files
+                                </button>
+                            </div>
+
+                            <!-- Certificate Password -->
+                            <div class="certificate-input-group" id="certPasswordGroup" style="display: none;">
+                                <label class="form-label">Certificate Password</label>
+                                <input type="password" class="form-control" id="certPassword" placeholder="Enter certificate password (if required)">
+                                <small class="text-muted">Some certificate files require a password for access</small>
+                            </div>
+
+                            <!-- Certificate Information -->
+                            <div class="certificate-info" id="certificateInfo" style="display: none;">
+                                <h6 class="mb-2">Certificate Details</h6>
+                                <div class="cert-item">
+                                    <span><strong>Subject Name:</strong></span>
+                                    <span id="subjectName">John Doe</span>
+                                </div>
+                                <div class="cert-item">
+                                    <span><strong>Issuer:</strong></span>
+                                    <span id="issuerName">DigiCert Inc</span>
+                                </div>
+                                <div class="cert-item">
+                                    <span><strong>Valid From:</strong></span>
+                                    <span id="validFrom">2024-01-01</span>
+                                </div>
+                                <div class="cert-item">
+                                    <span><strong>Valid Until:</strong></span>
+                                    <span id="validUntil">2025-01-01</span>
+                                </div>
+                                <div class="cert-item">
+                                    <span><strong>Status:</strong></span>
+                                    <span class="cert-status status-valid" id="certStatus">Valid</span>
+                                </div>
+                            </div>
+
+                            <!-- Signature Position -->
+                            <div class="signature-position" id="signaturePosition" style="display: none;">
+                                <h4 class="mb-3">Choose Signature Position</h4>
+                                <div class="position-grid">
+                                    <div class="position-cell" data-position="top-left">↖</div>
+                                    <div class="position-cell" data-position="top-center">↑</div>
+                                    <div class="position-cell" data-position="top-right">↗</div>
+                                    <div class="position-cell" data-position="middle-left">←</div>
+                                    <div class="position-cell" data-position="center">●</div>
+                                    <div class="position-cell" data-position="middle-right">→</div>
+                                    <div class="position-cell" data-position="bottom-left">↙</div>
+                                    <div class="position-cell" data-position="bottom-center">↓</div>
+                                    <div class="position-cell" data-position="bottom-right">↘</div>
+                                </div>
+                                <p class="text-muted text-center mt-2">Click on a position to place your signature</p>
+                            </div>
+
+                            <!-- Signature Options -->
+                            <div class="signature-options" id="signatureOptions" style="display: none;">
+                                <h4 class="mb-3">Signature Options</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="option-group">
+                                            <label class="form-label">Signature Appearance</label>
+                                            <select class="form-select" id="signatureAppearance">
+                                                <option value="graphical">Graphical Signature</option>
+                                                <option value="textual">Textual Information</option>
+                                                <option value="both">Both</option>
+                                            </select>
+                                        </div>
+                                        <div class="option-group">
+                                            <label class="form-label">Include Certificate Chain</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="includeChain" checked>
+                                                <label class="form-check-label" for="includeChain">
+                                                    Include full certificate chain
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="option-group">
+                                            <label class="form-label">Signature Algorithm</label>
+                                            <select class="form-select" id="signatureAlgorithm">
+                                                <option value="sha256">SHA-256 with RSA</option>
+                                                <option value="sha384">SHA-384 with RSA</option>
+                                                <option value="sha512">SHA-512 with RSA</option>
+                                            </select>
+                                        </div>
+                                        <div class="option-group">
+                                            <label class="form-label">Timestamp</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="includeTimestamp">
+                                                <label class="form-check-label" for="includeTimestamp">
+                                                    Include timestamp in signature
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Certificate Actions -->
+                            <div class="certificate-actions" id="certificateActions" style="display: none;">
+                                <h4 class="mb-3">Certificate Actions</h4>
+                                <div class="action-buttons">
+                                    <button class="action-btn" id="viewCertBtn">
+                                        <i class="bi bi-eye"></i> View Certificate
+                                    </button>
+                                    <button class="action-btn" id="validateCertBtn">
+                                        <i class="bi bi-check-circle"></i> Validate Certificate
+                                    </button>
+                                    <button class="action-btn primary" id="signPdfBtn">
+                                        <i class="bi bi-shield-check"></i> Sign PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Signing Document with Certificate</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> PDF Signed with Certificate Successfully!</h6>
+                            <p class="mb-3">Your PDF has been digitally signed with your certificate and is ready for download.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Signed PDF
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Error Section -->
+                        <div class="error-alert" id="errorSection" style="display: none;">
+                            <h6><i class="bi bi-exclamation-circle"></i> Certificate Error</h6>
+                            <p class="mb-0" id="errorMessage">An error occurred while processing your certificate.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble  PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const certificateForm = document.getElementById('certificateForm');
+            const certificateUpload = document.getElementById('certificateUpload');
+            const certPasswordGroup = document.getElementById('certPasswordGroup');
+            const certificateInfo = document.getElementById('certificateInfo');
+            const signaturePosition = document.getElementById('signaturePosition');
+            const signatureOptions = document.getElementById('signatureOptions');
+            const certificateActions = document.getElementById('certificateActions');
+            const signPdfBtn = document.getElementById('signPdfBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const errorSection = document.getElementById('errorSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Certificate type selection
+            const typeOptions = document.querySelectorAll('.type-option');
+            const browseCertBtn = document.getElementById('browseCertBtn');
+            const certFile = document.getElementById('certFile');
+            const certPassword = document.getElementById('certPassword');
+            
+            // Position selection
+            const positionCells = document.querySelectorAll('.position-cell');
+            
+            let selectedType = 'file';
+            let selectedPosition = 'center';
+            let certificateLoaded = false;
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showCertificateInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            // Certificate type selection
+            typeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    typeOptions.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedType = option.dataset.type;
+                    showCertificateInterface();
+                });
+            });
+
+            function showCertificateInterface() {
+                certificateForm.style.display = 'block';
+                
+                if (selectedType === 'file') {
+                    certificateUpload.style.display = 'block';
+                    certPasswordGroup.style.display = 'block';
+                } else {
+                    certificateUpload.style.display = 'none';
+                    certPasswordGroup.style.display = 'none';
+                    // Simulate system certificate selection
+                    simulateCertificateLoad();
+                }
+            }
+
+            // Browse certificate button
+            browseCertBtn.addEventListener('click', () => {
+                certFile.click();
+            });
+
+            // Certificate file selection
+            certFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    certificateUpload.innerHTML = `
+                        <div class="mb-3">
+                            <i class="bi bi-file-earmark-check display-1 text-success"></i>
+                        </div>
+                        <h5>${file.name}</h5>
+                        <p class="text-success">Certificate file loaded successfully!</p>
+                    `;
+                    
+                    // Simulate certificate loading
+                    setTimeout(() => {
+                        simulateCertificateLoad();
+                    }, 1000);
+                }
+            });
+
+            function simulateCertificateLoad() {
+                certificateInfo.style.display = 'block';
+                signaturePosition.style.display = 'block';
+                signatureOptions.style.display = 'block';
+                certificateActions.style.display = 'block';
+                certificateLoaded = true;
+            }
+
+            // Position selection
+            positionCells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    positionCells.forEach(c => c.classList.remove('selected'));
+                    cell.classList.add('selected');
+                    selectedPosition = cell.dataset.position;
+                });
+            });
+
+            // View certificate button
+            document.getElementById('viewCertBtn').addEventListener('click', () => {
+                alert('Certificate viewer would be implemented here to show detailed certificate information.');
+            });
+
+            // Validate certificate button
+            document.getElementById('validateCertBtn').addEventListener('click', () => {
+                const validateBtn = document.getElementById('validateCertBtn');
+                validateBtn.disabled = true;
+                validateBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Validating...';
+                
+                setTimeout(() => {
+                    validateBtn.disabled = false;
+                    validateBtn.innerHTML = '<i class="bi bi-check-circle"></i> Validate Certificate';
+                    alert('Certificate validation completed successfully. The certificate is valid and trusted.');
+                }, 2000);
+            });
+
+            // Sign PDF button handler
+            signPdfBtn.addEventListener('click', () => {
+                if (!certificateLoaded) {
+                    alert('Please load a certificate first.');
+                    return;
+                }
+
+                // Hide other sections
+                certificateActions.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate signing process
+                simulateCertificateSigning();
+            });
+
+            function simulateCertificateSigning() {
+                const steps = [
+                    { text: 'Loading certificate...', progress: 20 },
+                    { text: 'Validating certificate...', progress: 40 },
+                    { text: 'Creating digital signature...', progress: 60 },
+                    { text: 'Applying signature to PDF...', progress: 80 },
+                    { text: 'Finalizing signed document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+
+            // Drag and drop for certificate upload
+            const certUploadArea = document.getElementById('certificateUpload');
+            
+            certUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                certUploadArea.classList.add('dragover');
+            });
+            
+            certUploadArea.addEventListener('dragleave', () => {
+                certUploadArea.classList.remove('dragover');
+            });
+            
+            certUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                certUploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.match(/\.(p12|pfx|pem|crt|cer)$/i)) {
+                        certFile.files = files;
+                        certificateUpload.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-earmark-check display-1 text-success"></i>
+                            </div>
+                            <h5>${file.name}</h5>
+                            <p class="text-success">Certificate file loaded successfully!</p>
+                        `;
+                        
+                        // Simulate certificate loading
+                        setTimeout(() => {
+                            simulateCertificateLoad();
+                        }, 1000);
+                    } else {
+                        alert('Please select a valid certificate file (.p12, .pfx, .pem, .crt, .cer)');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

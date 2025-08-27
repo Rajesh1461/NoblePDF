@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repair PDF - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.shell{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.cardx{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.report{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:12px}
+.issue{display:flex;justify-content:space-between;border-bottom:1px solid #f1f3f5;padding:8px 0}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="shell">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-toolbox me-2"></i>Repair PDF</h1>
+        <p class="lead text-muted">Diagnose and fix common PDF structure and content issues</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDF</h6>
+                    <input type="file" id="fileInput" accept=".pdf" class="form-control">
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-list-check me-2"></i>Repair Options</h6>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rebuildXref" checked><label class="form-check-label" for="rebuildXref">Rebuild cross-reference table</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="fixStreams" checked><label class="form-check-label" for="fixStreams">Fix corrupted streams</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="mergeObjects"><label class="form-check-label" for="mergeObjects">Merge orphan objects</label></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-file-medical-alt me-2"></i>Diagnostic Report (simulated)</h6>
+                    <div class="report" id="report">
+                        <div class="issue"><span>XRef table</span><span class="badge bg-warning">Inconsistent</span></div>
+                        <div class="issue"><span>Streams</span><span class="badge bg-warning">Some errors</span></div>
+                        <div class="issue"><span>Objects</span><span class="badge bg-success">OK</span></div>
+                    </div>
+                </div>
+                <div class="text-center mt-3"><button class="btn btn-primary" id="repairBtn"><i class="fas fa-wrench me-2"></i>Repair & Download</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Repairing</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Repair Complete</h5>
+        <p>Your PDF has been repaired.</p>
+        <div class="text-center"><button class="btn btn-success" onclick="alert('Download simulated')"><i class="fas fa-download me-2"></i>Download Repaired PDF</button></div>
+    </div>
+</div>
+</div>
+<script>
+document.getElementById('repairBtn').addEventListener('click',()=>{
+ document.getElementById('progressSection').style.display='block';
+ const steps=[{t:'Analyzing structure...',p:25},{t:'Rebuilding xref...',p:55},{t:'Fixing streams...',p:85},{t:'Finalizing...',p:100}];
+ let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+ const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,900);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 400);} };
+ tick();
+});
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Split Pages - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.shell{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.cardx{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="shell">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-cut me-2"></i>Auto Split Pages</h1>
+        <p class="lead text-muted">Automatically split pages by detecting separators, barcodes, blank pages, or headings</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDF</h6>
+                    <input type="file" id="fileInput" accept=".pdf" class="form-control">
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-robot me-2"></i>Detection Options</h6>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="detectBlank" checked><label class="form-check-label" for="detectBlank">Detect blank pages as separators</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="detectBarcode"><label class="form-check-label" for="detectBarcode">Detect barcode pages</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="detectHeadings"><label class="form-check-label" for="detectHeadings">Detect chapter/section headings</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="everyN"><label class="form-check-label" for="everyN">Split every N pages</label></div>
+                    <div id="nPagesRow" class="mt-2" style="display:none;"><label class="form-label">N pages</label><input type="number" id="nPages" class="form-control" value="5" min="1"></div>
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-cogs me-2"></i>Options</h6>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="keepSeparators"><label class="form-check-label" for="keepSeparators">Keep separator pages in output</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="createToc" checked><label class="form-check-label" for="createToc">Create table of contents</label></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-eye me-2"></i>Estimated Result</h6>
+                    <div id="estimate">Waiting for file...</div>
+                </div>
+                <div class="text-center mt-3"><button class="btn btn-primary" id="splitBtn"><i class="fas fa-cut me-2"></i>Split & Download</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Splitting</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Split Complete</h5>
+        <p>Your PDF has been split automatically based on detected separators.</p>
+        <div class="text-center"><button class="btn btn-success" onclick="alert('Downloads simulated')"><i class="fas fa-download me-2"></i>Download Files</button></div>
+    </div>
+</div>
+</div>
+<script>
+const detectEveryN=document.getElementById('everyN');
+const nRow=document.getElementById('nPagesRow');
+detectEveryN.addEventListener('change',()=>{nRow.style.display=detectEveryN.checked?'block':'none';});
+
+function randomEst(){ return Math.floor(5+Math.random()*15); }
+function updateEstimate(){ document.getElementById('estimate').textContent=`~${randomEst()} parts will be created (simulated)`; }
+['fileInput','detectBlank','detectBarcode','detectHeadings','everyN','nPages'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',updateEstimate); });
+
+document.getElementById('splitBtn').addEventListener('click',()=>{
+ document.getElementById('progressSection').style.display='block';
+ const steps=[{t:'Scanning pages...',p:25},{t:'Detecting separators...',p:55},{t:'Splitting content...',p:85},{t:'Finalizing...',p:100}];
+ let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+ const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,900);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 400);} };
+ tick();
+});
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

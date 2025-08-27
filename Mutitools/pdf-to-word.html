@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .convert-container {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .convert-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #fcb69f;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(252, 182, 159, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #ffecd2;
+            background: rgba(255, 236, 210, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .convert-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .convert-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .file-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .file-preview::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: rgba(252, 182, 159, 0.1);
+            border: 1px dashed #fcb69f;
+            border-radius: 5px;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(252, 182, 159, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+        
+        .format-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .format-option:hover {
+            border-color: #fcb69f;
+            background: rgba(252, 182, 159, 0.05);
+        }
+        
+        .format-option.selected {
+            border-color: #fcb69f;
+            background: rgba(252, 182, 159, 0.1);
+        }
+        
+        .format-icon {
+            font-size: 2rem;
+            color: #fcb69f;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quality-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fcb69f;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .quality-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fcb69f;
+            text-align: center;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Logo" style="height:32px" class="me-2">
+                <span>Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="convert-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="convert-card p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <div class="feature-icon mx-auto">
+                                <i class="bi bi-file-earmark-word"></i>
+                            </div>
+                            <h1 class="display-5 fw-bold text-dark mb-3">PDF to Word</h1>
+                            <p class="lead text-muted">Convert your PDF documents to editable Word format</p>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-warning mb-3"></i>
+                            <h4 class="mb-3">Drop your PDF here</h4>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                            <button class="btn btn-outline-warning btn-lg" onclick="document.getElementById('pdfFile').click()">
+                                Choose PDF File
+                            </button>
+                        </div>
+
+                        <!-- Conversion Options -->
+                        <div class="convert-options" id="convertOptions" style="display: none;">
+                            <h4 class="mb-4">Conversion Settings</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Output Format</label>
+                                        <div class="format-option" data-format="docx" onclick="selectFormat('docx')">
+                                            <div class="format-icon">
+                                                <i class="bi bi-file-earmark-word"></i>
+                                            </div>
+                                            <strong>DOCX</strong>
+                                            <div class="text-muted small">Modern Word format (recommended)</div>
+                                        </div>
+                                        
+                                        <div class="format-option" data-format="doc" onclick="selectFormat('doc')">
+                                            <div class="format-icon">
+                                                <i class="bi bi-file-earmark"></i>
+                                            </div>
+                                            <strong>DOC</strong>
+                                            <div class="text-muted small">Legacy Word format</div>
+                                        </div>
+                                        
+                                        <div class="format-option" data-format="rtf" onclick="selectFormat('rtf')">
+                                            <div class="format-icon">
+                                                <i class="bi bi-file-text"></i>
+                                            </div>
+                                            <strong>RTF</strong>
+                                            <div class="text-muted small">Rich Text Format</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Conversion Quality</label>
+                                        <input type="range" class="quality-slider" id="qualitySlider" min="1" max="5" value="3" step="1">
+                                        <div class="quality-value" id="qualityValue">High Quality</div>
+                                        <small class="text-muted">Adjust quality vs. file size balance</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Text Recognition</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enableOCR" checked>
+                                            <label class="form-check-label" for="enableOCR">
+                                                Enable OCR for scanned documents
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="preserveFormatting" checked>
+                                            <label class="form-check-label" for="preserveFormatting">
+                                                Preserve original formatting
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="extractImages">
+                                            <label class="form-check-label" for="extractImages">
+                                                Extract and embed images
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Page Range</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">From Page</label>
+                                                <input type="number" class="form-control" id="fromPage" placeholder="1" min="1">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">To Page</label>
+                                                <input type="number" class="form-control" id="toPage" placeholder="All">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Leave empty to convert all pages</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Language</label>
+                                        <select class="form-select" id="language">
+                                            <option value="auto">Auto-detect</option>
+                                            <option value="en">English</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="de">German</option>
+                                            <option value="it">Italian</option>
+                                            <option value="pt">Portuguese</option>
+                                            <option value="ru">Russian</option>
+                                            <option value="zh">Chinese</option>
+                                            <option value="ja">Japanese</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conversion Preview -->
+                        <div class="convert-preview" id="convertPreview" style="display: none;">
+                            <h5 class="mb-3">Conversion Preview</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Original PDF</h6>
+                                    <div class="file-preview">
+                                        <i class="bi bi-file-pdf text-danger"></i>
+                                        <div class="mt-2">PDF Document</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted">Converted Word</h6>
+                                    <div class="file-preview">
+                                        <i class="bi bi-file-earmark-word text-primary"></i>
+                                        <div class="mt-2">Word Document</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted mt-3">Preview of conversion process</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg text-white me-3" id="convertBtn">
+                                <i class="bi bi-arrow-repeat me-2"></i>Convert to Word
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        let selectedFile = null;
+        let selectedFormat = 'docx';
+
+        document.getElementById('pdfFile').addEventListener('change', handleFileSelect);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => document.getElementById('pdfFile').click());
+
+        // Quality slider
+        document.getElementById('qualitySlider').addEventListener('input', function() {
+            const quality = parseInt(this.value);
+            const qualityText = ['Low', 'Medium-Low', 'Medium', 'Medium-High', 'High'];
+            document.getElementById('qualityValue').textContent = qualityText[quality - 1] + ' Quality';
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                selectedFile = file;
+                processFile(file);
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                selectedFile = files[0];
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            showConvertOptions();
+            showConvertPreview();
+            showActionButtons();
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-pdf text-success display-4 mb-3"></i>
+                <h4 class="mb-2">${file.name}</h4>
+                <p class="text-muted">File loaded successfully</p>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Change File</button>
+            `;
+        }
+
+        function showConvertOptions() {
+            document.getElementById('convertOptions').style.display = 'block';
+        }
+
+        function showConvertPreview() {
+            document.getElementById('convertPreview').style.display = 'block';
+        }
+
+        function showActionButtons() {
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function selectFormat(format) {
+            selectedFormat = format;
+            
+            // Update selected state
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.format-option').classList.add('selected');
+        }
+
+        function resetForm() {
+            selectedFile = null;
+            selectedFormat = 'docx';
+            
+            document.getElementById('convertOptions').style.display = 'none';
+            document.getElementById('convertPreview').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // Reset quality slider
+            document.getElementById('qualitySlider').value = 3;
+            document.getElementById('qualityValue').textContent = 'High Quality';
+            
+            // Reset format selection
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            uploadArea.innerHTML = `
+                <i class="bi bi-cloud-upload display-4 text-warning mb-3"></i>
+                <h4 class="mb-3">Drop your PDF here</h4>
+                <p class="text-muted mb-3">or click to browse files</p>
+                <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                <button class="btn btn-outline-warning btn-lg" onclick="document.getElementById('pdfFile').click()">
+                    Choose PDF File
+                </button>
+            `;
+            
+            document.getElementById('pdfFile').value = '';
+        }
+
+        // Convert button handler
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            if (!selectedFile) {
+                alert('Please select a PDF file first.');
+                return;
+            }
+            
+            const format = selectedFormat;
+            const quality = document.getElementById('qualitySlider').value;
+            const enableOCR = document.getElementById('enableOCR').checked;
+            const preserveFormatting = document.getElementById('preserveFormatting').checked;
+            const extractImages = document.getElementById('extractImages').checked;
+            const fromPage = document.getElementById('fromPage').value;
+            const toPage = document.getElementById('toPage').value;
+            const language = document.getElementById('language').value;
+            
+            let message = `Converting PDF to Word...\n\n`;
+            message += `File: ${selectedFile.name}\n`;
+            message += `Output Format: ${format.toUpperCase()}\n`;
+            message += `Quality: ${quality}/5\n`;
+            message += `OCR Enabled: ${enableOCR ? 'Yes' : 'No'}\n`;
+            message += `Preserve Formatting: ${preserveFormatting ? 'Yes' : 'No'}\n`;
+            message += `Extract Images: ${extractImages ? 'Yes' : 'No'}\n`;
+            message += `Page Range: ${fromPage || '1'} - ${toPage || 'All'}\n`;
+            message += `Language: ${language}\n`;
+            message += `\nThis is a demo page. In a real application, the PDF would be converted to ${format.toUpperCase()}.`;
+            
+            alert(message);
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

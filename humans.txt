@@ -1,0 +1,11 @@
+/* TEAM */
+    Your title: Developer
+    Twitter: @yourtwitter
+    From: Your Location
+
+/* SITE */
+    Last update: 2025/08/25
+    Language: English
+    Doctype: HTML5
+    IDE: Visual Studio Code
+    Software: Noble PDF

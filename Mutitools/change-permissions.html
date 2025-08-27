@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Permission - NoblePDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .permission-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .permission-settings {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .permission-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .permission-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .permission-option:last-child {
+            border-bottom: none;
+        }
+        
+        .permission-info {
+            flex: 1;
+        }
+        
+        .permission-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .permission-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        
+        .permission-toggle {
+            margin-left: 15px;
+        }
+        
+        .security-level {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .security-preset {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .security-preset:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        
+        .security-preset.selected {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .permission-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 500;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .security-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .security-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .security-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .security-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="permission-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-lock me-3"></i>Change Permission
+                </h1>
+                <p class="lead text-muted">Control access and permissions for your PDF documents with advanced security settings</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mx-4" role="alert">
+                <h5><i class="fas fa-info-circle me-2"></i>Advanced PDF Security</h5>
+                <p class="mb-0">Set granular permissions for printing, copying, editing, and more. Choose from security presets or create custom permission sets for maximum document protection.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security Presets -->
+            <div class="security-level mx-4">
+                <h5><i class="fas fa-shield-alt me-2"></i>Security Presets</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="security-preset" onclick="selectPreset('high')">
+                            <h6><i class="fas fa-shield-alt text-success me-2"></i>High Security</h6>
+                            <small class="text-muted">Maximum protection - view only</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="security-preset selected" onclick="selectPreset('medium')">
+                            <h6><i class="fas fa-shield-alt text-warning me-2"></i>Medium Security</h6>
+                            <small class="text-muted">Balanced protection - limited access</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="security-preset" onclick="selectPreset('low')">
+                            <h6><i class="fas fa-shield-alt text-danger me-2"></i>Low Security</h6>
+                            <small class="text-muted">Minimal restrictions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission Settings -->
+            <div class="permission-settings mx-4">
+                <h5><i class="fas fa-cogs me-2"></i>Permission Settings</h5>
+                
+                <!-- Document Access -->
+                <div class="permission-group">
+                    <h6><i class="fas fa-file-alt me-2"></i>Document Access</h6>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Printing</div>
+                            <div class="permission-description">Allow users to print the document</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <select class="form-select form-select-sm" id="printPermission">
+                                <option value="allowed">Allowed</option>
+                                <option value="low-quality" selected>Low Quality Only</option>
+                                <option value="not-allowed">Not Allowed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Copying Content</div>
+                            <div class="permission-description">Allow users to copy text and images</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="copyContent" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Text Selection</div>
+                            <div class="permission-description">Allow users to select text</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="textSelection" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Document Assembly</div>
+                            <div class="permission-description">Allow users to insert, delete, or rotate pages</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="documentAssembly">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Modification -->
+                <div class="permission-group">
+                    <h6><i class="fas fa-edit me-2"></i>Content Modification</h6>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Content Editing</div>
+                            <div class="permission-description">Allow users to modify document content</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="contentEditing">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Commenting</div>
+                            <div class="permission-description">Allow users to add comments and annotations</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="commenting" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Form Filling</div>
+                            <div class="permission-description">Allow users to fill out forms</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="formFilling" checked>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Digital Signatures</div>
+                            <div class="permission-description">Allow users to digitally sign the document</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="digitalSignatures">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Security -->
+                <div class="permission-group">
+                    <h6><i class="fas fa-user-shield me-2"></i>Advanced Security</h6>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Password Protection</div>
+                            <div class="permission-description">Require password to open document</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="passwordProtection">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option" id="passwordFields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Document Password</label>
+                                <input type="password" class="form-control" id="documentPassword" placeholder="Enter password">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Encryption Level</div>
+                            <div class="permission-description">Choose encryption strength</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <select class="form-select form-select-sm" id="encryptionLevel">
+                                <option value="128">128-bit (Standard)</option>
+                                <option value="256" selected>256-bit (High)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="permission-option">
+                        <div class="permission-info">
+                            <div class="permission-title">Accessibility</div>
+                            <div class="permission-description">Allow screen readers and accessibility tools</div>
+                        </div>
+                        <div class="permission-toggle">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="accessibility" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission Summary -->
+            <div class="permission-summary mx-4" id="permissionSummary" style="display: none;">
+                <h5><i class="fas fa-clipboard-list me-2"></i>Permission Summary</h5>
+                <div class="summary-item">
+                    <span class="summary-label">Security Level:</span>
+                    <span class="summary-value" id="summarySecurityLevel">Medium</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Printing:</span>
+                    <span class="summary-value" id="summaryPrinting">Low Quality Only</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Content Copying:</span>
+                    <span class="summary-value" id="summaryCopying">Allowed</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Content Editing:</span>
+                    <span class="summary-value" id="summaryEditing">Not Allowed</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Password Protection:</span>
+                    <span class="summary-value" id="summaryPassword">Not Enabled</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Encryption:</span>
+                    <span class="summary-value" id="summaryEncryption">256-bit</span>
+                </div>
+            </div>
+
+            <!-- Apply Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="applyBtn" onclick="simulatePermissionChange()" disabled>
+                    <i class="fas fa-lock me-2"></i>Apply Permission Changes
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Applying Permission Changes</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing permission changes...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Permission Changes Complete!</h5>
+                <p>Your PDF permissions have been successfully updated and secured.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Secured PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Secure Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        const permissionSummary = document.getElementById('permissionSummary');
+
+        // Initialize
+        window.onload = function() {
+            setupEventListeners();
+            updatePermissionSummary();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Permission controls
+            document.getElementById('passwordProtection').addEventListener('change', togglePasswordFields);
+            document.getElementById('printPermission').addEventListener('change', updatePermissionSummary);
+            document.getElementById('copyContent').addEventListener('change', updatePermissionSummary);
+            document.getElementById('textSelection').addEventListener('change', updatePermissionSummary);
+            document.getElementById('documentAssembly').addEventListener('change', updatePermissionSummary);
+            document.getElementById('contentEditing').addEventListener('change', updatePermissionSummary);
+            document.getElementById('commenting').addEventListener('change', updatePermissionSummary);
+            document.getElementById('formFilling').addEventListener('change', updatePermissionSummary);
+            document.getElementById('digitalSignatures').addEventListener('change', updatePermissionSummary);
+            document.getElementById('accessibility').addEventListener('change', updatePermissionSummary);
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                applyBtn.disabled = false;
+                permissionSummary.style.display = 'block';
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            applyBtn.disabled = true;
+            fileInput.value = '';
+            permissionSummary.style.display = 'none';
+        }
+
+        function selectPreset(preset) {
+            // Remove previous selection
+            document.querySelectorAll('.security-preset').forEach(p => p.classList.remove('selected'));
+            
+            // Add selection to clicked preset
+            event.currentTarget.classList.add('selected');
+            
+            // Apply preset settings
+            switch(preset) {
+                case 'high':
+                    applyHighSecurity();
+                    break;
+                case 'medium':
+                    applyMediumSecurity();
+                    break;
+                case 'low':
+                    applyLowSecurity();
+                    break;
+            }
+            
+            updatePermissionSummary();
+        }
+
+        function applyHighSecurity() {
+            document.getElementById('printPermission').value = 'not-allowed';
+            document.getElementById('copyContent').checked = false;
+            document.getElementById('textSelection').checked = false;
+            document.getElementById('documentAssembly').checked = false;
+            document.getElementById('contentEditing').checked = false;
+            document.getElementById('commenting').checked = false;
+            document.getElementById('formFilling').checked = false;
+            document.getElementById('digitalSignatures').checked = false;
+            document.getElementById('passwordProtection').checked = true;
+            document.getElementById('accessibility').checked = false;
+            togglePasswordFields();
+        }
+
+        function applyMediumSecurity() {
+            document.getElementById('printPermission').value = 'low-quality';
+            document.getElementById('copyContent').checked = true;
+            document.getElementById('textSelection').checked = true;
+            document.getElementById('documentAssembly').checked = false;
+            document.getElementById('contentEditing').checked = false;
+            document.getElementById('commenting').checked = true;
+            document.getElementById('formFilling').checked = true;
+            document.getElementById('digitalSignatures').checked = false;
+            document.getElementById('passwordProtection').checked = false;
+            document.getElementById('accessibility').checked = true;
+            togglePasswordFields();
+        }
+
+        function applyLowSecurity() {
+            document.getElementById('printPermission').value = 'allowed';
+            document.getElementById('copyContent').checked = true;
+            document.getElementById('textSelection').checked = true;
+            document.getElementById('documentAssembly').checked = true;
+            document.getElementById('contentEditing').checked = true;
+            document.getElementById('commenting').checked = true;
+            document.getElementById('formFilling').checked = true;
+            document.getElementById('digitalSignatures').checked = true;
+            document.getElementById('passwordProtection').checked = false;
+            document.getElementById('accessibility').checked = true;
+            togglePasswordFields();
+        }
+
+        function togglePasswordFields() {
+            const passwordFields = document.getElementById('passwordFields');
+            const passwordProtection = document.getElementById('passwordProtection');
+            
+            if (passwordProtection.checked) {
+                passwordFields.style.display = 'block';
+            } else {
+                passwordFields.style.display = 'none';
+            }
+        }
+
+        function updatePermissionSummary() {
+            const securityLevel = document.querySelector('.security-preset.selected h6').textContent.trim();
+            const printing = document.getElementById('printPermission').value;
+            const copying = document.getElementById('copyContent').checked ? 'Allowed' : 'Not Allowed';
+            const editing = document.getElementById('contentEditing').checked ? 'Allowed' : 'Not Allowed';
+            const password = document.getElementById('passwordProtection').checked ? 'Enabled' : 'Not Enabled';
+            const encryption = document.getElementById('encryptionLevel').value + '-bit';
+            
+            document.getElementById('summarySecurityLevel').textContent = securityLevel;
+            document.getElementById('summaryPrinting').textContent = printing.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            document.getElementById('summaryCopying').textContent = copying;
+            document.getElementById('summaryEditing').textContent = editing;
+            document.getElementById('summaryPassword').textContent = password;
+            document.getElementById('summaryEncryption').textContent = encryption;
+        }
+
+        function simulatePermissionChange() {
+            // Validate password if enabled
+            if (document.getElementById('passwordProtection').checked) {
+                const password = document.getElementById('documentPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!password || password !== confirmPassword) {
+                    alert('Please enter matching passwords.');
+                    return;
+                }
+            }
+            
+            progressSection.style.display = 'block';
+            applyBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Analyzing current permissions...', progress: 20 },
+                { text: 'Applying new security settings...', progress: 40 },
+                { text: 'Encrypting document...', progress: 60 },
+                { text: 'Validating permission changes...', progress: 80 },
+                { text: 'Finalizing secured PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'secured-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            applyBtn.disabled = true;
+            resetUpload();
+            selectPreset('medium');
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

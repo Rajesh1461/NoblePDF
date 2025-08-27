@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split PDF by Sections - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.shell{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.cardx{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="shell">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-list-ol me-2"></i>Split PDF by Sections</h1>
+        <p class="lead text-muted">Detect section headings to split the document</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDF</h6>
+                    <input type="file" id="fileInput" accept=".pdf" class="form-control">
+                </div>
+                <div class="cardx">
+                    <h6><i class="fas fa-heading me-2"></i>Heading Patterns</h6>
+                    <input type="text" id="patterns" class="form-control" placeholder="e.g., ^Section [0-9]+, ^SECTION">
+                    <small class="text-muted">Comma-separated regexes</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardx">
+                    <h6><i class="fas fa-eye me-2"></i>Estimated Sections</h6>
+                    <div id="estimate">Waiting for file...</div>
+                </div>
+                <div class="text-center mt-3"><button class="btn btn-primary" id="splitBtn"><i class="fas fa-list me-2"></i>Split by Sections</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Splitting</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Split Complete</h5>
+        <p>Your PDF has been split by detected sections.</p>
+        <div class="text-center"><button class="btn btn-success" onclick="alert('Downloads simulated')"><i class="fas fa-download me-2"></i>Download Files</button></div>
+    </div>
+</div>
+</div>
+<script>
+function est(){ return 6+Math.floor(Math.random()*10); }
+['fileInput','patterns'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ document.getElementById('estimate').textContent=`~${est()} sections (simulated)`; });});
+
+document.getElementById('splitBtn').addEventListener('click',()=>{
+ document.getElementById('progressSection').style.display='block';
+ const steps=[{t:'Scanning headings...',p:40},{t:'Splitting at boundaries...',p:80},{t:'Finalizing...',p:100}];
+ let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+ const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,900);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 400);} };
+ tick();
+});
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-language="en_US">
+<head>
+    <!-- Title -->
+    <title>Noble  PDF - Your all-in-one local solution for everything PDF</title>
+    <!-- Metadata -->
+    <meta charset="utf-8">
+    <meta name="description" content="Noble PDF">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Icons -->
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <meta name="apple-mobile-web-app-title" content="Noble PDF">
+    <meta name="application-name" content="Noble PDF">
+    <meta name="msapplication-TileColor" content="#00aba9">
+    <meta name="theme-color" content="#ffffff">
+
+    <script>
+        window.NoblePDF = window.NoblePDF || {};
+        // Capture true system DPI at page load (before any zoom interactions)
+        const systemDPR = window.devicePixelRatio || 1;
+        // Determine if this is actually a high DPI screen at page load
+        const isHighDPI = systemDPR > 1.4;
+        // Toggle custom nav scaling behavior (set to false to reset to default nav)
+        const enableCustomNavScaling = false;
+        // Reset all navbar and dropdown scaling styles
+        function resetNavScaling() {
+            const navbarElement = document.querySelector('.navbar');
+            if (navbarElement) {
+                navbarElement.style.transform = '';
+                navbarElement.style.transformOrigin = '';
+                navbarElement.style.width = '';
+                navbarElement.style.left = '';
+                navbarElement.style.right = '';
+                navbarElement.style.marginBottom = '';
+                navbarElement.classList.remove('navbar-expand-lg');
+                navbarElement.classList.remove('navbar-expand-xl');
+            }
+            // Reset dropdown scaling
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            dropdowns.forEach(dropdown => {
+                dropdown.style.transform = '';
+                dropdown.style.transformOrigin = '';
+            });
+            // Reset CSS custom property
+            document.documentElement.style.setProperty('--navbar-height', '');
+        }
+
+        function scaleNav() {
+            resetNavScaling();
+            if (!enableCustomNavScaling) {
+                return;
+            }
+            if (window.innerWidth < 1200) {
+                const navbarElement = document.querySelector('.navbar');
+                if (navbarElement) {
+                    navbarElement.classList.remove('navbar-expand-lg');
+                    navbarElement.classList.add('navbar-expand-xl');
+                }
+                return;
+            }
+            const currentDPR = window.devicePixelRatio || 1;
+            const browserZoom = currentDPR / systemDPR;
+
+            // Counter-scale to maintain same visual size
+            const isMobile = window.innerWidth <= 768 && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            let baseScale = isMobile ? 3 : (isHighDPI ? 2.2 : 1.1); // Prioritize mobile scaling over high DPI
+            const navScale = baseScale / currentDPR;
+            // Dropdowns at 80% (20% smaller)
+            const dropdownScale = 0.8;
+            const navbar = document.querySelector('.navbar');
+
+            if (navbar) {
+                // RTL support - check document direction
+                const isRTL = document.documentElement.dir === 'rtl' || document.documentElement.getAttribute('dir') === 'rtl';
+                const translateX = isRTL ? '50%' : '-50%';
+                navbar.style.transform = `translateX(${translateX}) scale(${navScale})`;
+                navbar.style.transformOrigin = 'top center';
+                navbar.style.width = `${100 / navScale}%`;
+
+                if (isRTL) {
+                    navbar.style.right = '50%';
+                    navbar.style.left = 'auto';
+                } else {
+                    navbar.style.left = '50%';
+                    navbar.style.right = 'auto';
+                }
+                // Adjust bottom margin based on scale to prevent overlap/gaps
+                const baseHeight = 60; // Assume base navbar height
+                const scaledHeight = baseHeight * navScale;
+                const marginAdjustment = scaledHeight - baseHeight;
+                navbar.style.marginBottom = `${marginAdjustment}px`;
+
+                // Adjust responsive breakpoint based on effective width after scaling
+                const effectiveWidth = window.innerWidth / navScale;
+                if (effectiveWidth >= 1200) {
+                    navbar.classList.add('navbar-expand-lg');
+                    navbar.classList.remove('navbar-expand-xl');
+                } else {
+                    navbar.classList.add('navbar-expand-xl');
+                    navbar.classList.remove('navbar-expand-lg');
+                }
+
+                // console.debug('DPR:', currentDPR, 'isHighDPI:', isHighDPI, 'baseScale:', baseScale, 'navScale:', navScale, 'effective width:', effectiveWidth);
+            }
+            // Set CSS custom property for mobile navbar scaling (for sidebar positioning)
+            // Use the ACTUAL scaled height, not a fixed assumption
+            const baseHeight = 64;
+            const actualScaledHeight = baseHeight * navScale;
+            document.documentElement.style.setProperty('--navbar-height', `${actualScaledHeight}px`);
+
+            setTimeout(() => {
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.transform = `scale(${dropdownScale})`;
+
+                    // Use different transform origins based on dropdown position
+                    const parentItem = dropdown.closest('.nav-item');
+                    const navbar = dropdown.closest('.navbar-nav');
+
+                    // Check if this is a right-aligned dropdown (language, favorites, search, etc.)
+                    const isRightAligned = navbar && navbar.classList.contains('flex-nowrap') &&
+                        parentItem && parentItem.closest('.dropdown-mega') === null;
+
+                    dropdown.style.transformOrigin = isRightAligned ? 'top right' : 'top left';
+                });
+                // console.debug('Applied dropdown scale:', dropdownScale);
+            }, 100);
+        }
+        let lastDPR = window.devicePixelRatio;
+        if (enableCustomNavScaling) {
+            document.addEventListener('DOMContentLoaded', scaleNav);
+            window.addEventListener('resize', scaleNav);
+            setInterval(() => {
+                const currentDPR = window.devicePixelRatio;
+                if (Math.abs(currentDPR - lastDPR) > 0.01) {
+                    lastDPR = currentDPR;
+                    scaleNav();
+                }
+            }, 100);
+        } else {
+            // Ensure default navbar classes are present when custom scaling is disabled
+            document.addEventListener('DOMContentLoaded', () => {
+                resetNavScaling();
+                const navbarElement = document.querySelector('.navbar');
+                if (navbarElement) {
+                    navbarElement.classList.add('navbar-expand-lg');
+                    navbarElement.classList.remove('navbar-expand-xl');
+                }
+            });
+        }
+    </script>
+    <script src="/assets/js/thirdParty/pdf-lib.min.js"></script>
+    <script src="/assets/js/fetch-utils.js"></script>
+    <!-- jQuery -->
+    <script src="/assets/js/thirdParty/jquery.min.js"></script>
+    <script src="/assets/js/thirdParty/jquery.validate.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="/assets/js/thirdParty/popper.min.js"></script>
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+
+    <!-- Pixel disabled in local/dev to avoid network errors -->
+    <script>
+        (function(){
+            try {
+                var isFile = window.location.protocol === 'file:';
+                var host = (window.location && window.location.hostname) || '';
+                var isLocal = isFile || host === 'localhost' || host === '127.0.0.1' || host === '';
+                if (!isLocal) {
+                    var img = new Image();
+                    img.referrerPolicy = 'no-referrer-when-downgrade';
+                    img.src = 'https://pixel.Noblepdf.com/a.png?x-pxid=4f5fa02f-a065-4efb-bb2c-24509a4b6b92&machineType=Docker&appVersion=1.2.0&licenseType=ENTERPRISE&loginEnabled=false';
+                    img.style.position = 'absolute';
+                    img.style.visibility = 'hidden';
+                    document.body.appendChild(img);
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <!-- Custom -->
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <link rel="stylesheet" href="/assets/css/theme/componentes.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.light.css" id="light-mode-styles">
+    <link rel="stylesheet" href="/assets/css/theme/theme.dark.css" id="dark-mode-styles">
+    <link rel="stylesheet" href="/assets/css/rainbow-mode.css" id="rainbow-mode-styles" disabled>
+    <link rel="stylesheet" href="/assets/css/tab-container.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/home.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <!-- Preload Google Symbols only when not local to avoid warnings -->
+    <script>
+        (function(){
+            try {
+                var isFile = window.location.protocol === 'file:';
+                var host = (window.location && window.location.hostname) || '';
+                var isLocal = isFile || host === 'localhost' || host === '127.0.0.1' || host === '';
+                if (!isLocal) {
+                    var link = document.createElement('link');
+                    link.rel = 'preload';
+                    link.href = '/assets/fonts/google-symbol.woff2';
+                    link.as = 'font';
+                    link.type = 'font/woff2';
+                    link.setAttribute('crossorigin', 'anonymous');
+                    document.head.appendChild(link);
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/assets/css/cookieconsent.css">
+    <link rel="stylesheet" href="/assets/css/cookieconsentCustomisation.css">
+    <script src="/assets/js/thirdParty/fontfaceobserver.standalone.js"></script>
+
+    <style>
+        /* Compact global adjustments to fit all content without scrolling */
+        html, body { height: 100%; overflow: hidden; }
+        body { font-size: 13px; }
+        .display-4 { font-size: 1.6rem; }
+        .navbar, nav.navbar { padding-top: 2px !important; padding-bottom: 2px !important; }
+        .dropdown-item { padding: 2px 6px !important; }
+        /* Normalize icon sizes across Material Symbols, SVG, and icon fonts */
+        .nav-icon {
+            width: 2rem !important;
+            height: 2rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            vertical-align: middle !important;
+            flex: 0 0 2rem !important;
+        }
+        .material-symbols-rounded.nav-icon { font-size: 1.6rem !important; line-height: 1 !important; }
+        svg.nav-icon { width: 2rem !important; height: 2rem !important; }
+        i.nav-icon, .bi.nav-icon { font-size: 1.6rem !important; line-height: 1 !important; }
+        .menu-title { margin: 2px 0; font-size: 0.95rem; pointer-events: none; }
+        .feature-group { margin: 4px 0 !important; font-size: 0.65rem; }
+        .nav-group-container { gap: 1px !important; }
+        /* Move entire main content (title, search, tools grid) up by 80px */
+        #content-wrap { position: relative; top: -100px; margin-top: -100px !important; }
+        /* Reset inner jumbotron offset to avoid double shifting */
+        #content-wrap .jumbotron { top: 0; }
+        /* Ensure top quick nav remains clickable above other layers */
+        .top-quick-nav { position: relative; z-index: 10001; }
+        .top-quick-nav .quick-action-btn { pointer-events: auto; }
+        /* Move title and search up by 80px; keep features in normal flow */
+        .jumbotron .container.mt-4, 
+        .jumbotron .search-container { position: relative; top: -80px; }
+        .jumbotron .features-container .feature-rows { position: relative; top: -120px; }
+        /* Compact styles for features grid */
+        .features-container .feature-rows .dropdown-item { padding: 2px 6px !important; }
+        .features-container .feature-rows .dropdown-item > div { min-height: 2.0rem !important; }
+        .features-container .feature-rows .icon-text { font-size: 0.90rem !important; }
+        .features-container .feature-rows .material-symbols-rounded.nav-icon { font-size: 1.2rem !important; }
+        .features-container .feature-rows svg.nav-icon { width: 1.6rem !important; height: 1.6rem !important; }
+        .features-container .feature-rows i.nav-icon, .features-container .feature-rows .bi.nav-icon { font-size: 1.2rem !important; }
+        .features-container .nav-group-container { gap: 4px !important; column-gap: 4px !important; }
+    </style>
+
+    <!-- Google MD Icons -->
+    <link rel="stylesheet" href="/assets/css/theme/font.css">
+    <!-- Help Modal -->
+    <script src="/assets/js/tab-container.js"></script>
+    <script src="/assets/js/darkmode.js"></script>
+    <script src="/assets/js/csrf.js"></script>
+    <script>
+        function UpdatePosthogConsent() {
+            if (typeof(posthog) == "undefined") {
+                return;
+            }
+
+            window.CookieConsent.acceptedCategory('analytics') ?
+                posthog.opt_in_capturing() : posthog.opt_out_capturing();
+        }
+        const NoblePDFLabel = "Noble-PDF v1.2.0";
+        const analyticsEnabled = true;
+        const cookieBannerPopUpTitle = "How we use Cookies";
+        const cookieBannerPopUpDescription1 = "We use cookies and other technologies to make Noble PDF work better for you\u2014helping us improve our tools and keep building features you'll love.";
+        const cookieBannerPopUpDescription2 = "If you\u2019d rather not, clicking 'No Thanks' will only enable the essential cookies needed to keep things running smoothly.";
+        const cookieBannerPopUpAcceptAllBtn = "Okay";
+        const cookieBannerPopUpAcceptNecessaryBtn = "No Thanks";
+        const cookieBannerPopUpShowPreferencesBtn = "Manage preferences";
+        const cookieBannerPreferencesModalTitle = "Consent Preferences Center";
+        const cookieBannerPreferencesModalAcceptAllBtn = "Accept all";
+        const cookieBannerPreferencesModalAcceptNecessaryBtn = "Reject all";
+        const cookieBannerPreferencesModalSavePreferencesBtn = "Save preferences";
+        const cookieBannerPreferencesModalCloseIconLabel = "Close modal";
+        const cookieBannerPreferencesModalServiceCounterLabel = "Service|Services";
+        const cookieBannerPreferencesModalSubtitle = "Cookie Usage";
+        const cookieBannerPreferencesModalDescription1 = "Noble PDF uses cookies and similar technologies to enhance your experience and understand how our tools are used. This helps us improve performance, develop the features you care about, and provide ongoing support to our users.";
+        const cookieBannerPreferencesModalDescription2 = "Noble PDF cannot\u2014and will never\u2014track or access the content of the documents you use.";
+        const cookieBannerPreferencesModalDescription3 = "Your privacy and trust are at the core of what we do.";
+        const cookieBannerPreferencesModalNecessaryTitle1 = "Strictly Necessary Cookies";
+        const cookieBannerPreferencesModalNecessaryTitle2 = "Always Enabled";
+        const cookieBannerPreferencesModalNecessaryDescription = "These cookies are essential for the website to function properly. They enable core features like setting your privacy preferences, logging in, and filling out forms\u2014which is why they can\u2019t be turned off.";
+        const cookieBannerPreferencesModalAnalyticsTitle = "Analytics";
+        const cookieBannerPreferencesModalAnalyticsDescription = "These cookies help us understand how our tools are being used, so we can focus on building the features our community values most. Rest assured\u2014Noble PDF cannot and will never track the content of the documents you work with.";
+
+        if (analyticsEnabled) {
+            ! function(t, e) {
+                var o, n, p, r;
+                e.__SV || (window.posthog = e, e._i = [], e.init = function(i, s, a) {
+                    function g(t, e) {
+                        var o = e.split(".");
+                        2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function() {
+                            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
+                        }
+                    }
+
+                    (p = t.createElement("script")).type = "text/javascript", p.async = !0, p.src = s.api_host + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r);
+                    var u = e;
+                    for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function(t) {
+                            var e = "posthog";
+                            return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e
+                        }, u.people.toString = function() {
+                            return u.toString(1) + ".people (stub)"
+                        }, o = "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "), n = 0; n < o.length; n++) g(u, o[n]);
+                    e._i.push([i, s, a])
+                }, e.__SV = 1)
+            }(document, window.posthog || []);
+            posthog.init('phc_fiR65u5j6qmXTYL56MNrLZSWqLaDW74OrZH0Insd2xq', {
+                api_host: 'https://eu.i.posthog.com',
+                persistence: 'localStorage',
+                person_profiles: 'always',
+                mask_all_text: true,
+                mask_all_element_attributes: true,
+                opt_out_capturing_by_default: true
+            })
+            const baseUrl = window.location.hostname;
+            posthog.register_once({
+                'hostname': baseUrl,
+                'UUID': "0bd9b85d-de58-4d31-91ad-0ecf535abf59",
+                'app_version': "1.2.0",
+            });
+        }
+
+        window.addEventListener("cc:onConsent", UpdatePosthogConsent);
+        window.addEventListener("cc:onChange", UpdatePosthogConsent);
+    </script>
+
+</head>
+
+<body>
+            <div class="container-fluid" style="background: var(--md-sys-color-surface); border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+                <div class="top-quick-nav d-flex flex-wrap justify-content-start gap-2 gap-md-3 py-2 align-items-center">
+                    <a href="./index.html" class="me-2" aria-label="Home">
+                        <img src="/assets/images/Logo.png" alt="Logo" class="top-quick-logo">
+                    </a>
+                    <a href="./Mutitools/multi-tool.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">
+                        <span class="material-symbols-rounded me-2">construction</span>
+                        <span>Multi Tool</span>
+                    </a>
+                                            <a href="./Mutitools/pipeline.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">
+                        <span class="material-symbols-rounded me-2">schema</span>
+                        <span>Pipeline</span>
+                    </a>
+                                            <a href="./Mutitools/compress-pdf.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">
+                        <span class="material-symbols-rounded me-2">compress</span>
+                        <span>Compress</span>
+                    </a>
+                                            <a href="./Mutitools/view-edit-pdf.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">
+                        <span class="material-symbols-rounded me-2">picture_as_pdf</span>
+                        <span>View/Edit PDF</span>
+                    </a>
+                    <div class="ms-auto d-flex align-items-center gap-3 top-quick-icons">
+                        <span class="material-symbols-rounded" title="Favorites">star</span>
+                        <span class="material-symbols-rounded" title="Theme">light_mode</span>
+                        <span class="material-symbols-rounded" title="Language">language</span>
+                        <span class="material-symbols-rounded" title="Search">search</span>
+                        <span class="material-symbols-rounded" title="Settings">settings</span>
+                    </div>
+                </div>
+            </div>
+      </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"></button>
+                    <div class="collapse navbar-collapse" id="navbarNav" style="display:none" aria-hidden="true">
+                        <ul class="navbar-nav me-auto flex-nowrap">
+                            <!-- All Tools -->
+                            <li id="navItemToHide" class="nav-item dropdown dropdown-mega position-static">
+                                <a class="nav-link" id="navbarDropdown-1" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="material-symbols-rounded">apps</span>
+              <span class="icon-text" data-text="Tools">Tools</span>
+              <span class="material-symbols-rounded chevron-icon">expand_more</span>
+            </a>
+                                <div class="dropdown-menu dropdown-menu-tp" aria-labelledby="navbarDropdown-1">
+                                    <div class="dropdown-menu-wrapper scroll-lock-y" style="max-width: 95vw !important;">
+                                        <div class="feature-rows">
+
+
+                                            <div id="groupOrganize" class="feature-group">
+                                                <div class="feature-group-header">
+                                                    <h6 class="menu-title">Organize</h6>
+                                                </div>
+                                                <div class="nav-group-container">
+
+                                                    <a id="scale-pages" class="dropdown-item organize" style="position:relative" href="Mutitools/scale-pages.html" data-bs-link="scale-pages" data-bs-tags="resize,modify,dimension,adapt" data-bs-title='Adjust page size/scale'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Change the size/scale of a page and/or its contents." class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">fullscreen</span>
+                                                            <span class="icon-text">Adjust page size/scale</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="scale-pages" onclick="addToFavorites('scale-pages')">add </span>
+                                                    </a>
+
+                                                    <a id="crop" class="dropdown-item organize" style="position:relative" href="Mutitools/crop-pdf.html" data-bs-link="crop" data-bs-tags="trim,shrink,edit,shape" data-bs-title='Crop PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Crop a PDF to reduce its size (maintains text!)" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">crop</span>
+                                                            <span class="icon-text">Crop PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="crop" onclick="addToFavorites('crop')">add </span>
+                                                    </a>
+
+                                                    <a id="extract-page" class="dropdown-item organize" style="position:relative" href="Mutitools/extract-page.html" data-bs-link="extract-page" data-bs-tags="extract" data-bs-title='Extract page(s)'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Extracts select pages from PDF" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">upload</span>
+                                                            <span class="icon-text">Extract page(s)</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="extract-page" onclick="addToFavorites('extract-page')">add </span>
+                                                    </a>
+
+                                                    <a id="merge-pdfs" class="dropdown-item organize" style="position:relative" href="Mutitools/merge-pdfs.html" data-bs-link="merge-pdfs" data-bs-tags="merge,Page operations,Back end,server side" data-bs-title='Merge'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Easily merge multiple PDFs into one." class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">add_to_photos</span>
+                                                            <span class="icon-text">Merge</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="merge-pdfs" onclick="addToFavorites('merge-pdfs')">add </span>
+                                                    </a>
+
+                                                    <a id="multi-page-layout" class="dropdown-item organize" style="position:relative" href="Mutitools/multi-page-layout.html" data-bs-link="multi-page-layout" data-bs-tags="merge,composite,single-view,organize" data-bs-title='Multi-Page Layout'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Merge multiple pages of a PDF document into a single page" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">dashboard</span>
+                                                            <span class="icon-text">Multi-Page Layout</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="multi-page-layout" onclick="addToFavorites('multi-page-layout')">add </span>
+                                                    </a>
+
+                                                    <a id="organize-pdf" class="dropdown-item organize" style="position:relative" href="Mutitools/organize-pdf.html" data-bs-link="organize-pdf" data-bs-tags="organize,rearrange,remove,pages" data-bs-title='Organize PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove, rearrange, and organize PDF pages in any order" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">format_list_bulleted</span>
+                                                            <span class="icon-text">Organize PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="organize-pdf" onclick="addToFavorites('organize-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="multi-tool" class="dropdown-item organize" style="position:relative" href="Mutitools/multi-tool.html" data-bs-link="multi-tool" data-bs-tags="Multi Tool,Multi operation,UI,click drag,front end,client side,interactive,intractable,move,delete,migrate,divide" data-bs-title='PDF Multi Tool'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Merge, Rotate, Rearrange, Split, and Remove pages" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">construction</span>
+                                                            <span class="icon-text">PDF Multi Tool</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="multi-tool" onclick="addToFavorites('multi-tool')">add</span>
+                                                    </a>
+
+                                                    <a id="remove-pages" class="dropdown-item organize" style="position:relative" href="Mutitools/remove-pages.html" data-bs-link="remove-pages" data-bs-tags="Remove pages,delete pages" data-bs-title='Remove'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Delete unwanted pages from your PDF document." class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">delete</span>
+                                                            <span class="icon-text">Remove</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-pages" onclick="addToFavorites('remove-pages')">add </span>
+                                                    </a>
+
+                                                    <a id="rotate-pdf" class="dropdown-item organize" style="position:relative" href="Mutitools/rotate-pdf.html" data-bs-link="rotate-pdf" data-bs-tags="server side" data-bs-title='Rotate'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Easily rotate your PDFs." class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">rotate_right</span>
+                                                            <span class="icon-text">Rotate</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="rotate-pdf" onclick="addToFavorites('rotate-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-single-page" class="dropdown-item organize" style="position:relative" href="Mutitools/single-large-page.html" data-bs-link="pdf-to-single-page" data-bs-tags="single page" data-bs-title='Single Large Page'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Merges all PDF pages into one large single page" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">looks_one</span>
+                                                            <span class="icon-text">Single Large Page</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-single-page" onclick="addToFavorites('pdf-to-single-page')">add </span>
+                                                    </a>
+
+                                                    <a id="split-pdfs" class="dropdown-item organize" style="position:relative" href="Mutitools/split-pdfs.html" data-bs-link="split-pdfs" data-bs-tags="Page operations,divide,Multi Page,cut,server side" data-bs-title='Split'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Split PDFs into multiple documents" class="organize" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">cut</span>
+                                                            <span class="icon-text">Split</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="split-pdfs" onclick="addToFavorites('split-pdfs')">add </span>
+                                                    </a>
+
+                                                </div>
+                                            </div>
+
+                                            <div id="groupConvertTo" class="feature-group">
+                                                <div class="feature-group-header">
+                                                    <h6 class="menu-title">Convert to PDF</h6>
+                                                </div>
+                                                <div class="nav-group-container">
+
+                                                    <a id="file-to-pdf" class="dropdown-item convertto" style="position:relative" href="Mutitools/file-to-pdf.html" data-bs-link="file-to-pdf" data-bs-tags="transformation,format,document,picture,slide,text,conversion,office,docs,word,excel,powerpoint" data-bs-title='Convert file to PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert nearly any file to PDF (DOCX, PNG, XLS, PPT, TXT and more)" class="convertto" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">draft</span>
+                                                            <span class="icon-text">Convert file to PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="file-to-pdf" onclick="addToFavorites('file-to-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="eml-to-pdf" class="dropdown-item convertto" style="position:relative" href="Mutitools/eml-to-pdf.html" data-bs-link="eml-to-pdf" data-bs-tags="email,conversion,eml,message,transformation,convert,mail" data-bs-title='Email to PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Converts email (EML) files to PDF format including headers, body, and inline images" class="convertto" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">email</span>
+                                                            <span class="icon-text">Email to PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="eml-to-pdf" onclick="addToFavorites('eml-to-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="html-to-pdf" class="dropdown-item convertto" style="position:relative" href="Mutitools/html-to-pdf.html" data-bs-link="html-to-pdf" data-bs-tags="markup,web-content,transformation,convert" data-bs-title='HTML to PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Converts any HTML file or zip to PDF" class="convertto" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">html</span>
+                                                            <span class="icon-text">HTML to PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="html-to-pdf" onclick="addToFavorites('html-to-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="img-to-pdf" class="dropdown-item convertto" style="position:relative" href="Mutitools/img-to-pdf.html" data-bs-link="img-to-pdf" data-bs-tags="conversion,img,jpg,picture,photo,psd,photoshop" data-bs-title='Image to PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert a image (PNG, JPEG, GIF, PSD) to PDF." class="convertto" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">picture_as_pdf</span>
+                                                            <span class="icon-text">Image to PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="img-to-pdf" onclick="addToFavorites('img-to-pdf')">add </span>
+                                                    </a>
+
+                                                    <a id="markdown-to-pdf" class="dropdown-item convertto" style="position:relative" href="Mutitools/markdown-to-pdf.html" data-bs-link="markdown-to-pdf" data-bs-tags="markup,web-content,transformation,convert,md" data-bs-title='Markdown to PDF'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Converts any Markdown file to PDF" class="convertto" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">markdown</span>
+                                                            <span class="icon-text">Markdown to PDF</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="markdown-to-pdf" onclick="addToFavorites('markdown-to-pdf')">add </span>
+                                                    </a>
+
+                                                </div>
+                                            </div>
+                                            <div id="groupConvertFrom" class="feature-group">
+                                                <div class="feature-group-header">
+                                                    <h6 class="menu-title">Convert from PDF</h6>
+                                                </div>
+                                                <div class="nav-group-container">
+
+                                                    <a id="pdf-to-csv" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-csv.html" data-bs-link="pdf-to-csv" data-bs-tags="csv,table,spreadsheet,convert" data-bs-title='PDF to CSV' style="display:none">
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF tables to CSV" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">table</span>
+                                                            <span class="icon-text">PDF to CSV</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-csv" onclick="addToFavorites('pdf-to-csv')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-html" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-html.html" data-bs-link="pdf-to-html" data-bs-tags="web content,browser friendly" data-bs-title='PDF to HTML'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to HTML format" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">html</span>
+                                                            <span class="icon-text">PDF to HTML</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-html" onclick="addToFavorites('pdf-to-html')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-img" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-image.html" data-bs-link="pdf-to-img" data-bs-tags="conversion,img,jpg,picture,photo,psd,photoshop" data-bs-title='PDF to Image'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert a PDF to a image. (PNG, JPEG, GIF, PSD)" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">photo_library</span>
+                                                            <span class="icon-text">PDF to Image</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-img" onclick="addToFavorites('pdf-to-img')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-pdfa" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-pdfa.html" data-bs-link="pdf-to-pdfa" data-bs-tags="archive,long-term,standard,conversion,storage,preservation" data-bs-title='PDF to PDF/A'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to PDF/A for long-term storage" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">picture_as_pdf</span>
+                                                            <span class="icon-text">PDF to PDF/A</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-pdfa" onclick="addToFavorites('pdf-to-pdfa')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-ppt" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-ppt.html" data-bs-link="pdf-to-ppt" data-bs-tags="presentation,ppt,slides" data-bs-title='PDF to Presentation'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to Presentation (not available)" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">slideshow</span>
+                                                            <span class="icon-text">PDF to Presentation</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-ppt" onclick="addToFavorites('pdf-to-ppt')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-text" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-text.html" data-bs-link="pdf-to-text" data-bs-tags="richformat,richtextformat,rich text format" data-bs-title='PDF to RTF (Text)'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to Text or RTF format" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">text_fields</span>
+                                                            <span class="icon-text">PDF to RTF (Text)</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-text" onclick="addToFavorites('pdf-to-text')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-word" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-word.html" data-bs-link="pdf-to-word" data-bs-tags="doc,docx,odt,word,transformation,format,conversion,office,microsoft,docfile" data-bs-title='PDF to Word'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to Word formats (DOC, DOCX and ODT)" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">description</span>
+                                                            <span class="icon-text">PDF to Word</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-word" onclick="addToFavorites('pdf-to-word')">add </span>
+                                                    </a>
+
+                                                    <a id="pdf-to-xml" class="dropdown-item convert" style="position:relative" href="Mutitools/pdf-to-xml.html" data-bs-link="pdf-to-xml" data-bs-tags="xml,data,structure" data-bs-title='PDF to XML'>
+                                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Convert PDF to XML (not available)" class="convert" alt="icon">
+                                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">data_object</span>
+                                                            <span class="icon-text">PDF to XML</span>
+                                                        </div>
+                                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pdf-to-xml" onclick="addToFavorites('pdf-to-xml')">add </span>
+                                                    </a>
+
+
+
+
+
+
+                                </div>
+                            </div>
+                            <div id="groupSecurity" class="feature-group">
+                                <div class="feature-group-header">
+                                    <h6 class="menu-title">Sign &amp; Security</h6>
+                                </div>
+                                <div class="nav-group-container">
+
+                                    <a id="add-password" class="dropdown-item security" style="position:relative" href="Mutitools/add-password.html" data-bs-link="add-password" data-bs-tags="secure,security" data-bs-title='Add Password'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Encrypt your PDF document with a password." class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">lock</span>
+                                            <span class="icon-text">Add Password</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="add-password" onclick="addToFavorites('add-password')">add </span>
+                                    </a>
+
+                                    <a id="stamp" class="dropdown-item security" style="position:relative" href="Mutitools/add-stamp.html" data-bs-link="stamp" data-bs-tags="Stamp, Add image, center image, Watermark, PDF, Embed, Customize" data-bs-title='Add Stamp to PDF'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Add text or add image stamps at set locations" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">approval</span>
+                                            <span class="icon-text">Add Stamp to PDF</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="stamp" onclick="addToFavorites('stamp')">add </span>
+                                    </a>
+
+                                    <a id="add-watermark" class="dropdown-item security" style="position:relative" href="Mutitools/add-watermark.html" data-bs-link="add-watermark" data-bs-tags="Text,repeating,label,own,copyright,trademark,img,jpg,picture,photo" data-bs-title='Add Watermark'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Add a custom watermark to your PDF document." class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">water_drop</span>
+                                            <span class="icon-text">Add Watermark</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="add-watermark" onclick="addToFavorites('add-watermark')">add </span>
+                                    </a>
+
+                                    <a id="auto-redact" class="dropdown-item security" style="position:relative" href="Mutitools/auto-redact.html" data-bs-link="auto-redact" data-bs-tags="Redact,Hide,black out,black,marker,hidden" data-bs-title='Auto Redact'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Auto Redacts(Blacks out) text in a PDF based on input text" class="security" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"><use xlink:href="/assets/images/redact-auto.svg#icon-redact-auto"></use></svg>
+                                            <span class="icon-text">Auto Redact</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="auto-redact" onclick="addToFavorites('auto-redact')">star </span>
+                                    </a>
+
+                                    <a id="change-permissions" class="dropdown-item security" style="position:relative" href="Mutitools/change-permissions.html" data-bs-link="change-permissions" data-bs-tags="read,write,edit,print" data-bs-title='Change Permissions'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Change the permissions of your PDF document" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">encrypted</span>
+                                            <span class="icon-text">Change Permissions</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="change-permissions" onclick="addToFavorites('change-permissions')">add </span>
+                                    </a>
+
+                                    <a id="redact" class="dropdown-item security" style="position:relative" href="Mutitools/manual-redaction.html" data-bs-link="redact" data-bs-tags="Redact,Hide,black out,black,marker,hidden,manual" data-bs-title='Manual Redaction'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Redacts a PDF based on selected text, drawn shapes and/or selected page(s)" class="security" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"><use xlink:href="/assets/images/redact-manual.svg#icon-redact-manual"></use></svg>
+                                            <span class="icon-text">Manual Redaction</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="redact" onclick="addToFavorites('redact')">star </span>
+                                    </a>
+
+                                    <a id="remove-cert-sign" class="dropdown-item security" style="position:relative" href="Mutitools/remove-cert-sign.html" data-bs-link="remove-cert-sign" data-bs-tags="authenticate,PEM,P12,official,decrypt" data-bs-title='Remove Certificate Sign'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove certificate signature from PDF" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">remove_moderator</span>
+                                            <span class="icon-text">Remove Certificate Sign</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-cert-sign" onclick="addToFavorites('remove-cert-sign')">add </span>
+                                    </a>
+
+                                    <a id="remove-password" class="dropdown-item security" style="position:relative" href="Mutitools/remove-password.html" data-bs-link="remove-password" data-bs-tags="secure,Decrypt,security,unpassword,delete password" data-bs-title='Remove Password'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove password protection from your PDF document." class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">lock_open_right</span>
+                                            <span class="icon-text">Remove Password</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-password" onclick="addToFavorites('remove-password')">add </span>
+                                    </a>
+
+                                    <a id="sanitize-pdf" class="dropdown-item security" style="position:relative" href="Mutitools/sanitize.html" data-bs-link="sanitize-pdf" data-bs-tags="clean,secure,safe,remove-threats" data-bs-title='Sanitize'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove scripts and other elements from PDF files" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">sanitizer</span>
+                                            <span class="icon-text">Sanitize</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="sanitize-pdf" onclick="addToFavorites('sanitize-pdf')">add </span>
+                                    </a>
+                                    <a id="sign" class="dropdown-item security" style="position:relative" href="Mutitools/sign.html" data-bs-link="sign" data-bs-tags="authorize,initials,drawn-signature,text-sign,image-signature" data-bs-title='Sign'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Adds signature to PDF by drawing, text or image" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">signature</span>
+                                            <span class="icon-text">Sign</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="sign" onclick="addToFavorites('sign')">add </span>
+                                    </a>
+                                    <a id="cert-sign" class="dropdown-item security" style="position:relative" href="Mutitools/cert-sign.html" data-bs-link="cert-sign" data-bs-tags="authenticate,PEM,P12,official,encrypt" data-bs-title='Sign with Certificate'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Signs a PDF with a Certificate/Key (PEM/P12)" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">workspace_premium</span>
+                                            <span class="icon-text">Sign with Certificate</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="cert-sign" onclick="addToFavorites('cert-sign')">add </span>
+                                    </a>
+
+                                    <a id="validate-signature" class="dropdown-item security" style="position:relative" href="Mutitools/validate-signature.html" data-bs-link="validate-signature" data-bs-tags="signature,verify,validate,pdf,certificate,digital signature,Validate Signature,Validate certificate"
+                                        data-bs-title='Validate PDF Signature'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Verify digital signatures and certificates in PDF documents" class="security" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">verified</span>
+                                            <span class="icon-text">Validate PDF Signature 
+                                                
+                                            </span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="validate-signature" onclick="addToFavorites('validate-signature')">add </span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div id="groupView" class="feature-group">
+                                <div class="feature-group-header">
+                                    <h6 class="menu-title">View &amp; Edit</h6>
+                                </div>
+                                <div class="nav-group-container">
+
+                                    <a id="add-image" class="dropdown-item other" style="position:relative" href="Mutitools/add-image.html" data-bs-link="add-image" data-bs-tags="img,jpg,picture,photo" data-bs-title='Add image'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Adds a image onto a set location on the PDF" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">text_fields</span>
+                                            <span class="icon-text">Add image</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="add-image" onclick="addToFavorites('add-image')">add </span>
+                                    </a>
+                                    
+                                    <a id="add-attachments" class="dropdown-item other" style="position:relative" href="Mutitools/add-attachments.html" data-bs-link="add-attachments" data-bs-tags="embed,attach,file,attachment,attachments" data-bs-title='Add Attachments'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Add or remove embedded files (attachments) to/from a PDF" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">attachment</span>
+                                            <span class="icon-text">Add Attachments</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="add-attachments" onclick="addToFavorites('add-attachments')">add </span>
+                                    </a>
+
+                                    <a id="add-page-numbers" class="dropdown-item other" style="position:relative" href="Mutitools/add-page-numbers.html" data-bs-link="add-page-numbers" data-bs-tags="page,numbering,sequential,organize" data-bs-title='Add Page Numbers'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Add sequential page numbers to your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">format_list_numbered</span>
+                                            <span class="icon-text">Add Page Numbers</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="add-page-numbers" onclick="addToFavorites('add-page-numbers')">add </span>
+                                    </a>
+
+                                    <a id="change-metadata" class="dropdown-item other" style="position:relative" href="Mutitools/change-metadata.html" data-bs-link="change-metadata" data-bs-tags="metadata,properties,title,author,subject" data-bs-title='Change Metadata'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Edit PDF document properties like title, author, subject, and keywords" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">edit_document</span>
+                                            <span class="icon-text">Change Metadata</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="change-metadata" onclick="addToFavorites('change-metadata')">add </span>
+                                    </a>
+
+                                    <a id="compare" class="dropdown-item other" style="position:relative" href="Mutitools/compare.html" data-bs-link="compare" data-bs-tags="compare,diff,difference,version" data-bs-title='Compare'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Compare two PDF documents and highlight differences" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">compare</span>
+                                            <span class="icon-text">Compare</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="compare" onclick="addToFavorites('compare')">add </span>
+                                    </a>
+
+                                    <a id="extract-images" class="dropdown-item other" style="position:relative" href="Mutitools/extract-images.html" data-bs-link="extract-images" data-bs-tags="extract,images,photos,pictures" data-bs-title='Extract Images'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Extract all images from your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">image</span>
+                                            <span class="icon-text">Extract Images</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="extract-images" onclick="addToFavorites('extract-images')">add </span>
+                                    </a>
+
+                                    <a id="flatten" class="dropdown-item other" style="position:relative" href="Mutitools/flatten.html" data-bs-link="flatten" data-bs-tags="flatten,annotations,forms,layers" data-bs-title='Flatten'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Flatten PDF annotations, form fields, and layers into static content" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">layers</span>
+                                            <span class="icon-text">Flatten</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="flatten" onclick="addToFavorites('flatten')">add </span>
+                                    </a>
+
+                                    <a id="get-info-on-pdf" class="dropdown-item other" style="position:relative" href="Mutitools/get-info-on-pdf.html" data-bs-link="get-info-on-pdf" data-bs-tags="info,properties,details,metadata" data-bs-title='Get ALL Info on PDF'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Get comprehensive information about your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">info</span>
+                                            <span class="icon-text">Get ALL Info on PDF</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="get-info-on-pdf" onclick="addToFavorites('get-info-on-pdf')">add </span>
+                                    </a>
+
+                                    <a id="ocr-pdf" class="dropdown-item other" style="position:relative" href="Mutitools/ocr-pdf.html" data-bs-link="ocr-pdf" data-bs-tags="ocr,scan,text,recognition,cleanup" data-bs-title='OCR / Cleanup scans'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Perform OCR on scanned documents and clean up the text" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">document_scanner</span>
+                                            <span class="icon-text">OCR / Cleanup scans</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="ocr-cleanup" onclick="addToFavorites('ocr-cleanup')">add </span>
+                                    </a>
+
+                                    <a id="remove-annotations" class="dropdown-item other" style="position:relative" href="Mutitools/remove-annotations.html" data-bs-link="remove-annotations" data-bs-tags="remove,annotations,comments,marks" data-bs-title='Remove Annotations'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove all annotations, comments, and marks from your PDF" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">comment</span>
+                                            <span class="icon-text">Remove Annotations</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-annotations" onclick="addToFavorites('remove-annotations')">add </span>
+                                    </a>
+
+                                    <a id="remove-blanks" class="dropdown-item other" style="position:relative" href="Mutitools/remove-blanks.html" data-bs-link="remove-blanks" data-bs-tags="remove,blank,empty,pages" data-bs-title='Remove Blank pages'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove blank or empty pages from your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">pageview</span>
+                                            <span class="icon-text">Remove Blank pages</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-blank-pages" onclick="addToFavorites('remove-blank-pages')">add </span>
+                                    </a>
+
+                                    <a id="remove-image-pdf" class="dropdown-item other" style="position:relative" href="Mutitools/remove-image-pdf.html" data-bs-link="remove-image-pdf" data-bs-tags="remove,images,photos,pictures" data-bs-title='Remove image'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Remove specific images from your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">delete_sweep</span>
+                                            <span class="icon-text">Remove image</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="remove-image" onclick="addToFavorites('remove-image')">add </span>
+                                    </a>
+
+                                    <a id="replace-and-invert-color" class="dropdown-item other" style="position:relative" href="Mutitools/replace-and-invert-color.html" data-bs-link="replace-and-invert-color" data-bs-tags="color,invert,replace,negative" data-bs-title='Replace and Invert Color'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Replace or invert colors in your PDF document" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">invert_colors</span>
+                                            <span class="icon-text">Replace and Invert Color</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="replace-invert-color" onclick="addToFavorites('replace-invert-color')">add </span>
+                                    </a>
+
+                                    <a id="unlock-pdf-forms" class="dropdown-item other" style="position:relative" href="Mutitools/unlock-pdf-forms.html" data-bs-link="unlock-pdf-forms" data-bs-tags="unlock,forms,editable,fillable" data-bs-title='Unlock PDF Forms'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Unlock PDF forms to make them editable and fillable" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">lock_open</span>
+                                            <span class="icon-text">Unlock PDF Forms</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="unlock-pdf-forms" onclick="addToFavorites('unlock-pdf-forms')">add </span>
+                                    </a>
+
+                                    <a id="view-edit-pdf" class="dropdown-item other" style="position:relative" href="Mutitools/view-edit-pdf.html" data-bs-link="view-edit-pdf" data-bs-tags="view,edit,pdf,modify" data-bs-title='View/Edit PDF'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="View and edit PDF documents directly in the browser" class="other" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">edit</span>
+                                            <span class="icon-text">View/Edit PDF</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="view-edit-pdf" onclick="addToFavorites('view-edit-pdf')">add </span>
+                                    </a>
+
+                                </div>
+                            </div>
+                            <div id="groupAdvanced" class="feature-group">
+                                <div class="feature-group-header">
+                                    <h6 class="menu-title">Advanced</h6>
+                                </div>
+                                <div class="nav-group-container">
+                                    <a id="adjust-contrast" class="dropdown-item advance" style="position:relative" href="Mutitools/adjust-contrast.html" data-bs-link="adjust-contrast" data-bs-tags="color-correction,tune,modify,enhance" data-bs-title='Adjust Colors/Contrast'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Adjust Contrast, Saturation and Brightness of a PDF" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">palette</span>
+                                            <span class="icon-text">Adjust Colors/Contrast</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="adjust-contrast" onclick="addToFavorites('adjust-contrast')">add </span>
+                                    </a>
+                                    <a id="auto-rename" class="dropdown-item advance" style="position:relative" href="Mutitools/auto-rename.html" data-bs-link="auto-rename" data-bs-tags="auto-detect,header-based,organize,relabel" data-bs-title='Auto Rename PDF File'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Auto renames a PDF file based on its detected header" class="advance" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"><use xlink:href="/assets/images/rename.svg#icon-rename"></use> </svg>
+                                            <span class="icon-text">Auto Rename PDF File</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="auto-rename" onclick="addToFavorites('auto-rename')">star </span>
+                                    </a>
+                                    <a id="split-by-size-or-count" class="dropdown-item advance" style="position:relative" href="Mutitools/split-by-size-or-count.html" data-bs-link="split-by-size-or-count" data-bs-tags="pdf,split,document,organization" data-bs-title='Auto Split by Size/Count'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Split a single PDF into multiple documents based on size, page count, or document count" class="advance" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"> <use xlink:href="/assets/images/split-size.svg#icon-split-size"></use> </svg>
+                                            <span class="icon-text">Auto Split by Size/Count</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="split-by-size-or-count" onclick="addToFavorites('split-by-size-or-count')">star </span>
+                                    </a>
+                                    <a id="auto-split-pdf" class="dropdown-item advance" style="position:relative" href="Mutitools/auto-split-pdf.html" data-bs-link="auto-split-pdf" data-bs-tags="QR-based,separate,scan-segment,organize" data-bs-title='Auto Split Pages'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Auto Split Scanned PDF with physical scanned page splitter QR Code" class="advance" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"><use xlink:href="/assets/images/split-auto.svg#icon-split-auto"></use></svg>
+                                            <span class="icon-text">Auto Split Pages</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="auto-split-pdf" onclick="addToFavorites('auto-split-pdf')">star </span>
+                                    </a>
+                                    <a id="compress-pdf" class="dropdown-item advance" style="position:relative" href="Mutitools/compress-pdf.html" data-bs-link="compress-pdf" data-bs-tags="squish,small,tiny" data-bs-title='Compress'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Compress PDFs to reduce their file size." class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">zoom_in_map</span>
+                                            <span class="icon-text">Compress</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="compress-pdf" onclick="addToFavorites('compress-pdf')">add </span>
+                                    </a>
+
+                                    <a id="extract-image-scans" class="dropdown-item advance" style="position:relative" href="Mutitools/extract-image-scans.html" data-bs-link="extract-image-scans" data-bs-tags="separate,auto-detect,scans,multi-photo,organize" data-bs-title='Detect/Split Scanned photos'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Splits multiple photos from within a photo/PDF" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">scanner</span>
+                                            <span class="icon-text">Detect/Split Scanned photos</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="extract-image-scans" onclick="addToFavorites('extract-image-scans')">add </span>
+                                    </a>
+                                    <a id="repair" class="dropdown-item advance" style="position:relative" href="Mutitools/repair.html" data-bs-link="repair" data-bs-tags="fix,restore,correction,recover" data-bs-title='Repair'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Tries to repair a corrupt/broken PDF" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">build</span>
+                                            <span class="icon-text">Repair</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="repair" onclick="addToFavorites('repair')">add </span>
+                                    </a>
+                                    <a id="show-javascript" class="dropdown-item advance" style="position:relative" href="Mutitools/show-javascript.html" data-bs-link="show-javascript" data-bs-tags="JS" data-bs-title='Show Javascript'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Searches and displays any JS injected into a PDF" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">javascript</span>
+                                            <span class="icon-text">Show Javascript</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="show-javascript" onclick="addToFavorites('show-javascript')">add </span>
+                                    </a>
+                                    <a id="scanner-effect" class="dropdown-item advance" style="position:relative" href="Mutitools/scanner-effect.html" data-bs-link="scanner-effect" data-bs-tags="scan,simulate,realistic,convert" data-bs-title='Scanner Effect'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Create a PDF that looks like it was scanned" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">scanner</span>
+                                            <span class="icon-text">Scanner Effect</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="scanner-effect" onclick="addToFavorites('scanner-effect')">add </span>
+                                    </a>
+                                    <a id="pipeline" class="dropdown-item advance" style="position:relative" href="Mutitools/pipeline.html" data-bs-link="pipeline" data-bs-tags="automate,sequence,scripted,batch-process" data-bs-title='Pipeline'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Run multiple actions on PDFs by defining pipeline scripts" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">family_history</span>
+                                            <span class="icon-text">Pipeline</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="pipeline" onclick="addToFavorites('pipeline')">add </span>
+                                    </a>
+                                    <a id="overlay-pdf" class="dropdown-item advance" style="position:relative" href="Mutitools/overlay-pdf.html" data-bs-link="overlay-pdf" data-bs-tags="Overlay" data-bs-title='Overlay PDFs'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Overlays PDFs on-top of another PDF" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">layers</span>
+                                            <span class="icon-text">Overlay PDFs</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="overlay-pdf" onclick="addToFavorites('overlay-pdf')">add </span>
+                                    </a>
+                                    <a id="split-pdf-by-sections" class="dropdown-item advance" style="position:relative" href="Mutitools/split-pdf-by-sections.html" data-bs-link="split-pdf-by-sections" data-bs-tags="Section Split, Divide, Customize" data-bs-title='Split PDF by Sections'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Divide each page of a PDF into smaller horizontal and vertical sections" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">grid_on</span>
+                                            <span class="icon-text">Split PDF by Sections</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="split-pdf-by-sections" onclick="addToFavorites('split-pdf-by-sections')">add </span>
+                                    </a>
+                                    <a id="edit-table-of-contents" class="dropdown-item advance" style="position:relative" href="Mutitools/edit-table-of-contents.html" data-bs-link="edit-table-of-contents" data-bs-tags="bookmarks,toc,navigation,index,table of contents,chapters,sections,outline" data-bs-title='Edit Table of Contents'>
+                                        <div style="min-height:2.7rem; align-items: center;display: flex;" title="Add or edit bookmarks and table of contents in PDF documents" class="advance" alt="icon">
+                                            <span class="material-symbols-rounded nav-icon" style=" align-items:center; display: flex; justify-content: center; height:2.7rem; width:2.7rem">bookmark_add</span>
+                                            <span class="icon-text">Edit Table of Contents</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="edit-table-of-contents" onclick="addToFavorites('edit-table-of-contents')">add </span>
+                                    </a>
+                                    <a id="split-pdf-by-chapters" class="dropdown-item advance" style="position:relative" href="Mutitools/split-pdf-by-chapters.html" data-bs-link="split-pdf-by-chapters" data-bs-tags="split,chapters,bookmarks,organize" data-bs-title='Split PDF by Chapters'>
+                                        <div style="min-height:2.5rem;align-items: center;display: flex" title="Split a PDF into multiple files based on its chapter structure." class="advance" alt="icon">
+                                            <svg class="nav-icon" style="height: 2.7rem; width:2.7rem; align-items:center; display: flex; justify-content: center;"><use xlink:href="/assets/images/split-chapters.svg#icon-split-chapters"></use></svg>
+                                            <span class="icon-text">Split PDF by Chapters</span>
+                                        </div>
+                                        <span class="material-symbols-rounded favorite-icon" style="display: none;" data-endpoint="split-pdf-by-chapters" onclick="addToFavorites('split-pdf-by-chapters')">star </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+  
+                <div class="jumbotron text-center">
+                    <!-- Search Bar -->
+                        <!-- Add title above search tool -->
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 mb-4"><strong>Your all-in-one local solution for everything PDF.</strong></h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container">
+                        <div class="search-icon">
+                            <span class="material-symbols-rounded">search</span>
+                        </div>
+                        <input type="text" id="searchBar" placeholder="Search for tools..." class="form-control">
+                    </div>
+                    <!-- Tools Grid -->
+                    <div id="scale-wrap" class="features-container" style="visibility: hidden;">
+                        <!-- Tools will be populated by JavaScript -->
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Scale features container so all groups fit inside viewport
+                            try {
+                                const cont = document.getElementById('scale-wrap');
+                                const page = document.querySelector('.page-container');
+                                const nav = document.querySelector('.navbar, nav');
+                                const navH = nav ? nav.offsetHeight : 0;
+                                const avail = (page ? page.clientHeight : window.innerHeight) - navH - 8;
+                                const origH = cont ? cont.scrollHeight : 0;
+                                if (cont && origH > 0) {
+                                    const s = Math.min(1, Math.max(0.6, avail / origH));
+                                    cont.style.transform = `scale(${s})`;
+                                    cont.style.transformOrigin = 'top center';
+                                    cont.style.height = `${origH * s}px`;
+                                    const featuresContainer = document.querySelector('.features-container');
+                                    if (featuresContainer) {
+                                        const dynamicWidth = Math.min(120, 100 / s);
+                                        featuresContainer.style.width = `${dynamicWidth}%`;
+                                        featuresContainer.style.marginLeft = 'auto';
+                                        featuresContainer.style.marginRight = 'auto';
+                                    }
+                                }
+                            } catch (e) { console.warn('compact scale failed', e); }
+                            const sourceRows = document.querySelector('.dropdown-menu .feature-rows');
+                            const target = document.querySelector('.features-container');
+                            if (sourceRows && target) {
+                                const clone = sourceRows.cloneNode(true);
+                                target.innerHTML = '';
+                                target.appendChild(clone);
+                                // Ensure the features are visible in the main content area
+                                target.style.visibility = 'visible';
+                                if (typeof toolsManager === 'function') {
+                                    toolsManager();
+                                }
+                                if (typeof initializeCards === 'function') {
+                                    initializeCards();
+                                }
+                                // Remove any empty feature groups or containers
+                                const groups = target.querySelectorAll('.feature-group');
+                                groups.forEach((group) => {
+                                    const items = group.querySelectorAll('.dropdown-item');
+                                    if (!items || items.length === 0) {
+                                        group.remove();
+                                    }
+                                });
+                                // Remove any empty wrappers left behind
+                                target.querySelectorAll('.nav-group-container').forEach((wrap) => {
+                                    if (!wrap.children || wrap.children.length === 0) {
+                                        wrap.remove();
+                                    }
+                                });
+                                // Reveal only after fonts are ready to avoid size shift
+                                const reveal = () => { target.style.visibility = 'visible'; };
+                                if (document.fonts && document.fonts.ready) {
+                                    document.fonts.ready.then(() => requestAnimationFrame(reveal));
+                                } else {
+                                    setTimeout(reveal, 150);
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Analytics Modal -->
+    <style>
+        .favorite-icon {
+            cursor: pointer;
+            width: 0rem;
+            font-size: 2rem;
+        }
+
+        .toggle-favourites {
+            cursor: pointer;
+        }
+
+        .toggle-favourites.active {
+            color: gold;
+        }
+    </style>
+    <script>
+        /*<![CDATA[*/
+        window.analyticsPromptBoolean = false;
+        /*]]>*/
+
+        window.showSurvey = true
+    </script>
+    <script src="/assets/js/favourites.js"></script>
+    <script src="/assets/js/homecard.js"></script>
+    <script>
+        // Unregister any stale service workers to prevent FetchEvent errors
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                registrations.forEach(function(registration) { registration.unregister(); });
+            }).catch(function() {});
+        }
+    </script>
+    <script>
+        function scaleStuff() {
+            const w = 1440;
+            const h = 1000;
+            const sx = window.innerWidth / w;
+            const sy = window.innerHeight / h;
+            const s = Math.max(0.9, Math.min(sx, sy));
+            const el = document.getElementById('scale-wrap');
+            const container = document.querySelector('.page-container');
+            const nav = document.querySelector('.navbar, nav');
+            const navH = nav ? nav.offsetHeight : 0;
+            const space = container.offsetHeight - navH;
+            const origH = el.scrollHeight;
+
+            // Progressive bonus based on how tall the screen is
+            const aspectRatio = window.innerWidth / window.innerHeight;
+            const tallScreenBonus = Math.max(0, (1.8 - aspectRatio) * 0.15); // More bonus for taller screens
+
+            let finalS = Math.min(s * 0.75, (space * (0.98 + tallScreenBonus)) / origH);
+            finalS = Math.max(0.7, Math.min(1.0, finalS)); // Never scale above 100%
+
+            el.style.transform = `scale(${finalS})`;
+            el.style.transformOrigin = 'top center';
+            el.style.height = `${origH * finalS}px`;
+
+            // Dynamically adjust features container width based on scale
+            const featuresContainer = document.querySelector('.features-container');
+            if (featuresContainer) {
+                const dynamicWidth = Math.min(120, 100 / finalS);
+                featuresContainer.style.width = `${dynamicWidth}%`;
+                featuresContainer.style.marginLeft = 'auto';
+                featuresContainer.style.marginRight = 'auto';
+                featuresContainer.style.position = 'relative';
+                featuresContainer.style.left = '0';
+                featuresContainer.style.right = '0';
+            }
+        }
+        let prevW = window.innerWidth;
+        let prevH = window.innerHeight;
+        let prevDPR = window.devicePixelRatio;
+        function onResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const dpr = window.devicePixelRatio;
+            if (w !== prevW || h !== prevH) {
+                if (dpr === prevDPR) {
+                    scaleStuff();
+                }
+            }
+            prevW = w;
+            prevH = h;
+            prevDPR = dpr;
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(scaleStuff, 100);
+        });
+
+        window.addEventListener('resize', onResize);
+    </script>
+    <footer class="footer-pad footer-solid" role="contentinfo" aria-label="Footer" style="height:48px;">
+        <div class="footer-content">
+            <div class="d-flex justify-content-between align-items-center" style="gap: 12px;">
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <span>Powered by</span>
+                    <img src="assets/images/favicon.svg" alt="Noble PDF logo" width="16" height="16" />
+                    <span>Noble PDF</span>
+                </div>
+                <nav aria-label="Footer navigation" class="d-flex flex-wrap align-items-center" style="gap: 12px;">
+                    <a href="#">Licenses</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="#">Releases</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="#">Survey</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="#">Privacy Policy</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="#">Terms and Conditions</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="#">Cookie Preferences</a>
+                </nav>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

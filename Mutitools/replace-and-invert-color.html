@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replace and Invert Color - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .color-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .color-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .color-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .color-picker {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .color-input {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .color-label {
+            font-weight: 500;
+            color: #495057;
+            min-width: 100px;
+        }
+        .color-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-container {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        .preview-box {
+            flex: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        .preview-image {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin: 1rem 0;
+        }
+        .invert-options {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .invert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .invert-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .invert-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .replace-options {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #ffeaa7;
+            margin: 1rem 0;
+        }
+        .replace-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .replace-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .replace-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .palette-color {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .palette-color:hover {
+            transform: scale(1.05);
+            border-color: #495057;
+        }
+        .palette-color.selected {
+            border-color: #a8edea;
+            border-width: 3px;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+        
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="color-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="color-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-palette"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Replace and Invert Color</h1>
+                            <p class="lead text-muted">Modify colors in your PDF documents with advanced color replacement and inversion options</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to modify colors</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Color Replacement Options -->
+                        <div class="replace-options" id="replaceOptions" style="display: none;">
+                            <h4 class="mb-3">Color Replacement Options</h4>
+                            <div class="replace-item">
+                                <div>
+                                    <div class="replace-label">Replace Specific Color</div>
+                                    <div class="replace-description">Replace a specific color with another color throughout the document</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="replaceSpecificColor" checked>
+                                </div>
+                            </div>
+                            <div class="replace-item">
+                                <div>
+                                    <div class="replace-label">Replace Color Range</div>
+                                    <div class="replace-description">Replace colors within a specific range or tolerance</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="replaceColorRange">
+                                </div>
+                            </div>
+                            <div class="replace-item">
+                                <div>
+                                    <div class="replace-label">Smart Color Detection</div>
+                                    <div class="replace-description">Automatically detect and suggest color replacements</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="smartColorDetection">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Color Picker Section -->
+                        <div class="color-options" id="colorOptions" style="display: none;">
+                            <h4 class="mb-3">Color Selection</h4>
+                            <div class="option-group">
+                                <div class="option-title">Original Color</div>
+                                <div class="option-description">Select the color you want to replace</div>
+                <div class="color-picker">
+                    <span class="color-label">From:</span>
+                    <input type="color" class="color-input" id="originalColor" value="#ff0000">
+                    <span class="text-muted">Red (#ff0000)</span>
+                </div>
+            </div>
+            <div class="option-group">
+                <div class="option-title">New Color</div>
+                <div class="option-description">Select the color you want to replace it with</div>
+                <div class="color-picker">
+                    <span class="color-label">To:</span>
+                    <input type="color" class="color-input" id="newColor" value="#0000ff">
+                    <span class="text-muted">Blue (#0000ff)</span>
+                </div>
+            </div>
+            <div class="option-group">
+                <div class="option-title">Color Tolerance</div>
+                <div class="option-description">Adjust how closely colors must match to be replaced</div>
+                <input type="range" class="form-range" id="colorTolerance" min="0" max="100" value="20">
+                <div class="d-flex justify-content-between">
+                    <small>Exact Match</small>
+                    <small>Loose Match</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Inversion Options -->
+        <div class="invert-options" id="invertOptions" style="display: none;">
+            <h4 class="mb-3">Color Inversion Options</h4>
+            <div class="invert-item">
+                <div>
+                    <div class="invert-label">Invert All Colors</div>
+                    <div class="invert-description">Invert all colors in the document (black becomes white, etc.)</div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="invertAllColors">
+                </div>
+            </div>
+            <div class="invert-item">
+                <div>
+                    <div class="invert-label">Invert Text Colors</div>
+                    <div class="invert-description">Only invert text colors while preserving background colors</div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="invertTextColors">
+                </div>
+            </div>
+            <div class="invert-item">
+                <div>
+                    <div class="invert-label">Invert Background Colors</div>
+                    <div class="invert-description">Only invert background colors while preserving text colors</div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="invertBackgroundColors">
+                </div>
+            </div>
+            <div class="invert-item">
+                <div>
+                    <div class="invert-label">Smart Inversion</div>
+                    <div class="invert-description">Intelligently invert colors to maintain readability</div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="smartInversion" checked>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Color Palette -->
+        <div class="color-options" id="quickPalette" style="display: none;">
+            <h4 class="mb-3">Quick Color Palette</h4>
+            <div class="option-description">Click on a color to quickly select it for replacement</div>
+            <div class="color-palette" id="colorPalette">
+                <!-- Colors will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Color Preview -->
+        <div class="color-preview" id="colorPreview" style="display: none;">
+            <h4 class="mb-3">Before & After Preview</h4>
+            <div class="preview-container">
+                <div class="preview-box">
+                    <div class="preview-title">Original PDF</div>
+                    <div class="preview-image">
+                        <i class="bi bi-file-pdf display-4"></i>
+                        <div>Original colors</div>
+                    </div>
+                    <small class="text-muted">With original color scheme</small>
+                </div>
+                <div class="preview-box">
+                    <div class="preview-title">Modified PDF</div>
+                    <div class="preview-image">
+                        <i class="bi bi-file-pdf display-4"></i>
+                        <div>Modified colors</div>
+                    </div>
+                    <small class="text-muted">With applied color changes</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+            <button class="btn process-btn btn-lg" id="processColorsBtn">
+                <i class="bi bi-palette"></i> Process Color Changes
+            </button>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <h5 class="mb-3">Processing Color Changes</h5>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="text-center mb-0" id="progressText">Initializing color processing...</p>
+        </div>
+
+        <!-- Success Section -->
+        <div class="success-alert" id="successSection" style="display: none;">
+            <h6><i class="bi bi-check-circle"></i> Colors Modified Successfully!</h6>
+            <p class="mb-3">Your PDF colors have been modified according to your specifications.</p>
+            <div class="text-center">
+                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                    <i class="bi bi-download"></i> Download Modified PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container text-center">
+        <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const pdfFile = document.getElementById('pdfFile');
+        const replaceOptions = document.getElementById('replaceOptions');
+        const colorOptions = document.getElementById('colorOptions');
+        const invertOptions = document.getElementById('invertOptions');
+        const quickPalette = document.getElementById('quickPalette');
+        const colorPreview = document.getElementById('colorPreview');
+        const actionButtons = document.getElementById('actionButtons');
+        const processColorsBtn = document.getElementById('processColorsBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const successSection = document.getElementById('successSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // Color inputs
+        const originalColor = document.getElementById('originalColor');
+        const newColor = document.getElementById('newColor');
+        const colorTolerance = document.getElementById('colorTolerance');
+        
+        // Upload area click handler
+        uploadArea.addEventListener('click', () => {
+            pdfFile.click();
+        });
+
+        // File selection handler
+        pdfFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    showColorInterface();
+                    
+                    // Update upload area
+                    uploadArea.innerHTML = `
+                        <div class="mb-3">
+                            <i class="bi bi-file-pdf display-1 text-success"></i>
+                        </div>
+                        <h4>${file.name}</h4>
+                        <p class="text-success">PDF file loaded successfully!</p>
+                    `;
+                } else {
+                    alert('Please select a valid PDF file.');
+                }
+            }
+        });
+
+        function showColorInterface() {
+            replaceOptions.style.display = 'block';
+            colorOptions.style.display = 'block';
+            invertOptions.style.display = 'block';
+            quickPalette.style.display = 'block';
+            colorPreview.style.display = 'block';
+            actionButtons.style.display = 'block';
+            
+            // Populate color palette
+            populateColorPalette();
+            
+            // Setup color change listeners
+            setupColorListeners();
+        }
+
+        function populateColorPalette() {
+            const colorPalette = document.getElementById('colorPalette');
+            colorPalette.innerHTML = '';
+            
+            const colors = [
+                '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+                '#ff8000', '#8000ff', '#00ff80', '#ff0080', '#800000', '#008000',
+                '#000080', '#808000', '#800080', '#008080', '#808080', '#ffffff'
+            ];
+            
+            colors.forEach(color => {
+                const colorElement = document.createElement('div');
+                colorElement.className = 'palette-color';
+                colorElement.style.backgroundColor = color;
+                colorElement.textContent = color;
+                
+                colorElement.addEventListener('click', () => {
+                    // Remove previous selection
+                    document.querySelectorAll('.palette-color.selected').forEach(el => el.classList.remove('selected'));
+                    // Select this color
+                    colorElement.classList.add('selected');
+                    // Set as original color
+                    originalColor.value = color;
+                    updateColorDisplay();
+                });
+                
+                colorPalette.appendChild(colorElement);
+            });
+        }
+
+        function setupColorListeners() {
+            originalColor.addEventListener('change', updateColorDisplay);
+            newColor.addEventListener('change', updateColorDisplay);
+            colorTolerance.addEventListener('input', updateToleranceDisplay);
+        }
+
+        function updateColorDisplay() {
+            const originalHex = originalColor.value;
+            const newHex = newColor.value;
+            
+            // Update color labels
+            originalColor.nextElementSibling.textContent = `Original (${originalHex})`;
+            newColor.nextElementSibling.textContent = `New (${newHex})`;
+        }
+
+        function updateToleranceDisplay() {
+            const tolerance = colorTolerance.value;
+            const toleranceText = tolerance < 20 ? 'Exact Match' : 
+                                tolerance < 50 ? 'Close Match' : 
+                                tolerance < 80 ? 'Loose Match' : 'Very Loose Match';
+            
+            // Update tolerance display if needed
+        }
+
+        // Process colors button handler
+        processColorsBtn.addEventListener('click', () => {
+            // Validate options
+            if (!document.getElementById('replaceSpecificColor').checked && 
+                !document.getElementById('invertAllColors').checked &&
+                !document.getElementById('invertTextColors').checked &&
+                !document.getElementById('invertBackgroundColors').checked) {
+                alert('Please select at least one color modification option.');
+                return;
+            }
+
+            // Hide action buttons
+            actionButtons.style.display = 'none';
+            
+            // Show progress section
+            progressSection.style.display = 'block';
+            
+            // Simulate color processing
+            simulateColorProcessing();
+        });
+
+        function simulateColorProcessing() {
+            const steps = [
+                { text: 'Analyzing PDF colors...', progress: 20 },
+                { text: 'Applying color replacements...', progress: 40 },
+                { text: 'Processing color inversions...', progress: 60 },
+                { text: 'Optimizing color changes...', progress: 80 },
+                { text: 'Finalizing modified PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        // Download button handler
+        downloadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Download functionality would be implemented here.');
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#fed6e3';
+            uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#a8edea';
+            uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#a8edea';
+            uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    const event = new Event('change');
+                    pdfFile.files = e.dataTransfer.files;
+                    pdfFile.dispatchEvent(event);
+                } else {
+                    alert('Please drop only PDF files.');
+                }
+            }
+        });
+    });
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

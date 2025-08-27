@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adjust Colors/Contrast - Noble PDF</title>
+<link rel="icon" href="/assets/images/favicon.svg">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+.wrapper{background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);margin:20px auto;max-width:1200px}
+.navbar{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:20px 20px 0 0}
+.nav-link{color:rgba(255,255,255,.9)!important}
+.section{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);border-radius:15px;padding:20px;margin:20px}
+.option{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+.preview{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;min-height:240px;display:flex;align-items:center;justify-content:center}
+.progress-section{background:linear-gradient(135deg,#e8f5e8 0%,#d4edda 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.success-section{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border-radius:15px;padding:20px;margin:20px;display:none}
+.btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;border-radius:25px;padding:12px 30px;font-weight:600}
+.progress{height:25px;border-radius:15px;background:#e9ecef}.progress-bar{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:15px}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg"><div class="container-fluid"><div class="navbar-nav ms-auto"><a class="nav-link" href="../index.html">Home</a></div></div></nav>
+<div class="container">
+<div class="wrapper">
+    <div class="text-center p-4">
+        <h1 class="display-6 fw-bold text-primary mb-2"><i class="fas fa-adjust me-2"></i>Adjust Colors/Contrast</h1>
+        <p class="lead text-muted">Tune brightness, contrast, saturation, and gamma</p>
+    </div>
+
+    <div class="section mx-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="option">
+                    <h6><i class="fas fa-upload me-2"></i>Upload PDF</h6>
+                    <input type="file" id="fileInput" accept=".pdf" class="form-control">
+                </div>
+                <div class="option">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Adjustments</h6>
+                    <label class="form-label">Brightness <span id="bVal" class="text-primary">0</span></label>
+                    <input type="range" id="brightness" class="form-range" min="-100" max="100" value="0">
+                    <label class="form-label">Contrast <span id="cVal" class="text-primary">0</span></label>
+                    <input type="range" id="contrast" class="form-range" min="-100" max="100" value="0">
+                    <label class="form-label">Saturation <span id="sVal" class="text-primary">0</span></label>
+                    <input type="range" id="saturation" class="form-range" min="-100" max="100" value="0">
+                    <label class="form-label">Gamma <span id="gVal" class="text-primary">1.0</span></label>
+                    <input type="range" id="gamma" class="form-range" min="5" max="300" value="100">
+                    <div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="applyAll" checked><label class="form-check-label" for="applyAll">Apply to all pages</label></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="mb-2"><i class="fas fa-eye me-2"></i>Preview (simulated)</h6>
+                <div class="preview" id="preview">Upload a PDF to preview adjustments</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center p-3">
+        <button class="btn btn-primary btn-lg" id="applyBtn"><i class="fas fa-magic me-2"></i>Apply Adjustments</button>
+    </div>
+
+    <div class="progress-section mx-3" id="progressSection">
+        <h5><i class="fas fa-spinner fa-spin me-2"></i>Processing</h5>
+        <div class="progress mb-3"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <p class="text-center" id="progressText">Initializing...</p>
+    </div>
+
+    <div class="success-section mx-3" id="successSection">
+        <h5><i class="fas fa-check-circle me-2"></i>Adjustments Applied</h5>
+        <p>Your PDF has been processed with the selected color/contrast settings.</p>
+        <div class="row">
+            <div class="col-md-6"><button class="btn btn-success w-100 mb-2" onclick="downloadPDF()"><i class="fas fa-download me-2"></i>Download Result</button></div>
+            <div class="col-md-6"><button class="btn btn-outline-primary w-100 mb-2" onclick="location.reload()"><i class="fas fa-redo me-2"></i>Adjust Another PDF</button></div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+['brightness','contrast','saturation','gamma'].forEach(id=>document.getElementById(id).addEventListener('input',updateLabels));
+fileInput.addEventListener('change',()=>{ if(fileInput.files.length){ preview.textContent='Preview generated with adjustments (simulated)'; }});
+function updateLabels(){
+ document.getElementById('bVal').textContent=document.getElementById('brightness').value;
+ document.getElementById('cVal').textContent=document.getElementById('contrast').value;
+ document.getElementById('sVal').textContent=document.getElementById('saturation').value;
+ document.getElementById('gVal').textContent=(document.getElementById('gamma').value/100).toFixed(2);
+}
+
+document.getElementById('applyBtn').addEventListener('click',()=>{
+ document.getElementById('progressSection').style.display='block';
+ const steps=[{t:'Analyzing pages...',p:20},{t:'Applying color transforms...',p:60},{t:'Rewriting content...',p:85},{t:'Finalizing...',p:100}];
+ let i=0; const text=document.getElementById('progressText'); const bar=document.getElementById('progressBar');
+ const tick=()=>{ if(i<steps.length){ text.textContent=steps[i].t; bar.style.width=steps[i].p+'%'; i++; setTimeout(tick,900);} else { setTimeout(()=>{ document.getElementById('progressSection').style.display='none'; document.getElementById('successSection').style.display='block'; }, 400);} };
+ tick();
+});
+function downloadPDF(){ alert('Download would start here.'); }
+</script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Image - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .add-image-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .add-image-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .image-upload-zone {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .image-upload-zone.dragover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .image-preview-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .image-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .image-item:hover {
+            border-color: #a8edea;
+            box-shadow: 0 5px 15px rgba(168, 237, 234, 0.1);
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .image-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .image-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .image-size {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .image-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 0.25rem 0.75rem;
+            color: #495057;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .action-btn.danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .action-btn.danger:hover {
+            background: #f1b0b7;
+            border-color: #ed969e;
+        }
+        
+        .image-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .option-group {
+            margin-bottom: 1rem;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        
+        .image-settings {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .image-position {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .position-cell {
+            aspect-ratio: 1;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-size: 1.5rem;
+        }
+        
+        .position-cell:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        
+        .position-cell.selected {
+            border-color: #a8edea;
+            background: #a8edea;
+            color: white;
+        }
+        
+        .image-stats {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #2196f3;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e3f2fd;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .image-quality {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .quality-slider {
+            margin: 1rem 0;
+        }
+        
+        .quality-value {
+            text-align: center;
+            font-weight: 600;
+            color: #a8edea;
+            margin-top: 0.5rem;
+        }
+        
+        .image-format {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .format-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .format-option:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        
+        .format-option.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+        }
+        
+        .format-icon {
+            font-size: 1.5rem;
+            color: #a8edea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="add-image-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="add-image-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Add Image</h1>
+                            <p class="lead text-muted">Insert images into your PDF documents with precise positioning and formatting</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here to add images</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Image Upload Zone -->
+                        <div class="image-upload-zone" id="imageUploadZone" style="display: none;">
+                            <div class="mb-3">
+                                <i class="bi bi-images file-type-icon"></i>
+                            </div>
+                            <h5>Drop images here to add</h5>
+                            <p class="text-muted">or click to browse image files</p>
+                            <input type="file" id="imageFiles" multiple accept="image/*" style="display: none;">
+                            <button class="btn btn-outline-primary mt-2" id="browseImagesBtn">
+                                <i class="bi bi-folder2-open"></i> Browse Images
+                            </button>
+                            <div class="mt-3">
+                                <small class="text-muted">Supported formats: JPG, PNG, GIF, BMP, TIFF, WebP, SVG</small>
+                            </div>
+                        </div>
+
+                        <!-- Image Statistics -->
+                        <div class="image-stats" id="imageStats" style="display: none;">
+                            <h6 class="mb-2">Image Summary</h6>
+                            <div class="stat-item">
+                                <span>Total Images:</span>
+                                <span id="totalImages">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Total Size:</span>
+                                <span id="totalSize">0 KB</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Image Types:</span>
+                                <span id="imageTypes">None</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview Grid -->
+                        <div class="image-preview-grid" id="imagePreviewGrid" style="display: none;">
+                            <h4 class="mb-3">Images to Add</h4>
+                            <div id="imagesContainer">
+                                <p class="text-muted text-center">No images added yet</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Settings -->
+                        <div class="image-settings" id="imageSettings" style="display: none;">
+                            <h6 class="mb-2">Default Image Settings</h6>
+                            <div class="setting-item">
+                                <span>Default Position:</span>
+                                <span id="defaultPosition">Center</span>
+                            </div>
+                            <div class="setting-item">
+                                <span>Default Size:</span>
+                                <span id="defaultSize">Auto-fit</span>
+                            </div>
+                            <div class="setting-item">
+                                <span>Default Quality:</span>
+                                <span id="defaultQuality">High</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Position -->
+                        <div class="image-position" id="imagePosition" style="display: none;">
+                            <h4 class="mb-3">Choose Image Position</h4>
+                            <div class="position-grid">
+                                <div class="position-cell" data-position="top-left">↖</div>
+                                <div class="position-cell" data-position="top-center">↑</div>
+                                <div class="position-cell" data-position="top-right">↗</div>
+                                <div class="position-cell" data-position="middle-left">←</div>
+                                <div class="position-cell" data-position="center">●</div>
+                                <div class="position-cell" data-position="middle-right">→</div>
+                                <div class="position-cell" data-position="bottom-left">↙</div>
+                                <div class="position-cell" data-position="bottom-center">↓</div>
+                                <div class="position-cell" data-position="bottom-right">↘</div>
+                            </div>
+                            <p class="text-muted text-center mt-2">Click on a position to place your images</p>
+                        </div>
+
+                        <!-- Image Quality -->
+                        <div class="image-quality" id="imageQuality" style="display: none;">
+                            <h4 class="mb-3">Image Quality Settings</h4>
+                            <div class="quality-slider">
+                                <label class="form-label">Compression Quality</label>
+                                <input type="range" class="form-range" id="qualitySlider" min="10" max="100" value="85">
+                                <div class="quality-value" id="qualityValue">85%</div>
+                                <small class="text-muted">Lower values = smaller file size, Higher values = better quality</small>
+                            </div>
+                        </div>
+
+                        <!-- Image Format -->
+                        <div class="image-format" id="imageFormat" style="display: none;">
+                            <h4 class="mb-3">Image Format Options</h4>
+                            <div class="format-option" data-format="auto">
+                                <div class="format-icon">
+                                    <i class="bi bi-gear"></i>
+                                </div>
+                                <div>
+                                    <strong>Auto-detect</strong>
+                                    <small class="d-block text-muted">Automatically choose best format</small>
+                                </div>
+                            </div>
+                            <div class="format-option" data-format="jpeg">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>JPEG</strong>
+                                    <small class="d-block text-muted">Best for photographs, smaller file size</small>
+                                </div>
+                            </div>
+                            <div class="format-option" data-format="png">
+                                <div class="format-icon">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div>
+                                    <strong>PNG</strong>
+                                    <small class="d-block text-muted">Best for graphics, supports transparency</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Options -->
+                        <div class="image-options" id="imageOptions" style="display: none;">
+                            <h4 class="mb-3">Image Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Image Size</label>
+                                        <select class="form-select" id="imageSize">
+                                            <option value="auto">Auto-fit to page</option>
+                                            <option value="custom">Custom size</option>
+                                            <option value="original">Original size</option>
+                                            <option value="percentage">Percentage of original</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="maintainAspectRatio" checked>
+                                            <label class="form-check-label" for="maintainAspectRatio">
+                                                Maintain aspect ratio
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <label class="form-label">Image Rotation</label>
+                                        <select class="form-select" id="imageRotation">
+                                            <option value="0">No rotation</option>
+                                            <option value="90">90° clockwise</option>
+                                            <option value="180">180°</option>
+                                            <option value="270">90° counter-clockwise</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="createThumbnails">
+                                            <label class="form-check-label" for="createThumbnails">
+                                                Create image thumbnails
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg" id="addImagesBtn">
+                                <i class="bi bi-image"></i> Add Images to PDF
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Adding Images to PDF</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Images Added Successfully!</h6>
+                            <p class="mb-3">Your PDF now includes all the selected images and is ready for download.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download PDF with Images
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const imageUploadZone = document.getElementById('imageUploadZone');
+            const imageFiles = document.getElementById('imageFiles');
+            const browseImagesBtn = document.getElementById('browseImagesBtn');
+            const imageStats = document.getElementById('imageStats');
+            const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+            const imagePosition = document.getElementById('imagePosition');
+            const imageQuality = document.getElementById('imageQuality');
+            const imageFormat = document.getElementById('imageFormat');
+            const imageOptions = document.getElementById('imageOptions');
+            const actionButtons = document.getElementById('actionButtons');
+            const addImagesBtn = document.getElementById('addImagesBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Position selection
+            const positionCells = document.querySelectorAll('.position-cell');
+            const formatOptions = document.querySelectorAll('.format-option');
+            const qualitySlider = document.getElementById('qualitySlider');
+            const qualityValue = document.getElementById('qualityValue');
+            
+            let images = [];
+            let totalSize = 0;
+            let selectedPosition = 'center';
+            let selectedFormat = 'auto';
+            let selectedQuality = 85;
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showImageInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showImageInterface() {
+                imageUploadZone.style.display = 'block';
+            }
+
+            // Browse images button
+            browseImagesBtn.addEventListener('click', () => {
+                imageFiles.click();
+            });
+
+            // Image files selection
+            imageFiles.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageFiles(e.target.files);
+                }
+            });
+
+            // Drag and drop for images
+            imageUploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUploadZone.classList.add('dragover');
+            });
+            
+            imageUploadZone.addEventListener('dragleave', () => {
+                imageUploadZone.classList.remove('dragover');
+            });
+            
+            imageUploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUploadZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+                    if (imageFiles.length > 0) {
+                        handleImageFiles(imageFiles);
+                    } else {
+                        alert('Please drop only image files.');
+                    }
+                }
+            });
+
+            function handleImageFiles(files) {
+                Array.from(files).forEach(file => {
+                    const image = {
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        url: URL.createObjectURL(file)
+                    };
+                    
+                    images.push(image);
+                    totalSize += file.size;
+                });
+                
+                updateImageStats();
+                updateImagePreview();
+                showImageOptions();
+            }
+
+            function updateImageStats() {
+                document.getElementById('totalImages').textContent = images.length;
+                document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+                
+                const types = [...new Set(images.map(img => img.type.split('/')[1].toUpperCase()))];
+                document.getElementById('imageTypes').textContent = types.join(', ');
+                
+                imageStats.style.display = 'block';
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            function updateImagePreview() {
+                const container = document.getElementById('imagesContainer');
+                
+                if (images.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center">No images added yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                images.forEach((image, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'image-item';
+                    item.innerHTML = `
+                        <img src="${image.url}" class="image-preview" alt="${image.name}">
+                        <div class="image-info">
+                            <div>
+                                <div class="image-name">${image.name}</div>
+                                <div class="image-size">${formatFileSize(image.size)} • ${image.type.split('/')[1].toUpperCase()}</div>
+                            </div>
+                            <div class="image-actions">
+                                <button class="action-btn" onclick="previewImage(${image.id})">
+                                    <i class="bi bi-eye"></i> Preview
+                                </button>
+                                <button class="action-btn danger" onclick="removeImage(${image.id})">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+                
+                imagePreviewGrid.style.display = 'block';
+            }
+
+            function showImageOptions() {
+                imagePosition.style.display = 'block';
+                imageQuality.style.display = 'block';
+                imageFormat.style.display = 'block';
+                imageOptions.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            // Position selection
+            positionCells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    positionCells.forEach(c => c.classList.remove('selected'));
+                    cell.classList.add('selected');
+                    selectedPosition = cell.dataset.position;
+                });
+            });
+
+            // Format selection
+            formatOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    formatOptions.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedFormat = option.dataset.format;
+                });
+            });
+
+            // Quality slider
+            qualitySlider.addEventListener('input', (e) => {
+                selectedQuality = e.target.value;
+                qualityValue.textContent = selectedQuality + '%';
+            });
+
+            // Global functions for image actions
+            window.previewImage = function(id) {
+                const image = images.find(img => img.id === id);
+                if (image) {
+                    const preview = `
+                        <div style="text-align: center;">
+                            <h6>${image.name}</h6>
+                            <img src="${image.url}" style="max-width: 100%; max-height: 300px; border-radius: 8px;" alt="Preview">
+                            <p class="text-muted mt-2">${formatFileSize(image.size)} • ${image.type.split('/')[1].toUpperCase()}</p>
+                        </div>
+                    `;
+                    
+                    // Show preview in a modal or replace content
+                    alert('Preview functionality would be implemented here.');
+                }
+            };
+
+            window.removeImage = function(id) {
+                if (confirm('Are you sure you want to remove this image?')) {
+                    const image = images.find(img => img.id === id);
+                    totalSize -= image.size;
+                    URL.revokeObjectURL(image.url);
+                    images = images.filter(img => img.id !== id);
+                    
+                    updateImageStats();
+                    updateImagePreview();
+                    
+                    if (images.length === 0) {
+                        imagePosition.style.display = 'none';
+                        imageQuality.style.display = 'none';
+                        imageFormat.style.display = 'none';
+                        imageOptions.style.display = 'none';
+                        actionButtons.style.display = 'none';
+                        imagePreviewGrid.style.display = 'none';
+                        imageStats.style.display = 'none';
+                    }
+                }
+            };
+
+            // Add images button handler
+            addImagesBtn.addEventListener('click', () => {
+                if (images.length === 0) {
+                    alert('Please add at least one image.');
+                    return;
+                }
+
+                // Hide other sections
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate image addition process
+                simulateImageAddition();
+            });
+
+            function simulateImageAddition() {
+                const steps = [
+                    { text: 'Preparing PDF document...', progress: 20 },
+                    { text: 'Processing images...', progress: 40 },
+                    { text: 'Optimizing image quality...', progress: 60 },
+                    { text: 'Inserting images into PDF...', progress: 80 },
+                    { text: 'Finalizing document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

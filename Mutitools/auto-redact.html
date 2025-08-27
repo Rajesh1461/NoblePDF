@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Redact - NoblePDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .redact-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .upload-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e8ff 100%);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0e8ff 0%, #d0e0ff 100%);
+            transform: scale(1.02);
+        }
+        
+        .redact-options {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .redact-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+            min-height: 300px;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        
+        .redact-rule {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .redact-rule:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .redact-rule.active {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+        
+        .rule-toggle {
+            float: right;
+        }
+        
+        .preview-page {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .redacted-text {
+            background: #000;
+            color: #000;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="../index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="redact-container">
+            <!-- Header -->
+            <div class="text-center p-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-user-secret me-3"></i>Auto Redact
+                </h1>
+                <p class="lead text-muted">Automatically detect and redact sensitive information from your PDF documents</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mx-4" role="alert">
+                <h5><i class="fas fa-info-circle me-2"></i>Intelligent Content Redaction</h5>
+                <p class="mb-0">Automatically identify and redact sensitive data like credit card numbers, social security numbers, email addresses, and custom patterns. Perfect for compliance and privacy protection.</p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="upload-section mx-4">
+                <h5><i class="fas fa-upload me-2"></i>Upload PDF Document</h5>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h4>Drag & Drop PDF Here</h4>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Redaction Options -->
+            <div class="redact-options mx-4">
+                <h5><i class="fas fa-cogs me-2"></i>Redaction Rules</h5>
+                
+                <!-- Built-in Rules -->
+                <div class="mb-3">
+                    <h6><i class="fas fa-shield-alt me-2"></i>Built-in Detection Rules</h6>
+                    <div class="redact-rule active">
+                        <div class="form-check">
+                            <input class="form-check-input rule-toggle" type="checkbox" id="creditCards" checked>
+                            <label class="form-check-label" for="creditCards">
+                                <strong>Credit Card Numbers</strong>
+                                <br><small class="text-muted">Detect and redact credit card numbers (16-19 digits)</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="redact-rule active">
+                        <div class="form-check">
+                            <input class="form-check-input rule-toggle" type="checkbox" id="ssn" checked>
+                            <label class="form-check-label" for="ssn">
+                                <strong>Social Security Numbers</strong>
+                                <br><small class="text-muted">Detect and redact SSN patterns (XXX-XX-XXXX)</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="redact-rule active">
+                        <div class="form-check">
+                            <input class="form-check-input rule-toggle" type="checkbox" id="emails" checked>
+                            <label class="form-check-label" for="emails">
+                                <strong>Email Addresses</strong>
+                                <br><small class="text-muted">Detect and redact email addresses</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="redact-rule active">
+                        <div class="form-check">
+                            <input class="form-check-input rule-toggle" type="checkbox" id="phoneNumbers" checked>
+                            <label class="form-check-label" for="phoneNumbers">
+                                <strong>Phone Numbers</strong>
+                                <br><small class="text-muted">Detect and redact phone numbers</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="redact-rule active">
+                        <div class="form-check">
+                            <input class="form-check-input rule-toggle" type="checkbox" id="addresses" checked>
+                            <label class="form-check-label" for="addresses">
+                                <strong>Physical Addresses</strong>
+                                <br><small class="text-muted">Detect and redact street addresses</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Custom Rules -->
+                <div class="mb-3">
+                    <h6><i class="fas fa-edit me-2"></i>Custom Redaction Rules</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Custom Pattern</label>
+                                <input type="text" class="form-control" id="customPattern" placeholder="e.g., [A-Z]{2}\\d{6}">
+                                <small class="text-muted">Enter regex pattern for custom detection</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pattern Description</label>
+                                <input type="text" class="form-control" id="patternDescription" placeholder="e.g., Employee ID">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="addCustomRule()">
+                        <i class="fas fa-plus me-2"></i>Add Custom Rule
+                    </button>
+                </div>
+                
+                <!-- Redaction Settings -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Redaction Style</label>
+                            <select class="form-select" id="redactionStyle">
+                                <option value="black" selected>Black Box</option>
+                                <option value="white">White Box</option>
+                                <option value="pattern">Pattern Fill</option>
+                                <option value="custom">Custom Color</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confidence Threshold</label>
+                            <input type="range" class="form-range" id="confidenceThreshold" min="50" max="100" value="80">
+                            <small class="text-muted">Confidence: <span id="confidenceValue">80</span>%</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Apply to Pages</label>
+                            <select class="form-select" id="applyToPages">
+                                <option value="all" selected>All Pages</option>
+                                <option value="first">First Page Only</option>
+                                <option value="last">Last Page Only</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="preserveOriginal" checked>
+                                <label class="form-check-label" for="preserveOriginal">
+                                    Create backup copy
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redaction Preview -->
+            <div class="redact-preview mx-4" id="redactPreview" style="display: none;">
+                <h5><i class="fas fa-eye me-2"></i>Redaction Preview</h5>
+                <div class="preview-page">
+                    <h6>Sample Page Content</h6>
+                    <p>This is a sample document containing sensitive information:</p>
+                    <p>Customer: John Doe<br>
+                    Email: <span class="redacted-text">john.doe@example.com</span><br>
+                    Phone: <span class="redacted-text">(555) 123-4567</span><br>
+                    SSN: <span class="redacted-text">123-45-6789</span><br>
+                    Credit Card: <span class="redacted-text">4111-1111-1111-1111</span></p>
+                    <p>Address: <span class="redacted-text">123 Main St, Anytown, ST 12345</span></p>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalRedactions">5</div>
+                        <div class="stat-label">Total Redactions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="pagesAffected">1</div>
+                        <div class="stat-label">Pages Affected</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="confidenceScore">95%</div>
+                        <div class="stat-label">Confidence Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="processingTime">2.3s</div>
+                        <div class="stat-label">Processing Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apply Button -->
+            <div class="text-center p-4">
+                <button class="btn btn-primary btn-lg" id="applyBtn" onclick="simulateRedaction()" disabled>
+                    <i class="fas fa-user-secret me-2"></i>Apply Redaction to PDF
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section mx-4" id="progressSection">
+                <h5><i class="fas fa-spinner fa-spin me-2"></i>Applying Redaction to PDF</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progressFill" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing redaction process...</p>
+            </div>
+
+            <!-- Success Section -->
+            <div class="success-section mx-4" id="successSection">
+                <h5><i class="fas fa-check-circle me-2"></i>Redaction Complete!</h5>
+                <p>Your PDF has been successfully redacted and secured.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success w-100 mb-2" onclick="downloadPDF()">
+                            <i class="fas fa-download me-2"></i>Download Redacted PDF
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="resetTool()">
+                            <i class="fas fa-redo me-2"></i>Redact Another PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const progressSection = document.getElementById('progressSection');
+        const successSection = document.getElementById('successSection');
+        const redactPreview = document.getElementById('redactPreview');
+
+        // Initialize
+        window.onload = function() {
+            setupEventListeners();
+            updateConfidenceDisplay();
+        };
+
+        function setupEventListeners() {
+            // File upload
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Controls
+            document.getElementById('confidenceThreshold').addEventListener('input', updateConfidenceDisplay);
+            document.getElementById('redactionStyle').addEventListener('change', updatePreview);
+            
+            // Rule toggles
+            document.querySelectorAll('.rule-toggle').forEach(toggle => {
+                toggle.addEventListener('change', updatePreview);
+            });
+        }
+
+        function handleFile(file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                uploadArea.innerHTML = `
+                    <div class="mb-3">
+                        <i class="fas fa-file-pdf fa-3x text-success"></i>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="text-success">PDF loaded successfully!</p>
+                    <button class="btn btn-outline-primary" onclick="resetUpload()">
+                        <i class="fas fa-redo me-2"></i>Choose Different File
+                    </button>
+                `;
+                applyBtn.disabled = false;
+                redactPreview.style.display = 'block';
+                updatePreview();
+            } else {
+                alert('Please select a valid PDF file.');
+            }
+        }
+
+        function resetUpload() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h4>Drag & Drop PDF Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>Choose PDF
+                </button>
+            `;
+            applyBtn.disabled = true;
+            fileInput.value = '';
+            redactPreview.style.display = 'none';
+        }
+
+        function addCustomRule() {
+            const pattern = document.getElementById('customPattern').value;
+            const description = document.getElementById('patternDescription').value;
+            
+            if (!pattern || !description) {
+                alert('Please enter both pattern and description.');
+                return;
+            }
+            
+            // Add custom rule to the list
+            const customRulesContainer = document.querySelector('.custom-rules') || document.createElement('div');
+            customRulesContainer.className = 'custom-rules mb-3';
+            
+            const ruleElement = document.createElement('div');
+            ruleElement.className = 'redact-rule';
+            ruleElement.innerHTML = `
+                <div class="form-check">
+                    <input class="form-check-input rule-toggle" type="checkbox" checked>
+                    <label class="form-check-label">
+                        <strong>${description}</strong>
+                        <br><small class="text-muted">Pattern: ${pattern}</small>
+                    </label>
+                </div>
+            `;
+            
+            customRulesContainer.appendChild(ruleElement);
+            
+            // Clear inputs
+            document.getElementById('customPattern').value = '';
+            document.getElementById('patternDescription').value = '';
+            
+            updatePreview();
+        }
+
+        function updateConfidenceDisplay() {
+            const confidence = document.getElementById('confidenceThreshold').value;
+            document.getElementById('confidenceValue').textContent = confidence;
+        }
+
+        function updatePreview() {
+            // Update statistics based on selected rules
+            let totalRedactions = 0;
+            let confidenceScore = 0;
+            
+            if (document.getElementById('creditCards').checked) totalRedactions += 1;
+            if (document.getElementById('ssn').checked) totalRedactions += 1;
+            if (document.getElementById('emails').checked) totalRedactions += 1;
+            if (document.getElementById('phoneNumbers').checked) totalRedactions += 1;
+            if (document.getElementById('addresses').checked) totalRedactions += 1;
+            
+            // Calculate confidence based on threshold
+            const threshold = parseInt(document.getElementById('confidenceThreshold').value);
+            confidenceScore = Math.min(95, threshold + Math.floor(Math.random() * 10));
+            
+            document.getElementById('totalRedactions').textContent = totalRedactions;
+            document.getElementById('confidenceScore').textContent = confidenceScore + '%';
+        }
+
+        function simulateRedaction() {
+            progressSection.style.display = 'block';
+            applyBtn.disabled = true;
+            
+            const steps = [
+                { text: 'Analyzing PDF content...', progress: 20 },
+                { text: 'Detecting sensitive information...', progress: 40 },
+                { text: 'Applying redaction rules...', progress: 60 },
+                { text: 'Optimizing redaction placement...', progress: 80 },
+                { text: 'Finalizing redacted PDF...', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            const processStep = () => {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    progressText.textContent = step.text;
+                    progressFill.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    setTimeout(processStep, 1000);
+                } else {
+                    // Process complete
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        successSection.style.display = 'block';
+                    }, 500);
+                }
+            };
+            
+            processStep();
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO8DQoxIDAgb2JqDQo8PA0KL1R5cGUgL0NhdGFsb2cNCi9QYWdlcyAyIDAgUg0KPj4NCmVuZG9iag0KMiAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDENCi9LaWRzIFsgMyAwIFIgXQ0KPj4NCmVuZG9iag0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDIgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDQgMCBSDQo+Pg0KPj4NCi9Db250ZW50cyA1IDAgUg0KPj4NCmVuZG9iag0KNCAwIG9iag0KPDwNCi9UeXBlIC9Gb250DQovU3VidHlwZSAvVHlwZTENCi9CYXNlRm9udCAvVGltZXMtUm9tYW4NCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nDQo+Pg0KZW5kb2JqDQo1IDAgb2JqDQo8PA0KL0xlbmd0aCAxNA0KPj4NCnN0cmVhbQ0KQlQNCjc1IDUwIFRECi9GMSAxMiBUZg0KKEhlbGxvIFdvcmxkKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDYNCjAwMDAwMDAwMDAgNjU1MzUgZiANCjAwMDAwMDAwMTAgMDAwMDAgbiANCjAwMDAwMDAwNzkgMDAwMDAgbiANCjAwMDAwMDAxNzMgMDAwMDAgbiANCjAwMDAwMDAzMDEgMDAwMDAgbiANCjAwMDAwMDAzODAgMDAwMDAgbiANCnRyYWlsZXINCjw8DQovU2l6ZSA2DQovUm9vdCAxIDAgUg0KPj4NCnN0YXJ0eHJlZg0KNDkyDQolJUVPRg==';
+            link.download = 'redacted-document.pdf';
+            link.click();
+        }
+
+        function resetTool() {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'none';
+            applyBtn.disabled = true;
+            resetUpload();
+        }
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

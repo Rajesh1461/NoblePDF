@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View/Edit PDF - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .view-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .view-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .pdf-viewer {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+            min-height: 400px;
+        }
+        .viewer-toolbar {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .toolbar-btn {
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: white;
+            color: #495057;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .toolbar-btn:hover {
+            background: #e9ecef;
+            border-color: #a8edea;
+        }
+        .pdf-content {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .edit-tools {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #2196f3;
+            margin: 1rem 0;
+        }
+        .tool-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .tool-option {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .tool-option:hover {
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+        .tool-icon {
+            font-size: 2rem;
+            color: #2196f3;
+            margin-bottom: 0.5rem;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+              
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="view-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="view-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-eye"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">View/Edit PDF</h1>
+                            <p class="lead text-muted">View, edit, and modify your PDF documents with powerful editing tools</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF here to view and edit</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- PDF.js default viewer embed -->
+                        <div class="pdf-viewer" id="pdfViewer" style="display: none;">
+                            <div class="viewer-toolbar d-flex align-items-center gap-2">
+                                <button class="toolbar-btn" id="openBtn" title="Open">
+                                    <i class="bi bi-folder2-open"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolSelect" title="Select/Move">
+                                    <i class="bi bi-cursor"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolText" title="Text">
+                                    <i class="bi bi-type"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolEraser" title="Eraser">
+                                    <i class="bi bi-eraser"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolCut" title="Cut (Ctrl+X)">
+                                    <i class="bi bi-scissors"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolCopy" title="Copy (Ctrl+C)">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <button class="toolbar-btn" id="toolPaste" title="Paste (Ctrl+V)">
+                                    <i class="bi bi-clipboard-plus"></i>
+                                </button>
+                                <div class="d-flex align-items-center gap-1 ms-2">
+                                    <button class="toolbar-btn" id="zoomOut" title="Zoom Out"><i class="bi bi-zoom-out"></i></button>
+                                    <span class="small" id="zoomLabel">100%</span>
+                                    <button class="toolbar-btn" id="zoomIn" title="Zoom In"><i class="bi bi-zoom-in"></i></button>
+                                </div>
+                                <button class="toolbar-btn ms-2" id="savePdfBtn" title="Save as PDF">
+                                    <i class="bi bi-save"></i>
+                                </button>
+                                <span class="text-muted small">Use tools to add text, zoom, and save</span>
+                            </div>
+                            <div class="pdf-content" id="pdfContent" style="height:70vh; padding:0; position:relative;">
+                                <iframe id="viewerFrame" title="PDF viewer" style="display:none; width:100%; height:100%; border:0;" loading="lazy"></iframe>
+                                <div id="viewerContainer" style="display:none; position:absolute; inset:0; width:100%; height:100%; overflow:auto; z-index:2; padding:1rem; gap:1rem;
+                                    background:rgba(0,0,0,0.02);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Tools -->
+                        <div class="edit-tools" id="editTools" style="display: none;">
+                            <h4 class="mb-3">Editing Tools</h4>
+                            <div class="tool-options">
+                                <div class="tool-option" data-tool="text">
+                                    <div class="tool-icon">
+                                        <i class="bi bi-type"></i>
+                                    </div>
+                                    <div class="tool-name">Edit Text</div>
+                                </div>
+                                <div class="tool-option" data-tool="image">
+                                    <div class="tool-icon">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                    <div class="tool-name">Edit Images</div>
+                                </div>
+                                <div class="tool-option" data-tool="annotations">
+                                    <div class="tool-icon">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <div class="tool-name">Add Annotations</div>
+                                </div>
+                                <div class="tool-option" data-tool="forms">
+                                    <div class="tool-icon">
+                                        <i class="bi bi-input-cursor"></i>
+                                    </div>
+                                    <div class="tool-name">Edit Forms</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-2" id="textToolControls" style="display:none;">
+                                <span class="small text-muted">Text:</span>
+                                <input type="color" id="textColor" value="#1f2937" title="Text color" class="form-control form-control-color" style="width:3rem; padding:0;">
+                                <input type="number" id="textSize" min="8" max="96" value="16" title="Font size (px)" class="form-control" style="width:6rem;">
+                                <select id="textWeight" class="form-select" style="width:8rem;">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="bold">Bold</option>
+                                </select>
+                                <select id="textFont" class="form-select" style="width:10rem;">
+                                    <option value="Helvetica" selected>Helvetica</option>
+                                    <option value="TimesRoman">Times</option>
+                                    <option value="Courier">Courier</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-secondary" id="textItalicBtn" title="Italic"><i class="bi bi-type-italic"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" id="textUnderlineBtn" title="Underline"><i class="bi bi-type-underline"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" id="exitTextModeBtn">Exit text mode</button>
+                                <span class="small text-muted">Click on page to place text. Select to move/edit.</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn process-btn btn-lg" id="saveChangesBtn">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Changes Saved Successfully!</h6>
+                            <p class="mb-3">Your PDF has been updated with all the modifications.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Modified PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const pdfViewer = document.getElementById('pdfViewer');
+            const viewerFrame = document.getElementById('viewerFrame');
+            const canvasWrap = document.getElementById('viewerContainer');
+            const editTools = document.getElementById('editTools');
+            const actionButtons = document.getElementById('actionButtons');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const saveChangesBtn = document.getElementById('saveChangesBtn');
+            const textToolControls = document.getElementById('textToolControls');
+            const textColorInput = document.getElementById('textColor');
+            const textSizeInput = document.getElementById('textSize');
+            const textWeightSelect = document.getElementById('textWeight');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const zoomLabel = document.getElementById('zoomLabel');
+            const toolTextBtn = document.getElementById('toolText');
+            const toolSelectBtn = document.getElementById('toolSelect');
+            const toolEraserBtn = document.getElementById('toolEraser');
+            const toolCutBtn = document.getElementById('toolCut');
+            const toolCopyBtn = document.getElementById('toolCopy');
+            const toolPasteBtn = document.getElementById('toolPaste');
+            const savePdfBtn = document.getElementById('savePdfBtn');
+            const textFontSelect = document.getElementById('textFont');
+            const textItalicBtn = document.getElementById('textItalicBtn');
+            const textUnderlineBtn = document.getElementById('textUnderlineBtn');
+            let isItalic = false;
+            let isUnderline = false;
+            
+            let pdfUrl = null;
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        pdfUrl = URL.createObjectURL(file);
+                        // Initialize in-page editor
+                        initEditor(pdfUrl);
+                        // Show edit tools and actions
+                        editTools.style.display = 'block';
+                        actionButtons.style.display = 'block';
+                        successSection.style.display = 'none';
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showViewerInterface() {
+                pdfViewer.style.display = 'block';
+            }
+
+            function loadInDefaultViewer(url) {}
+
+            // In-page editor with multi-page rendering
+            let currentScale = 1.0;
+            let pdfDoc = null;
+            async function initEditor(url) {
+                showViewerInterface();
+                viewerFrame.style.display = 'none';
+                canvasWrap.style.display = 'block';
+                    const { pdfjsLib } = window;
+                    const loadingTask = pdfjsLib.getDocument(url);
+                pdfDoc = await loadingTask.promise;
+                await renderAllPages();
+            }
+            async function renderAllPages() {
+                canvasWrap.innerHTML = '';
+                for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                    const page = await pdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: currentScale });
+                    const pageHost = document.createElement('div');
+                    pageHost.style.position = 'relative';
+                    pageHost.style.width = viewport.width + 'px';
+                    pageHost.style.height = viewport.height + 'px';
+                    pageHost.style.margin = '0 auto 1rem auto';
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.display = 'block';
+                    canvas.style.background = '#fff';
+                    const overlay = document.createElement('div');
+                    overlay.className = 'overlay';
+                    overlay.dataset.page = String(pageNum);
+                    overlay.style.position = 'absolute';
+                    overlay.style.left = '0';
+                    overlay.style.top = '0';
+                    overlay.style.width = '100%';
+                    overlay.style.height = '100%';
+                    overlay.style.pointerEvents = 'none';
+                    pageHost.appendChild(canvas);
+                    pageHost.appendChild(overlay);
+                    canvasWrap.appendChild(pageHost);
+                    await page.render({ canvasContext: ctx, viewport }).promise;
+                }
+            }
+
+            async function renderFirstPage(url) {}
+
+            // Basic text overlay editing
+            let activeTool = 'select';
+            let isTextMode = false;
+            let selectedEl = null;
+            let isDragging = false;
+            let dragOffset = { x: 0, y: 0 };
+            function clearSelection() {
+                if (selectedEl) {
+                    selectedEl.style.outline = '';
+                    selectedEl = null;
+                }
+            }
+            function enterTextMode() {
+                activeTool = 'text';
+                isTextMode = true;
+                textToolControls.style.display = 'flex';
+                canvasWrap.querySelectorAll('.overlay').forEach(o => o.style.pointerEvents = 'auto');
+                clearSelection();
+            }
+            function exitTextMode() {
+                activeTool = 'select';
+                isTextMode = false;
+                textToolControls.style.display = 'none';
+                // Allow selecting/moving spans in select mode
+                canvasWrap.querySelectorAll('.overlay').forEach(o => o.style.pointerEvents = 'auto');
+            }
+            toolTextBtn.addEventListener('click', enterTextMode);
+            toolSelectBtn.addEventListener('click', exitTextMode);
+            toolEraserBtn.addEventListener('click', () => { activeTool = 'eraser'; clearSelection(); });
+            // Add text on overlay click in text mode (direct edit box)
+            canvasWrap.addEventListener('click', (e) => {
+                if (!isTextMode) return;
+                const overlay = e.target.closest('.overlay');
+                if (!overlay) return;
+                const rect = overlay.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const span = document.createElement('span');
+                span.textContent = '';
+                span.contentEditable = true;
+                span.style.position = 'absolute';
+                span.style.left = x + 'px';
+                span.style.top = y + 'px';
+                span.style.color = textColorInput.value;
+                span.style.fontSize = (parseInt(textSizeInput.value, 10) || 16) + 'px';
+                span.style.fontWeight = textWeightSelect.value;
+                span.style.fontStyle = isItalic ? 'italic' : 'normal';
+                span.style.textDecoration = isUnderline ? 'underline' : 'none';
+                span.dataset.font = textFontSelect.value;
+                span.style.userSelect = 'text';
+                span.style.cursor = 'move';
+                span.style.background = '#ffffff';
+                span.dataset.mask = 'true';
+                span.style.padding = '2px 4px';
+                span.style.borderRadius = '4px';
+                overlay.appendChild(span);
+                // focus for direct editing
+                selectedEl = span;
+                span.style.outline = '2px dashed #2196f3';
+                const range = document.createRange();
+                range.selectNodeContents(span);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                span.focus();
+            });
+            // Double click existing text to edit its content
+            canvasWrap.addEventListener('dblclick', (e) => {
+                const span = e.target.closest('span');
+                if (!span || !span.parentElement?.classList.contains('overlay')) return;
+                selectedEl = span;
+                selectedEl.style.outline = '2px dashed #2196f3';
+                selectedEl.contentEditable = true;
+                const range = document.createRange();
+                range.selectNodeContents(selectedEl);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+            // Toggle italic/underline
+            textItalicBtn.addEventListener('click', () => {
+                isItalic = !isItalic;
+                textItalicBtn.classList.toggle('btn-primary', isItalic);
+                textItalicBtn.classList.toggle('btn-outline-secondary', !isItalic);
+                if (selectedEl) selectedEl.style.fontStyle = isItalic ? 'italic' : 'normal';
+            });
+            textUnderlineBtn.addEventListener('click', () => {
+                isUnderline = !isUnderline;
+                textUnderlineBtn.classList.toggle('btn-primary', isUnderline);
+                textUnderlineBtn.classList.toggle('btn-outline-secondary', !isUnderline);
+                if (selectedEl) selectedEl.style.textDecoration = isUnderline ? 'underline' : 'none';
+            });
+            // Live update formatting for selected element
+            textColorInput.addEventListener('input', () => { if (selectedEl) selectedEl.style.color = textColorInput.value; });
+            textSizeInput.addEventListener('input', () => { if (selectedEl) selectedEl.style.fontSize = (parseInt(textSizeInput.value, 10) || 16) + 'px'; });
+            textWeightSelect.addEventListener('change', () => { if (selectedEl) selectedEl.style.fontWeight = textWeightSelect.value; });
+            textFontSelect.addEventListener('change', () => { if (selectedEl) selectedEl.dataset.font = textFontSelect.value; });
+            // Eraser: click a text to remove
+            canvasWrap.addEventListener('click', (e) => {
+                if (activeTool !== 'eraser') return;
+                const span = e.target.closest('span');
+                if (span && span.parentElement?.classList.contains('overlay')) {
+                    span.remove();
+                }
+            });
+            // Selection and dragging in select mode
+            canvasWrap.addEventListener('mousedown', (e) => {
+                if (isTextMode) return; // only in select mode
+                const span = e.target.closest('span');
+                if (!span || !span.parentElement?.classList.contains('overlay')) return;
+                selectedEl = span;
+                selectedEl.style.outline = '2px dashed #2196f3';
+                const overlay = selectedEl.parentElement;
+                const rect = overlay.getBoundingClientRect();
+                const elLeft = parseFloat(selectedEl.style.left || '0');
+                const elTop = parseFloat(selectedEl.style.top || '0');
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                dragOffset.x = mouseX - elLeft;
+                dragOffset.y = mouseY - elTop;
+                isDragging = true;
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || !selectedEl) return;
+                const overlay = selectedEl.parentElement;
+                const rect = overlay.getBoundingClientRect();
+                const x = e.clientX - rect.left - dragOffset.x;
+                const y = e.clientY - rect.top - dragOffset.y;
+                selectedEl.style.left = Math.max(0, x) + 'px';
+                selectedEl.style.top = Math.max(0, y) + 'px';
+            });
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            // Click background to clear selection in select mode
+            canvasWrap.addEventListener('click', (e) => {
+                if (isTextMode || activeTool === 'eraser') return;
+                if (!e.target.closest('span')) {
+                    clearSelection();
+                }
+            });
+            // Delete key to remove selected element
+            document.addEventListener('keydown', (e) => {
+                const isCtrl = e.ctrlKey || e.metaKey;
+                if (selectedEl && (e.key === 'Delete' || e.key === 'Backspace')) {
+                    const toRemove = selectedEl;
+                    clearSelection();
+                    toRemove.remove();
+                    e.preventDefault();
+                    return;
+                }
+                if (isCtrl && e.key.toLowerCase() === 'c' && selectedEl) {
+                    clipboard = cloneSpan(selectedEl);
+                    e.preventDefault();
+                }
+                if (isCtrl && e.key.toLowerCase() === 'x' && selectedEl) {
+                    clipboard = cloneSpan(selectedEl);
+                    const toRemove = selectedEl;
+                    clearSelection();
+                    toRemove.remove();
+                    e.preventDefault();
+                }
+                if (isCtrl && e.key.toLowerCase() === 'v') {
+                    pasteClipboardAtSelection();
+                    e.preventDefault();
+                }
+            });
+            // Toolbar cut/copy/paste
+            let clipboard = null;
+            function cloneSpan(span) {
+                const copy = span.cloneNode(true);
+                copy.style.outline = '';
+                return copy;
+            }
+            function pasteClipboardAtSelection() {
+                if (!clipboard) return;
+                // Find target overlay: use selected element's overlay if exists, else first overlay in view
+                let targetOverlay = selectedEl?.parentElement;
+                if (!targetOverlay) {
+                    targetOverlay = canvasWrap.querySelector('.overlay');
+                }
+                if (!targetOverlay) return;
+                const pasted = cloneSpan(clipboard);
+                // Offset position slightly
+                const left = parseFloat(clipboard.style?.left || '0') + 10;
+                const top = parseFloat(clipboard.style?.top || '0') + 10;
+                pasted.style.left = left + 'px';
+                pasted.style.top = top + 'px';
+                targetOverlay.appendChild(pasted);
+                clearSelection();
+                selectedEl = pasted;
+                selectedEl.style.outline = '2px dashed #2196f3';
+            }
+            toolCopyBtn.addEventListener('click', () => { if (selectedEl) clipboard = cloneSpan(selectedEl); });
+            toolCutBtn.addEventListener('click', () => { if (selectedEl) { clipboard = cloneSpan(selectedEl); const r = selectedEl; clearSelection(); r.remove(); } });
+            toolPasteBtn.addEventListener('click', () => { pasteClipboardAtSelection(); });
+            zoomInBtn.addEventListener('click', async () => {
+                currentScale = Math.min(2.5, currentScale + 0.1);
+                zoomLabel.textContent = Math.round(currentScale * 100) + '%';
+                await renderAllPages();
+            });
+            zoomOutBtn.addEventListener('click', async () => {
+                currentScale = Math.max(0.5, currentScale - 0.1);
+                zoomLabel.textContent = Math.round(currentScale * 100) + '%';
+                await renderAllPages();
+            });
+            async function exportEditedPdf(filename = 'edited.pdf') {
+                if (!pdfDoc || !pdfUrl) return null;
+                const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
+                const existingPdfBytes = await (await fetch(pdfUrl)).arrayBuffer();
+                const pdf = await PDFDocument.load(existingPdfBytes);
+                const helvetica = await pdf.embedFont(StandardFonts.Helvetica);
+                const times = await pdf.embedFont(StandardFonts.TimesRoman);
+                const courier = await pdf.embedFont(StandardFonts.Courier);
+                const pages = pdf.getPages();
+                canvasWrap.querySelectorAll('.overlay').forEach((overlayEl) => {
+                    const pageIndex = parseInt(overlayEl.dataset.page, 10) - 1;
+                    const page = pages[pageIndex];
+                    const { height } = page.getSize();
+                    overlayEl.querySelectorAll('span').forEach(span => {
+                        const x = parseFloat(span.style.left);
+                        const yTop = parseFloat(span.style.top);
+                        const size = parseInt(span.style.fontSize, 10) || 16;
+                        const colorHex = span.style.color || '#000000';
+                        const r = parseInt(colorHex.slice(1,3), 16) / 255;
+                        const g = parseInt(colorHex.slice(3,5), 16) / 255;
+                        const b = parseInt(colorHex.slice(5,7), 16) / 255;
+                        const fontKey = span.dataset.font || 'Helvetica';
+                        const font = fontKey === 'TimesRoman' ? times : fontKey === 'Courier' ? courier : helvetica;
+                        const y = height - yTop - size;
+                        if (span.dataset.mask === 'true') {
+                            const textWidth = font.widthOfTextAtSize(span.textContent || '', size);
+                            page.drawRectangle({ x, y: y - 2, width: Math.max(10, textWidth + 6), height: size + 6, color: rgb(1,1,1) });
+                        }
+                        page.drawText(span.textContent || '', { x, y, size, font, color: rgb(r, g, b) });
+                        if (span.style.textDecoration === 'underline') {
+                            const textWidth = font.widthOfTextAtSize(span.textContent || '', size);
+                            const underlineY = y - 2;
+                            page.drawLine({ start: { x, y: underlineY }, end: { x: x + textWidth, y: underlineY }, thickness: 0.8, color: rgb(r, g, b) });
+                        }
+                    });
+                });
+                const pdfBytes = await pdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                // Also update success section button
+                if (downloadBtn) {
+                    downloadBtn.href = url;
+                    downloadBtn.download = filename;
+                }
+                return url;
+            }
+            savePdfBtn.addEventListener('click', async () => {
+                const url = await exportEditedPdf('edited.pdf');
+                if (url) {
+                    actionButtons.style.display = 'none';
+                    successSection.style.display = 'block';
+                }
+            });
+            downloadBtn?.addEventListener('click', async (e) => {
+                // Ensure a fresh export when pressing the big download button
+                e.preventDefault();
+                const url = await exportEditedPdf('edited.pdf');
+                if (url) {
+                    window.open(url, '_blank');
+                }
+            });
+            saveChangesBtn?.addEventListener('click', async () => {
+                const url = await exportEditedPdf('edited.pdf');
+                if (url) {
+                    actionButtons.style.display = 'none';
+                    successSection.style.display = 'block';
+                }
+            });
+
+            // Toolbar binding
+            document.getElementById('openBtn').addEventListener('click', () => pdfFile.click());
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

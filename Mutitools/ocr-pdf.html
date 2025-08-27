@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR / Cleanup Scans - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .ocr-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .ocr-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .process-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .ocr-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+        .option-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .language-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .language-option {
+            padding: 0.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .language-option:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .language-option.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+            color: #a8edea;
+        }
+        .cleanup-options {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .cleanup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        .cleanup-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .cleanup-description {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .preview-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .preview-box {
+            flex: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .preview-image {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin: 1rem 0;
+        }
+        .ocr-results {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .result-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            border: 1px solid #e9ecef;
+        }
+        .result-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .result-value {
+            color: #6c757d;
+            font-family: monospace;
+        }
+        .confidence-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .confidence-bar {
+            width: 100px;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+            transition: width 0.3s ease;
+        }
+        .text-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .quality-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .quality-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .page-selection {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .page-item {
+            width: 60px;
+            height: 80px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .page-item:hover {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .page-item.selected {
+            border-color: #a8edea;
+            background: rgba(168, 237, 234, 0.1);
+            color: #a8edea;
+        }
+        .page-item.has-text {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .page-item.no-text {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+          
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="ocr-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="ocr-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-text-paragraph"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">OCR / Cleanup Scans</h1>
+                            <p class="lead text-muted">Convert scanned documents to searchable text and clean up image quality</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your scanned PDF here for OCR processing</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- OCR Options -->
+                        <div class="ocr-options" id="ocrOptions" style="display: none;">
+                            <h4 class="mb-3">OCR Configuration</h4>
+                            
+                            <div class="option-group">
+                                <div class="option-title">Language Selection</div>
+                                <div class="option-description">Select the primary language(s) in your document for better accuracy</div>
+                                <div class="language-selector">
+                                    <div class="language-option selected" data-lang="en">English</div>
+                                    <div class="language-option" data-lang="es">Spanish</div>
+                                    <div class="language-option" data-lang="fr">French</div>
+                                    <div class="language-option" data-lang="de">German</div>
+                                    <div class="language-option" data-lang="it">Italian</div>
+                                    <div class="language-option" data-lang="pt">Portuguese</div>
+                                    <div class="language-option" data-lang="ru">Russian</div>
+                                    <div class="language-option" data-lang="zh">Chinese</div>
+                                    <div class="language-option" data-lang="ja">Japanese</div>
+                                    <div class="language-option" data-lang="ko">Korean</div>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <div class="option-title">OCR Quality</div>
+                                <div class="option-description">Balance between accuracy and processing speed</div>
+                                <input type="range" class="quality-slider" id="qualitySlider" min="1" max="3" value="2">
+                                <div class="quality-labels">
+                                    <span>Fast</span>
+                                    <span>Balanced</span>
+                                    <span>Accurate</span>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <div class="option-title">Page Selection</div>
+                                <div class="option-description">Choose which pages to process (default: all pages)</div>
+                                <div class="page-selection">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="pageSelection" id="allPages" value="all" checked>
+                                        <label class="form-check-label" for="allPages">
+                                            Process all pages
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="pageSelection" id="customPages" value="custom">
+                                        <label class="form-check-label" for="customPages">
+                                            Select specific pages
+                                        </label>
+                                    </div>
+                                    <div class="page-grid" id="pageGrid" style="display: none;">
+                                        <!-- Page grid will be populated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cleanup Options -->
+                        <div class="cleanup-options" id="cleanupOptions" style="display: none;">
+                            <h4 class="mb-3">Image Cleanup Options</h4>
+                            <div class="cleanup-item">
+                                <div>
+                                    <div class="cleanup-label">Deskew pages</div>
+                                    <div class="cleanup-description">Automatically straighten tilted or rotated pages</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="deskewPages" checked>
+                                </div>
+                            </div>
+                            <div class="cleanup-item">
+                                <div>
+                                    <div class="cleanup-label">Remove noise</div>
+                                    <div class="cleanup-description">Clean up speckles and artifacts from scanned images</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="removeNoise" checked>
+                                </div>
+                            </div>
+                            <div class="cleanup-item">
+                                <div>
+                                    <div class="cleanup-label">Enhance contrast</div>
+                                    <div class="cleanup-description">Improve text readability by adjusting brightness and contrast</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enhanceContrast" checked>
+                                </div>
+                            </div>
+                            <div class="cleanup-item">
+                                <div>
+                                    <div class="cleanup-label">Sharpen text</div>
+                                    <div class="cleanup-description">Make text characters more crisp and readable</div>
+                                </div>
+                                <div class="form-check-input" type="checkbox" id="sharpenText" checked>
+                                </div>
+                            </div>
+                            <div class="cleanup-item">
+                                <div>
+                                    <div class="cleanup-label">Remove borders</div>
+                                    <div class="cleanup-description">Automatically crop out page borders and margins</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="removeBorders">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn process-btn btn-lg" id="processOcrBtn">
+                                <i class="bi bi-text-paragraph"></i> Process OCR & Cleanup
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Processing Document</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing OCR process...</p>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="preview-section" id="previewSection" style="display: none;">
+                            <h4 class="mb-3">Before & After Preview</h4>
+                            <div class="preview-container">
+                                <div class="preview-box">
+                                    <div class="preview-title">Original Scan</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-image display-4"></i>
+                                        <div>Original scanned page</div>
+                                    </div>
+                                    <small class="text-muted">Low contrast, tilted, noisy</small>
+                                </div>
+                                <div class="preview-box">
+                                    <div class="preview-title">After Cleanup</div>
+                                    <div class="preview-image">
+                                        <i class="bi bi-image display-4"></i>
+                                        <div>Cleaned and enhanced</div>
+                                    </div>
+                                    <small class="text-muted">Enhanced, straightened, clean</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OCR Results -->
+                        <div class="ocr-results" id="ocrResults" style="display: none;">
+                            <h4 class="mb-3">OCR Processing Results</h4>
+                            
+                            <div class="result-stat">
+                                <span class="result-label">Pages Processed:</span>
+                                <span class="result-value">5</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-label">Text Extracted:</span>
+                                <span class="result-value">15,432 characters</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-label">Average Confidence:</span>
+                                <div class="confidence-indicator">
+                                    <span class="result-value">92%</span>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-label">Processing Time:</span>
+                                <span class="result-value">8.5 seconds</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-label">File Size Change:</span>
+                                <span class="result-value">+1.2 MB</span>
+                            </div>
+
+                            <div class="mt-4">
+                                <h6>Extracted Text Preview:</h6>
+                                <div class="text-preview">
+                                    <strong>Sample Business Report</strong><br><br>
+                                    This is a sample of the extracted text from the scanned document. 
+                                    The OCR process has successfully converted the scanned images into 
+                                    searchable and editable text content.<br><br>
+                                    <strong>Key Findings:</strong><br>
+                                    • Revenue increased by 15% compared to last quarter<br>
+                                    • Customer satisfaction scores improved to 4.8/5.0<br>
+                                    • New product line launched successfully<br><br>
+                                    The document has been processed with high accuracy and all text 
+                                    is now searchable within the PDF.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> OCR Processing Complete!</h6>
+                            <p class="mb-3">Your scanned document has been successfully converted to searchable text and cleaned up for better quality. The PDF now contains both the original images and searchable text layers.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download Processed PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const ocrOptions = document.getElementById('ocrOptions');
+            const cleanupOptions = document.getElementById('cleanupOptions');
+            const actionButtons = document.getElementById('actionButtons');
+            const processOcrBtn = document.getElementById('processOcrBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const previewSection = document.getElementById('previewSection');
+            const ocrResults = document.getElementById('ocrResults');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const pageGrid = document.getElementById('pageGrid');
+            
+            // Language selection
+            const languageOptions = document.querySelectorAll('.language-option');
+            let selectedLanguages = ['en'];
+
+            // Page selection
+            const pageSelectionRadios = document.querySelectorAll('input[name="pageSelection"]');
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showOptions();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                            <small class="text-muted">File size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showOptions() {
+                ocrOptions.style.display = 'block';
+                cleanupOptions.style.display = 'block';
+                actionButtons.style.display = 'block';
+                
+                // Populate page grid
+                populatePageGrid();
+            }
+
+            function populatePageGrid() {
+                pageGrid.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const pageItem = document.createElement('div');
+                    pageItem.className = 'page-item';
+                    pageItem.textContent = i;
+                    
+                    // Simulate some pages having text, some not
+                    if (i % 2 === 0) {
+                        pageItem.classList.add('has-text');
+                        pageItem.title = 'Page contains text';
+                    } else {
+                        pageItem.classList.add('no-text');
+                        pageItem.title = 'Page needs OCR';
+                    }
+                    
+                    pageItem.addEventListener('click', () => {
+                        pageItem.classList.toggle('selected');
+                    });
+                    
+                    pageGrid.appendChild(pageItem);
+                }
+            }
+
+            // Language selection
+            languageOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const lang = option.dataset.lang;
+                    
+                    if (selectedLanguages.includes(lang)) {
+                        if (selectedLanguages.length > 1) {
+                            selectedLanguages = selectedLanguages.filter(l => l !== lang);
+                            option.classList.remove('selected');
+                        }
+                    } else {
+                        selectedLanguages.push(lang);
+                        option.classList.add('selected');
+                    }
+                });
+            });
+
+            // Page selection radio buttons
+            pageSelectionRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.value === 'custom') {
+                        pageGrid.style.display = 'grid';
+                    } else {
+                        pageGrid.style.display = 'none';
+                    }
+                });
+            });
+
+            // Process OCR button handler
+            processOcrBtn.addEventListener('click', () => {
+                if (selectedLanguages.length === 0) {
+                    alert('Please select at least one language.');
+                    return;
+                }
+
+                // Hide action buttons
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate OCR process
+                simulateOcrProcess();
+            });
+
+            function simulateOcrProcess() {
+                const steps = [
+                    { text: 'Analyzing document structure...', progress: 20 },
+                    { text: 'Preprocessing images for cleanup...', progress: 40 },
+                    { text: 'Applying image enhancement...', progress: 60 },
+                    { text: 'Running OCR on text regions...', progress: 80 },
+                    { text: 'Finalizing processed document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1500);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            showResults();
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            function showResults() {
+                // Show preview section
+                previewSection.style.display = 'block';
+                
+                // Show OCR results
+                ocrResults.style.display = 'block';
+                
+                // Show success section
+                successSection.style.display = 'block';
+                
+                // Scroll to results
+                successSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#fed6e3';
+                uploadArea.style.background = 'rgba(254, 214, 227, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a8edea';
+                uploadArea.style.background = 'rgba(168, 237, 234, 0.05)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        // Simulate file selection
+                        const event = new Event('change');
+                        pdfFile.files = e.dataTransfer.files;
+                        pdfFile.dispatchEvent(event);
+                    } else {
+                        alert('Please drop only PDF files.');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

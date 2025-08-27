@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Metadata - Noble PDF</title>
+    <link rel="icon" href="/assets/images/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/navbar.css">
+    <link rel="stylesheet" href="/assets/css/general.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/theme/theme.css">
+    <style>
+        .change-metadata-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        .change-metadata-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-area {
+            border: 3px dashed #a8edea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(168, 237, 234, 0.05);
+        }
+        .upload-area:hover {
+            border-color: #fed6e3;
+            background: rgba(254, 214, 227, 0.1);
+            transform: translateY(-2px);
+        }
+        .metadata-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .metadata-field {
+            margin-bottom: 1rem;
+        }
+        .metadata-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .metadata-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .metadata-item:last-child {
+            border-bottom: none;
+        }
+        .metadata-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .metadata-value {
+            color: #6c757d;
+            font-family: monospace;
+        }
+        .convert-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #a8edea;
+            margin-bottom: 1rem;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #155724;
+        }
+        .metadata-tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0;
+        }
+        .nav-tabs .nav-link.active {
+            color: #a8edea;
+            background: none;
+            border-bottom: 2px solid #a8edea;
+        }
+        .tab-content {
+            padding: 1.5rem 0;
+        }
+        .metadata-group {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+        }
+        .group-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .group-icon {
+            color: #a8edea;
+        }
+        .form-check {
+            margin-bottom: 0.5rem;
+        }
+        .custom-metadata {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .custom-field {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        .custom-field input {
+            flex: 1;
+        }
+        .remove-field {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .add-field {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        .metadata-options {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        .option-group {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/Logo.png" alt="Noble PDF" height="40">
+                <span class="ms-2 fw-bold">Noble PDF</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+    
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="change-metadata-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="change-metadata-card p-5">
+                        <div class="text-center mb-5">
+                            <div class="feature-icon">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-primary mb-3">Change Metadata</h1>
+                            <p class="lead text-muted">Edit PDF document properties, information, and metadata with comprehensive customization options</p>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <div class="mb-3">
+                                <i class="bi bi-cloud-upload display-1 text-primary"></i>
+                            </div>
+                            <h4>Drop your PDF file here to edit metadata</h4>
+                            <p class="text-muted">or click to browse files</p>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Current Metadata Preview -->
+                        <div class="metadata-section" id="currentMetadata" style="display: none;">
+                            <h4 class="mb-3">Current PDF Metadata</h4>
+                            <div class="metadata-preview" id="metadataPreview">
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Title:</span>
+                                    <span class="metadata-value">Sample Document</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Author:</span>
+                                    <span class="metadata-value">John Doe</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Subject:</span>
+                                    <span class="metadata-value">Documentation</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Creator:</span>
+                                    <span class="metadata-value">Adobe Acrobat</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Producer:</span>
+                                    <span class="metadata-value">Adobe PDF Library</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Creation Date:</span>
+                                    <span class="metadata-value">2024-01-15</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Modification Date:</span>
+                                    <span class="metadata-value">2024-01-15</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Tabs -->
+                        <div class="metadata-tabs" id="metadataTabs" style="display: none;">
+                            <h4 class="mb-3">Edit Metadata</h4>
+                            <ul class="nav nav-tabs" id="metadataTabList" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                                        <i class="bi bi-info-circle"></i> Basic Info
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab">
+                                        <i class="bi bi-gear"></i> Advanced
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom" type="button" role="tab">
+                                        <i class="bi bi-pencil"></i> Custom Fields
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="metadataTabContent">
+                                <!-- Basic Info Tab -->
+                                <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                                    <div class="metadata-group">
+                                        <div class="group-title">
+                                            <i class="bi bi-file-text group-icon"></i>
+                                            Document Information
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Title</label>
+                                                    <input type="text" class="form-control" id="title" placeholder="Document Title">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Author</label>
+                                                    <input type="text" class="form-control" id="author" placeholder="Author Name">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Subject</label>
+                                                    <input type="text" class="form-control" id="subject" placeholder="Document Subject">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Keywords</label>
+                                                    <input type="text" class="form-control" id="keywords" placeholder="keyword1, keyword2, keyword3">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Creator</label>
+                                                    <input type="text" class="form-control" id="creator" placeholder="Application Name">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Producer</label>
+                                                    <input type="text" class="form-control" id="producer" placeholder="PDF Library">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Advanced Tab -->
+                                <div class="tab-pane fade" id="advanced" role="tabpanel">
+                                    <div class="metadata-group">
+                                        <div class="group-title">
+                                            <i class="bi bi-calendar group-icon"></i>
+                                            Date Information
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Creation Date</label>
+                                                    <input type="datetime-local" class="form-control" id="creationDate">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Modification Date</label>
+                                                    <input type="datetime-local" class="form-control" id="modificationDate">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Custom Date 1</label>
+                                                    <input type="datetime-local" class="form-control" id="customDate1">
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Custom Date 2</label>
+                                                    <input type="datetime-local" class="form-control" id="customDate2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metadata-group">
+                                        <div class="group-title">
+                                            <i class="bi bi-tag group-icon"></i>
+                                            Additional Properties
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Language</label>
+                                                    <select class="form-select" id="language">
+                                                        <option value="">Select Language</option>
+                                                        <option value="en">English</option>
+                                                        <option value="es">Spanish</option>
+                                                        <option value="fr">French</option>
+                                                        <option value="de">German</option>
+                                                        <option value="it">Italian</option>
+                                                        <option value="pt">Portuguese</option>
+                                                        <option value="ru">Russian</option>
+                                                        <option value="zh">Chinese</option>
+                                                        <option value="ja">Japanese</option>
+                                                        <option value="ko">Korean</option>
+                                                    </select>
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">PDF Version</label>
+                                                    <select class="form-select" id="pdfVersion">
+                                                        <option value="">Keep Original</option>
+                                                        <option value="1.3">PDF 1.3</option>
+                                                        <option value="1.4">PDF 1.4</option>
+                                                        <option value="1.5">PDF 1.5</option>
+                                                        <option value="1.6">PDF 1.6</option>
+                                                        <option value="1.7">PDF 1.7</option>
+                                                        <option value="2.0">PDF 2.0</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Page Layout</label>
+                                                    <select class="form-select" id="pageLayout">
+                                                        <option value="">Keep Original</option>
+                                                        <option value="SinglePage">Single Page</option>
+                                                        <option value="OneColumn">One Column</option>
+                                                        <option value="TwoColumnLeft">Two Column Left</option>
+                                                        <option value="TwoColumnRight">Two Column Right</option>
+                                                        <option value="TwoPageLeft">Two Page Left</option>
+                                                        <option value="TwoPageRight">Two Page Right</option>
+                                                    </select>
+                                                </div>
+                                                <div class="metadata-field">
+                                                    <label class="form-label">Initial View</label>
+                                                    <select class="form-select" id="initialView">
+                                                        <option value="">Keep Original</option>
+                                                        <option value="XYZ">XYZ</option>
+                                                        <option value="Fit">Fit</option>
+                                                        <option value="FitH">Fit Height</option>
+                                                        <option value="FitV">Fit Width</option>
+                                                        <option value="FitR">Fit Rectangle</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Fields Tab -->
+                                <div class="tab-pane fade" id="custom" role="tabpanel">
+                                    <div class="custom-metadata">
+                                        <h5 class="mb-3">Custom Metadata Fields</h5>
+                                        <div id="customFields">
+                                            <div class="custom-field">
+                                                <input type="text" class="form-control" placeholder="Field Name" id="customName1">
+                                                <input type="text" class="form-control" placeholder="Field Value" id="customValue1">
+                                                <button class="remove-field" onclick="removeCustomField(this)">×</button>
+                                            </div>
+                                        </div>
+                                        <button class="add-field" onclick="addCustomField()">
+                                            <i class="bi bi-plus"></i> Add Custom Field
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Options -->
+                        <div class="metadata-options" id="metadataOptions" style="display: none;">
+                            <h4 class="mb-3">Metadata Options</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="preserveOriginal" checked>
+                                            <label class="form-check-label" for="preserveOriginal">
+                                                Preserve original metadata as backup
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="updateTimestamps">
+                                            <label class="form-check-label" for="updateTimestamps">
+                                                Update modification timestamp
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="cleanEmptyFields">
+                                            <label class="form-check-label" for="cleanEmptyFields">
+                                                Remove empty metadata fields
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="optimizeForSearch">
+                                            <label class="form-check-label" for="optimizeForSearch">
+                                                Optimize metadata for search engines
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="addWatermark">
+                                            <label class="form-check-label" for="addWatermark">
+                                                Add metadata watermark
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="validateMetadata">
+                                            <label class="form-check-label" for="validateMetadata">
+                                                Validate metadata format
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display: none;">
+                            <button class="btn convert-btn btn-lg" id="updateMetadataBtn">
+                                <i class="bi bi-file-text"></i> Update PDF Metadata
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-section" id="progressSection" style="display: none;">
+                            <h5 class="mb-3">Updating PDF Metadata</h5>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">Initializing...</p>
+                        </div>
+
+                        <!-- Success Section -->
+                        <div class="success-alert" id="successSection" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Metadata Updated Successfully!</h6>
+                            <p class="mb-3">Your PDF metadata has been updated and is ready for download.</p>
+                            <div class="text-center">
+                                <a href="#" class="btn btn-success btn-lg" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download PDF with Updated Metadata
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Noble PDF. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/thirdParty/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfFile = document.getElementById('pdfFile');
+            const currentMetadata = document.getElementById('currentMetadata');
+            const metadataTabs = document.getElementById('metadataTabs');
+            const metadataOptions = document.getElementById('metadataOptions');
+            const actionButtons = document.getElementById('actionButtons');
+            const updateMetadataBtn = document.getElementById('updateMetadataBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const successSection = document.getElementById('successSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            let customFieldCount = 1;
+
+            // Upload area click handler
+            uploadArea.addEventListener('click', () => {
+                pdfFile.click();
+            });
+
+            // File selection handler
+            pdfFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                        showMetadataInterface();
+                        
+                        // Update upload area
+                        uploadArea.innerHTML = `
+                            <div class="mb-3">
+                                <i class="bi bi-file-pdf display-1 text-success"></i>
+                            </div>
+                            <h4>${file.name}</h4>
+                            <p class="text-success">PDF file loaded successfully!</p>
+                        `;
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                }
+            });
+
+            function showMetadataInterface() {
+                currentMetadata.style.display = 'block';
+                metadataTabs.style.display = 'block';
+                metadataOptions.style.display = 'block';
+                actionButtons.style.display = 'block';
+            }
+
+            // Add custom field
+            window.addCustomField = function() {
+                customFieldCount++;
+                const customFields = document.getElementById('customFields');
+                const newField = document.createElement('div');
+                newField.className = 'custom-field';
+                newField.innerHTML = `
+                    <input type="text" class="form-control" placeholder="Field Name" id="customName${customFieldCount}">
+                    <input type="text" class="form-control" placeholder="Field Value" id="customValue${customFieldCount}">
+                    <button class="remove-field" onclick="removeCustomField(this)">×</button>
+                `;
+                customFields.appendChild(newField);
+            };
+
+            // Remove custom field
+            window.removeCustomField = function(button) {
+                button.parentElement.remove();
+            };
+
+            // Update metadata button handler
+            updateMetadataBtn.addEventListener('click', () => {
+                // Hide other sections
+                actionButtons.style.display = 'none';
+                
+                // Show progress section
+                progressSection.style.display = 'block';
+                
+                // Simulate metadata update process
+                simulateMetadataUpdate();
+            });
+
+            function simulateMetadataUpdate() {
+                const steps = [
+                    { text: 'Reading PDF metadata...', progress: 20 },
+                    { text: 'Validating new metadata...', progress: 40 },
+                    { text: 'Updating document properties...', progress: 60 },
+                    { text: 'Optimizing metadata structure...', progress: 80 },
+                    { text: 'Finalizing document...', progress: 100 }
+                ];
+                
+                let currentStep = 0;
+                
+                const processStep = () => {
+                    if (currentStep < steps.length) {
+                        const step = steps[currentStep];
+                        progressText.textContent = step.text;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        currentStep++;
+                        setTimeout(processStep, 1000);
+                    } else {
+                        // Process complete
+                        setTimeout(() => {
+                            progressSection.style.display = 'none';
+                            successSection.style.display = 'block';
+                        }, 500);
+                    }
+                };
+                
+                processStep();
+            }
+
+            // Download button handler
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real app, this would trigger the actual download
+                alert('Download functionality would be implemented here.');
+            });
+        });
+    </script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>
