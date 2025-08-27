@@ -72,6 +72,12 @@
   }
 
   function buildFooterHtml() {
+    var isHttp = (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+    var path = window.location.pathname || '/';
+    var parts = path.split('/').filter(Boolean);
+    var depth = Math.max(parts.length - 1, 0);
+    var up = depth > 0 ? new Array(depth + 1).join('../') : '';
+    function href(p){ return isHttp ? ('/' + p) : (up + p); }
     return (
       '<footer class="footer-pad footer-solid" role="contentinfo" aria-label="Footer" style="height:48px;">' +
         '<div class="footer-content">' +
@@ -81,18 +87,18 @@
               '<img src="/assets/images/favicon.svg" alt="Noble PDF logo" width="16" height="16" />' +
               '<span>Noble PDF</span>' +
             '</div>' +
-            '<nav aria-label="Footer navigation" class="d-flex flex-wrap align-items-center" style="gap: 12px;">' +
-              '<a href="/licenses.html">Licenses</a>' +
+            '<nav aria-label="Footer navigation" class="d-flex flex-wrap align-items-center" style="gap: 12px; pointer-events:auto; position:relative; z-index:2147483647;">' +
+              '<a style="pointer-events:auto;" href="' + href('licenses.html') + '" onclick="window.location.href=this.href; return false;">Licenses</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="/releases.html">Releases</a>' +
+              '<a style="pointer-events:auto;" href="' + href('releases.html') + '" onclick="window.location.href=this.href; return false;">Releases</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="/survey.html">Survey</a>' +
+              '<a style="pointer-events:auto;" href="' + href('survey.html') + '" onclick="window.location.href=this.href; return false;">Survey</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="/privacy-policy.html">Privacy Policy</a>' +
+              '<a style="pointer-events:auto;" href="' + href('privacy-policy.html') + '" onclick="window.location.href=this.href; return false;">Privacy Policy</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="/terms-and-conditions.html">Terms and Conditions</a>' +
+              '<a style="pointer-events:auto;" href="' + href('terms-and-conditions.html') + '" onclick="window.location.href=this.href; return false;">Terms and Conditions</a>' +
               '<span aria-hidden="true">·</span>' +
-              '<a href="/cookie-preferences.html">Cookie Preferences</a>' +
+              '<a style="pointer-events:auto;" href="' + href('cookie-preferences.html') + '" onclick="window.location.href=this.href; return false;">Cookie Preferences</a>' +
             '</nav>' +
           '</div>' +
         '</div>' +
@@ -126,6 +132,19 @@
       var f = document.createElement('div');
       f.innerHTML = buildFooterHtml();
       document.body.appendChild(f.firstChild);
+      // Ensure footer links navigate even if some global handlers block default
+      try {
+        document.querySelectorAll('footer.footer-pad.footer-solid nav a[href]').forEach(function(a){
+          a.addEventListener('click', function(e){
+            var href = a.getAttribute('href');
+            if (href && !/^javascript:/i.test(href)) {
+              e.stopPropagation();
+              // Do not preventDefault; just ensure navigation happens
+              setTimeout(function(){ window.location.href = href; }, 0);
+            }
+          }, { capture: true });
+        });
+      } catch(_) {}
     }
   }
 
@@ -209,11 +228,15 @@
     ensureVisibility();
     ensureBasicSeo();
     ensureHreflangAlternates();
-    ensureLanguageScripts();
-    syncLanguageParamAndAttrs();
-    appendLangToLinks();
-    setupQuickNavHandlers();
-    buildLanguageMenu();
+    try { if (typeof window.ensureLanguageScripts === 'function') window.ensureLanguageScripts(); } catch(_) {}
+    try { if (typeof window.syncLanguageParamAndAttrs === 'function') window.syncLanguageParamAndAttrs(); } catch(_) {}
+    try { if (typeof window.appendLangToLinks === 'function') window.appendLangToLinks(); } catch(_) {}
+    try { if (typeof window.setupQuickNavHandlers === 'function') window.setupQuickNavHandlers(); } catch(_) {}
+    try { if (typeof window.buildLanguageMenu === 'function') window.buildLanguageMenu(); } catch(_) {}
+    // Extra safety: re-inject on window load in case early DOM timing prevented footer/header
+    try { window.addEventListener('load', injectLayout, { once: true }); } catch(_) {}
+    // Retry shortly after initial init
+    try { setTimeout(injectLayout, 50); } catch(_) {}
   }
 
   if (document.readyState === 'loading') {
