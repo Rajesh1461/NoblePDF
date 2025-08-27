@@ -52,7 +52,7 @@
             '<span class="material-symbols-rounded me-2">compress</span>' +
             '<span>Compress</span>' +
           '</a>' +
-          '<a href="/Mutitools/view-edit-pdf.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">' +
+          '<a href="/Mutitools/view-pdf.html" class="btn btn-outline-secondary quick-action-btn d-flex align-items-center">' +
             '<span class="material-symbols-rounded me-2">picture_as_pdf</span>' +
             '<span>View/Edit PDF</span>' +
           '</a>' +
